@@ -54,10 +54,9 @@ The project is configured to run in a Nix-based environment managed by Firebase 
   ```
 - **Running the Server:** The Flask development server can be started using the `web` preview task, which executes the `./devserver.sh` script. This script handles running the Flask development server on the correct port for the preview panel.
 - **Tooling:** The workspace is pre-configured with the official Microsoft Python extension for VS Code, providing features like linting, debugging, and IntelliSense. Depending on the template variation, it may also include the Thunder Client extension for testing API endpoints.
+- **Tools:** In the ./tools folder you have access to tools you can call to execute functions when prompted by the user. For instance, you can run `.venv/bin/python tools/agent_search_tool.py --query "latest developments in AI"`
 
 When providing assistance, assume this environment is set up. Remind the user to activate the virtual environment (`source .venv/bin/activate`) before running any `pip` or `python` commands in the terminal.
-
-You have access to goolge search.
 
 ## 5. OTHER Interaction Guidelines
 
