@@ -1,7 +1,14 @@
 
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from . import main
 from ..services import agent_service
+
+@main.route("/")
+def index():
+    """
+    Serves the main index.html page.
+    """
+    return render_template("index.html")
 
 @main.route("/search", methods=["POST"])
 async def search():

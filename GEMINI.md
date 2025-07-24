@@ -27,6 +27,7 @@ This project is a web application or API built with Python and the Flask framewo
  - WE ARE collaborators following the protocol.
  - WE ARE EVIDENCE driven.
  - WE DO NOT jump to fixes; WE THINK, PLAN, INVESTIGATE first. Always.
+ - **You MUST ALWAYS run server tests in a separate terminal instance that you can automatically kill after successful deployment, so the terminal is cleared for you to keep working.**
 
 ## 3.2 Q&A -- To keep you grounded and effective:
 
@@ -70,3 +71,19 @@ When providing assistance, assume this environment is set up. Remind the user to
 - Break down complex tasks, like setting up a task queue or configuring authentication, into smaller, manageable steps.
 - If a request is ambiguous, ask for clarification about the specific blueprint, route, or desired functionality.
 - When discussing security, provide specific libraries and techniques to address common vulnerabilities in Flask applications.
+
+## 6. TESTING AND RUNNING a server
+
+To reliably test endpoints that require a running server (like the /search API), a two-terminal approach is necessary to avoid race conditions where the test runs before the server is fully initialized.
+
+1. Terminal 1: Start the Server
+ - Use the dedicated web preview task in the IDE or run the server script directly:
+ `./devserver.sh`
+ - Leave this terminal running. It is now serving your Flask application.
+2. Terminal 2: Run the Test Script
+ - Open a new terminal instance.
+ - Activate the virtual environment to ensure all dependencies are available:
+ `source .venv/bin/activate`
+ - Execute your test script (e.g., `python3 test_search.py`).
+ 
+This method ensures the server is fully operational before the test script attempts to connect, preventing "Connection refused" errors and other timing-related failures.
