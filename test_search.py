@@ -5,7 +5,7 @@ def test_search_endpoint():
     """
     Tests the /search endpoint of the Flask application.
     """
-    url = "http://127.0.0.1:8080/search"  # Assuming the app is running on port 8080
+    url = "http://127.0.0.1:9002/search"  # Corrected port to match run_test_server.sh
     payload = {"query": "What is the capital of France?"}
 
     try:
