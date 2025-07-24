@@ -1,6 +1,16 @@
-# Dev environment
-pip
-autopep8
-
-# App
+# Web App & Server
 flask
+gunicorn
+google-generativeai
+
+# Search & Scraping Tool
+google-api-python-client
+beautifulsoup4
+lxml
+playwright
+
+# Environment
+python-dotenv
+
+# Others
+huggingface_hub
