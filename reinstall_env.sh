@@ -1,16 +1,15 @@
 #!/bin/bash
 #
 # This script performs a factory reinstall of the Python virtual environment.
-# It now uses `nix-shell .idx/dev.nix` to explicitly load the correct
-# environment configuration for the IDX platform.
+# This version corrects the nix-shell command to properly evaluate the
+# .idx/dev.nix configuration file by passing the required 'pkgs' argument.
 
 echo "--- Starting IDX Environment Factory Reset ---"
 echo "This will build the environment from '.idx/dev.nix' and then set up Python."
 
-# We explicitly point nix-shell to the correct configuration file for the IDX environment.
-# The --run flag executes the provided string of commands inside that new shell.
-# `set -e` ensures that the script will exit immediately if any command fails.
-nix-shell .idx/dev.nix --run "
+# We use --arg to explicitly pass the nixpkgs set as the 'pkgs' argument
+# to the function inside our .idx/dev.nix file. This resolves the error.
+nix-shell .idx/dev.nix --arg pkgs "import <nixpkgs> {}" --run "
   set -e
 
   echo

@@ -40,5 +40,14 @@
     pkgs.xorg.libXrandr
     pkgs.xorg.libXrender
     pkgs.xorg.libXtst
+
+    # NEW: Added ALSA library for sound support (libasound.so.2)
+    pkgs.alsa-lib
+    # NEW: Added XCB library (libxcb.so.1)
+    pkgs.xorg.libxcb
+      
+    # NEW: Added NSPR library for nss dependency (libnspr4.so)
+    pkgs.nspr
+
   ];
 }
