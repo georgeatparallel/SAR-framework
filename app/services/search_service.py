@@ -11,7 +11,7 @@ SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
 def perform_google_search(query: str, limit: int = 5) -> list:
     """Performs a Google search and returns a list of results."""
     try:
-        service = build("customsearch", "v1", developerKey=GOOGLE_API_KEY)
+        service = build("customsearch", "v1", developerKey=GOOGLE_API_KEY, cache_discovery=False)
         result = service.cse().list(q=query, cx=SEARCH_ENGINE_ID, num=limit).execute()
         return result.get("items", [])
     except Exception as e:
