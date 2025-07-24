@@ -1,5 +1,6 @@
+
 # Web App & Server
-flask
+Flask[async]
 gunicorn
 google-generativeai
 
@@ -14,3 +15,4 @@ python-dotenv
 
 # Others
 huggingface_hub
+requests
