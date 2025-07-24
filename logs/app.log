@@ -188,3 +188,5 @@
 [2025-07-24 16:49:00,634] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:49:00] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
 [2025-07-24 16:49:00,722] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:49:00] "GET /?monospaceUid=301797 HTTP/1.1" 200 -
 [2025-07-24 16:49:00,788] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:49:00] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
+[2025-07-24 16:50:24,276] INFO in _internal:  * Detected change in '/home/user/prometheus/.venv/lib/python3.11/site-packages/_distutils_hack/__init__.py', reloading
+[2025-07-24 16:50:24,681] INFO in _internal:  * Restarting with stat

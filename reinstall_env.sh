@@ -1,35 +1,65 @@
 #!/bin/bash
 #
 # This script performs a factory reinstall of the Python virtual environment.
-# It ensures a clean state by removing the old environment, reinstalling
-# all dependencies, and setting up Playwright.
+# It now uses `nix-shell` to ensure that all commands are run inside the
+# environment defined by `default.nix`, which provides the necessary system
+# libraries for Playwright.
 
-echo "--- Starting Environment Factory Reset ---"
+echo "--- Starting Nix-based Environment Factory Reset ---"
+echo "This will build the environment from 'default.nix' and then set up Python."
 
-# Check if the virtual environment directory exists
-if [ -d ".venv" ]; then
-    echo "[1/4] Removing existing virtual environment..."
-    rm -rf .venv
-    echo "      -> Done."
+# The `nix-shell` command starts a new shell configured by default.nix.
+# The --run flag executes the provided string of commands inside that new shell.
+# `set -e` ensures that the script will exit immediately if any command fails.
+nix-shell --run "
+  set -e
+
+  echo
+  echo '[0/5] Identifying Operating System...'
+  if [ -f /etc/os-release ]; then
+    cat /etc/os-release
+  else
+    echo 'Cannot find /etc/os-release. OS could not be identified.'
+  fi
+  echo '      -> Done.'
+
+  echo
+  echo '[1/5] Removing existing virtual environment...'
+  rm -rf .venv
+  echo '      -> Done.'
+
+  echo
+  echo '[2/5] Creating a new Python virtual environment...'
+  python3 -m venv .venv
+  echo '      -> Done.'
+
+  echo
+  echo '[3/5] Activating environment and installing dependencies from requirements.txt...'
+  # We must source the venv activate script within this sub-shell
+  source .venv/bin/activate
+  pip install -r requirements.txt
+  echo '      -> Done.'
+
+  echo
+  echo '[4/5] Installing Playwright browser binaries...'
+  # The venv is already active, so we can call playwright directly.
+  playwright install
+  echo '      -> Done.'
+
+  echo
+  echo '[5/5] Verifying Playwright browser dependencies...'
+  ldd ~/.cache/ms-playwright/chromium-1181/chrome-linux/chrome | grep 'not found' || echo 'All browser dependencies appear to be met.'
+  echo '      -> Done.'
+
+
+  echo
+  echo '--- Environment Factory Reset Complete! ---'
+  echo 'The virtual environment has been recreated inside the correct Nix environment.'
+"
+
+# Check the exit code of the nix-shell command
+if [ $? -eq 0 ]; then
+  echo "Script completed successfully."
 else
-    echo "[1/4] No existing virtual environment found. Skipping removal."
+  echo "An error occurred during the Nix environment setup. Please review the logs." >&2
 fi
-
-# Create a new virtual environment
-echo "[2/4] Creating a new Python virtual environment..."
-python3 -m venv .venv
-echo "      -> Done."
-
-# Activate the new environment and install dependencies
-echo "[3/4] Activating the environment and installing dependencies from requirements.txt..."
-source .venv/bin/activate && pip install -r requirements.txt
-echo "      -> Done."
-
-# Install Playwright's browser binaries
-echo "[4/4] Installing Playwright browser binaries..."
-source .venv/bin/activate && playwright install
-echo "      -> Done."
-
-echo "
---- Environment Factory Reset Complete! ---"
-echo "The virtual environment has been recreated and all dependencies are installed."

@@ -1,32 +1,44 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://developers.google.com/idx/guides/customize-idx-env
+# .idx/dev.nix
+# This is the official configuration file for the Firebase IDX environment.
+# The IDX platform reads this file on startup to provision the workspace
+# with the specified system-level Nix packages.
+
 { pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
-  # Use https://search.nixos.org/packages to find packages
-  packages = [ pkgs.python3 ];
-  idx = {
-    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
-    extensions = [ "ms-python.python" ];
-    workspace = {
-      # Runs when a workspace is first created with this `dev.nix` file
-      onCreate = {
-        install =
-          "python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt";
-        # Open editors for the following files by default, if they exist:
-        default.openFiles = [ "README.md" "src/index.html" "main.py" ];
-      }; # To run something each time the workspace is (re)started, use the `onStart` hook
-    };
-    # Enable previews and customize configuration
-    previews = {
-      enable = true;
-      previews = {
-        web = {
-          command = [ "./devserver.sh" ];
-          env = { PORT = "$PORT"; };
-          manager = "web";
-        };
-      };
-    };
-  };
+  # The list of packages to make available in the environment's PATH.
+  packages = [
+    # 1. Base Python environment
+    pkgs.python3
+
+    # 2. System-level dependencies required by Playwright's browsers.
+    pkgs.at-spi2-atk
+    pkgs.cairo
+    pkgs.cups
+    pkgs.dbus
+    pkgs.expat
+    pkgs.gdk-pixbuf
+    pkgs.glib
+    pkgs.gtk3
+    pkgs.libdrm
+    pkgs.libepoxy
+    pkgs.libglvnd
+    pkgs.libxkbcommon
+    pkgs.mesa
+    pkgs.nss
+    pkgs.pango
+    pkgs.pipewire
+    pkgs.udev
+
+    # 3. Corrected X.Org (X11) libraries, which are under the 'xorg' attribute set.
+    pkgs.xorg.libX11
+    pkgs.xorg.libXScrnSaver
+    pkgs.xorg.libXcomposite
+    pkgs.xorg.libXcursor
+    pkgs.xorg.libXdamage
+    pkgs.xorg.libXext
+    pkgs.xorg.libXfixes
+    pkgs.xorg.libXi
+    pkgs.xorg.libXrandr
+    pkgs.xorg.libXrender
+    pkgs.xorg.libXtst
+  ];
 }
