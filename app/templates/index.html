@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,46 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agentic Search</title>
     <style>
-        body { font-family: sans-serif; margin: 2em; }
-        .container { max-width: 800px; margin: 0 auto; }
-        #response, #history { white-space: pre-wrap; background: #f4f4f4; padding: 1em; margin-top: 1em; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 2em; 
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 2em;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0056b3;
+        }
+        form {
+            display: flex;
+            margin-bottom: 2em;
+        }
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 0.5em;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        button {
+            padding: 0.5em 1em;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            margin-left: 0.5em;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results-container { 
+            margin-top: 1em; 
+            padding: 1em;
+            background: #f4f4f4;
+            border-radius: 4px;
+        }
+        .conversation-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .conversation-list li {
+            margin-bottom: 1em;
+            padding: 1em;
+            border-left: 4px solid #007bff;
+            background-color: #ffffff;
+        }
+        .conversation-list li strong {
+            display: block;
+            margin-bottom: 0.5em;
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Agentic Search</h1>
         <form id="search-form">
-            <input type="text" id="query" placeholder="Enter your search query" size="50">
+            <input type="text" id="query" name="query" placeholder="Enter your search query" required>
             <button type="submit">Search</button>
         </form>
-        <h2>Response</h2>
-        <pre id="response">The agent's final response will appear here.</pre>
-        <h2>Conversation History</h2>
-        <pre id="history">The agent's conversation history will appear here.</pre>
+        
+        <div id="results-container">
+            <p>Search results will appear here.</p>
+        </div>
     </div>
-    <script>
-        document.getElementById('search-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const query = document.getElementById('query').value;
-            const responseContainer = document.getElementById('response');
-            const historyContainer = document.getElementById('history');
 
-            responseContainer.textContent = 'Thinking...';
-            historyContainer.textContent = '';
-
-            const res = await fetch('/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: query })
-            });
-
-            const data = await res.json();
-
-            responseContainer.textContent = data.response || JSON.stringify(data, null, 2);
-            if (data.history) {
-                historyContainer.textContent = JSON.stringify(data.history, null, 2);
-            }
-        });
-    </script>
+    <script src="/static/main.js"></script>
 </body>
 </html>

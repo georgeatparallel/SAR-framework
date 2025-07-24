@@ -1,6 +1,7 @@
 
 import os
 import json
+import logging
 import google.generativeai as genai
 from . import search_service
 
@@ -10,6 +11,7 @@ if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in .env file")
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-pro')
+logger = logging.getLogger(__name__)
 
 
 # --- Agent Functions ---
@@ -18,16 +20,16 @@ async def searcher_agent(query: str) -> dict:
     """
     Calls the search service to get search results with content.
     """
-    print(f"  [Searcher Agent] Performing search for: '{query}'")
+    logger.info(f"Searcher Agent: Starting search for query: '{query}'")
     results = await search_service.search_and_fetch_content(query)
-    print(f"  [Searcher Agent] Found {len(results.get('results', []))} results.")
+    logger.info(f"Searcher Agent: Found {len(results.get('results', []))} results.")
     return results
 
 def analyzer_agent(query: str, search_results: dict, feedback: str = None) -> str:
     """
     Analyzes search results using the Gemini model, optionally incorporating feedback.
     """
-    print("  [Analyzer Agent] Analyzing search results.")
+    logger.info("Analyzer Agent: Analyzing search results.")
     
     # Base prompt
     prompt = f"""
@@ -39,7 +41,7 @@ def analyzer_agent(query: str, search_results: dict, feedback: str = None) -> st
 
     # Add rework feedback if provided
     if feedback:
-        print(f"Analyzer Agent: Incorporating feedback: {feedback}")
+        logger.info(f"Analyzer Agent: Incorporating feedback: {feedback}")
         prompt += f"""
         The previous analysis was reviewed and requires rework. Please revise your answer based on the following feedback:
         Feedback: "{feedback}"
@@ -48,13 +50,14 @@ def analyzer_agent(query: str, search_results: dict, feedback: str = None) -> st
     prompt += "Based on all the provided information, construct a comprehensive answer."
     
     response = model.generate_content(prompt)
+    logger.info("Analyzer Agent: Analysis complete.")
     return response.text
 
 def reviewer_agent(query: str, analysis: str) -> str:
     """
     Reviews the analysis and provides feedback for completion or iteration.
     """
-    print("Reviewer Agent: Reviewing the analysis.")
+    logger.info("Reviewer Agent: Reviewing the analysis.")
     prompt = f"""
     You are the Reviewer Agent. Your role is to assess the quality of the generated answer based on the user's original query.
     User Query: "{query}"
@@ -68,6 +71,7 @@ def reviewer_agent(query: str, analysis: str) -> str:
     - `NEEDS_MORE_INFO: [Formulate a new, more specific search query to find the missing information.]`: If the answer is good but requires additional information that was not in the initial search results.
     """
     response = model.generate_content(prompt)
+    logger.info(f"Reviewer Agent: Review complete. Command: {response.text.strip()}")
     return response.text.strip()
 
 
@@ -77,46 +81,54 @@ async def run_agentic_pipeline(initial_query: str):
     """
     The main orchestration for the agentic pipeline, now with state management and iteration.
     """
+    logger.info(f"--- Starting Agentic Pipeline for query: '{initial_query}' ---")
     query = initial_query
     feedback = None
     conversation_history = []
     
     max_iterations = 3
     for i in range(max_iterations):
-        print(f"--- Iteration {i+1} ---")
+        logger.info(f"--- Pipeline Iteration {i+1} ---")
         conversation_history.append({"iteration": i + 1, "steps": []})
 
         # 1. Call Searcher
-        # The searcher only runs if we don't have feedback for rework (which implies we use existing data)
         if feedback is None:
+            logger.info("Pipeline: Calling Searcher Agent.")
             search_results = await searcher_agent(query)
             if not search_results.get("results"):
+                logger.error("Pipeline: Could not fetch search results.")
                 return {"error": "Could not fetch search results.", "history": conversation_history}
             conversation_history[-1]["steps"].append({"agent": "Searcher", "query": query, "results_count": len(search_results.get("results", []))})
         else:
-             # On a rework, we re-use the previous search results
+             logger.info("Pipeline: Skipping Searcher Agent for rework.")
              conversation_history[-1]["steps"].append({"agent": "Searcher", "action": "Skipped, using previous results for rework."})
 
 
         # 2. Call Analyzer
+        logger.info("Pipeline: Calling Analyzer Agent.")
         analysis = analyzer_agent(initial_query, search_results, feedback=feedback)
         conversation_history[-1]["steps"].append({"agent": "Analyzer", "feedback_received": feedback, "analysis": analysis})
         feedback = None # Reset feedback after use
 
         # 3. Call Reviewer
+        logger.info("Pipeline: Calling Reviewer Agent.")
         review = reviewer_agent(initial_query, analysis)
         conversation_history[-1]["steps"].append({"agent": "Reviewer", "review": review})
-        print(f"Reviewer Command: {review}")
 
         if review.startswith("COMPLETE"):
+            logger.info("Pipeline: Reviewer returned COMPLETE. Finalizing.")
             return {"response": analysis, "history": conversation_history}
         elif review.startswith("NEEDS_REWORK"):
             feedback = review.split(":", 1)[1].strip()
+            logger.info(f"Pipeline: Reviewer requested rework. Feedback: {feedback}")
         elif review.startswith("NEEDS_MORE_INFO"):
             query = review.split(":", 1)[1].strip()
+            logger.info(f"Pipeline: Reviewer requested more info. New query: {query}")
         else:
+            logger.error(f"Pipeline: Unknown command from Reviewer: {review}")
             return {"error": f"Unknown command from Reviewer: {review}", "history": conversation_history}
 
+    logger.warning("Pipeline: Max iterations reached.")
     final_analysis = analyzer_agent(initial_query, search_results)
     return {
         "response": "Max iterations reached. Returning the best analysis so far.", 

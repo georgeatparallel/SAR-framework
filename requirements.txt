@@ -1,14 +1,17 @@
-
 # Web App & Server
 Flask[async]
 gunicorn
 google-generativeai
 
 # Search & Scraping Tool
-google-api-python-client
+google-api-python-client==2.88.0
 beautifulsoup4
 lxml
 playwright
+oauth2client==4.1.3
+httplib2
+google-auth-httplib2
+google-auth-oauthlib
 
 # Environment
 python-dotenv

@@ -29,7 +29,7 @@ This project is a web application or API built with Python and the Flask framewo
  - WE DO NOT jump to fixes; WE THINK, PLAN, INVESTIGATE first. Always.
  - **You MUST ALWAYS run server tests in a separate terminal instance that you can automatically kill after successful deployment, so the terminal is cleared for you to keep working.**
 
-## 3.2 Q&A -- To keep you grounded and effective:
+### 3.2 Q&A -- To keep you grounded and effective:
 
 1. **Q: Protocol Flexibility**. In the event that our interaction seems to be drifting from protocol (e.g., jumping to solutions prematurely), would you prefer I: Prompt a pause and explicitly point it out?
     - **A**: Hard breaks are allowed; never fear my emotional response—only success and results drive our work.
@@ -74,16 +74,33 @@ When providing assistance, assume this environment is set up. Remind the user to
 
 ## 6. TESTING AND RUNNING a server
 
-To reliably test endpoints that require a running server (like the /search API), a two-terminal approach is necessary to avoid race conditions where the test runs before the server is fully initialized.
+To ensure a clean, reliable, and non-blocking development workflow, we use a two-terminal system for running and testing the server. This prevents "port already in use" errors and allows you to interact with the application while the server is running.
 
-1. Terminal 1: Start the Server
- - Use the dedicated web preview task in the IDE or run the server script directly:
- `./devserver.sh`
- - Leave this terminal running. It is now serving your Flask application.
-2. Terminal 2: Run the Test Script
- - Open a new terminal instance.
- - Activate the virtual environment to ensure all dependencies are available:
- `source .venv/bin/activate`
- - Execute your test script (e.g., `python3 test_search.py`).
- 
-This method ensures the server is fully operational before the test script attempts to connect, preventing "Connection refused" errors and other timing-related failures.
+**The scripts (`run_test_server.sh` and `kill_server.sh`) automate this process.**
+
+### Terminal 1: Running the Server
+
+1.  **Start the server:** In your first terminal, run the test server script:
+    ```bash
+    ./run_test_server.sh
+    ```
+2.  **What it does:**
+    *   Assigns a **random, available port** to the Flask server.
+    *   Starts the Flask development server in the background.
+    *   Prints the port number and the server's Process ID (PID).
+    *   Saves the PID to a hidden `.server.pid` file so it can be terminated later.
+
+The server is now running, and your terminal is free for other commands.
+
+### Terminal 2: Stopping the Server
+
+1.  **Stop the server:** When you are finished testing, open a **second terminal** and run the kill script:
+    ```bash
+    ./kill_server.sh
+    ```
+2.  **What it does:**
+    *   Reads the PID from the `.server.pid` file.
+    *   Terminates the correct server process.
+    *   Deletes the `.server.pid` file, cleaning up the environment.
+
+This protocol ensures that you never have to manually find and kill server processes, streamlining the development and testing cycle.
