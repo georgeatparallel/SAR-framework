@@ -94,3 +94,97 @@
 [2025-07-24 16:36:46,642] INFO in agent_service: Searcher Agent: Starting search for query: 'What is the capital of France?'
 [2025-07-24 16:36:46,653] INFO in __init__: file_cache is only supported with oauth2client<4.0.0
 [2025-07-24 16:36:47,676] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:36:47] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-24 16:38:07,118] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/search_service.py', reloading
+[2025-07-24 16:38:07,776] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:38:08,914] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:38:08,926] INFO in _internal:  * Debugger PIN: 429-694-543
+[2025-07-24 16:38:16,862] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:22067
+[2025-07-24 16:38:16,863] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-07-24 16:38:16,865] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:38:17,907] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:38:17,913] INFO in _internal:  * Debugger PIN: 429-694-543
+[2025-07-24 16:38:19,438] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:38:19] "GET / HTTP/1.1" 200 -
+[2025-07-24 16:38:19,492] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:38:19] "GET /static/main.js HTTP/1.1" 200 -
+[2025-07-24 16:38:21,043] INFO in agent_service: --- Starting Agentic Pipeline for query: 'What is the capital of France?' ---
+[2025-07-24 16:38:21,043] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-24 16:38:21,043] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-24 16:38:21,043] INFO in agent_service: Searcher Agent: Starting search for query: 'What is the capital of France?'
+[2025-07-24 16:38:22,025] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:38:22] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-24 16:38:40,766] INFO in agent_service: --- Starting Agentic Pipeline for query: 'what is the most common drink in bulgaria' ---
+[2025-07-24 16:38:40,767] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-24 16:38:40,767] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-24 16:38:40,768] INFO in agent_service: Searcher Agent: Starting search for query: 'what is the most common drink in bulgaria'
+[2025-07-24 16:38:41,997] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:38:41] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-24 16:39:36,151] INFO in agent_service: --- Starting Agentic Pipeline for query: 'What is the capital of France?' ---
+[2025-07-24 16:39:36,151] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-24 16:39:36,151] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-24 16:39:36,151] INFO in agent_service: Searcher Agent: Starting search for query: 'What is the capital of France?'
+[2025-07-24 16:39:37,169] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:39:37] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-24 16:40:48,695] INFO in _internal:  * Detected change in '/home/user/prometheus/test_search.py', reloading
+[2025-07-24 16:40:49,040] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:40:50,077] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:40:50,083] INFO in _internal:  * Debugger PIN: 429-694-543
+[2025-07-24 16:40:55,766] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:52269
+[2025-07-24 16:40:55,767] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-07-24 16:40:55,768] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:40:56,824] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:40:56,829] INFO in _internal:  * Debugger PIN: 429-694-543
+[2025-07-24 16:40:57,288] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:40:57] "GET / HTTP/1.1" 200 -
+[2025-07-24 16:40:57,344] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:40:57] "GET /static/main.js HTTP/1.1" 200 -
+[2025-07-24 16:40:59,302] INFO in agent_service: --- Starting Agentic Pipeline for query: 'What is the capital of France?' ---
+[2025-07-24 16:40:59,302] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-24 16:40:59,302] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-24 16:40:59,302] INFO in agent_service: Searcher Agent: Starting search for query: 'What is the capital of France?'
+[2025-07-24 16:41:00,298] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:41:00] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-24 16:42:14,243] INFO in _internal:  * Detected change in '/home/user/prometheus/.venv/lib/python3.11/site-packages/_distutils_hack/__init__.py', reloading
+[2025-07-24 16:42:14,595] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:42:39,396] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:40609
+[2025-07-24 16:42:39,396] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-07-24 16:42:39,397] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:42:40,419] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:42:40,424] INFO in _internal:  * Debugger PIN: 429-694-543
+[2025-07-24 16:42:43,309] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:42:43] "GET / HTTP/1.1" 200 -
+[2025-07-24 16:42:43,360] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:42:43] "GET /static/main.js HTTP/1.1" 200 -
+[2025-07-24 16:42:43,763] INFO in agent_service: --- Starting Agentic Pipeline for query: 'What is the capital of France?' ---
+[2025-07-24 16:42:43,763] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-24 16:42:43,763] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-24 16:42:43,763] INFO in agent_service: Searcher Agent: Starting search for query: 'What is the capital of France?'
+[2025-07-24 16:42:45,421] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:42:45] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-24 16:43:22,258] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:9002
+[2025-07-24 16:43:22,259] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-07-24 16:43:22,261] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:43:23,294] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:43:23,303] INFO in _internal:  * Debugger PIN: 429-694-543
+[2025-07-24 16:43:23,331] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:43:23] "GET /?monospaceUid=51870 HTTP/1.1" 200 -
+[2025-07-24 16:43:23,387] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:43:23] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
+[2025-07-24 16:43:26,112] INFO in agent_service: --- Starting Agentic Pipeline for query: 'what is the most common drink in bulgaria' ---
+[2025-07-24 16:43:26,113] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-24 16:43:26,113] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-24 16:43:26,113] INFO in agent_service: Searcher Agent: Starting search for query: 'what is the most common drink in bulgaria'
+[2025-07-24 16:43:27,714] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:43:27] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-24 16:47:01,639] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:47:01] "GET /?monospaceUid=0 HTTP/1.1" 200 -
+[2025-07-24 16:47:01,707] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:47:01] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
+[2025-07-24 16:47:02,269] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:47:02] "GET /?monospaceUid=483046 HTTP/1.1" 200 -
+[2025-07-24 16:47:02,345] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:47:02] "GET /static/main.js HTTP/1.1" 200 -
+[2025-07-24 16:47:39,116] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:9002
+[2025-07-24 16:47:39,116] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-07-24 16:47:39,118] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:47:40,360] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:47:40,374] INFO in _internal:  * Debugger PIN: 429-694-543
+[2025-07-24 16:47:43,370] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:47:43] "GET /?monospaceUid=223386 HTTP/1.1" 200 -
+[2025-07-24 16:47:43,423] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:47:43] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
+[2025-07-24 16:48:49,278] INFO in _internal: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:9002
+[2025-07-24 16:48:49,285] INFO in _internal: [33mPress CTRL+C to quit[0m
+[2025-07-24 16:48:49,294] INFO in _internal:  * Restarting with stat
+[2025-07-24 16:48:53,042] WARNING in _internal:  * Debugger is active!
+[2025-07-24 16:48:53,110] INFO in _internal:  * Debugger PIN: 131-535-064
+[2025-07-24 16:49:00,576] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:49:00] "GET /?monospaceUid=0 HTTP/1.1" 200 -
+[2025-07-24 16:49:00,634] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:49:00] "[36mGET /static/main.js HTTP/1.1[0m" 304 -
+[2025-07-24 16:49:00,722] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:49:00] "GET /?monospaceUid=301797 HTTP/1.1" 200 -
+[2025-07-24 16:49:00,788] INFO in _internal: 127.0.0.1 - - [24/Jul/2025 16:49:00] "[36mGET /static/main.js HTTP/1.1[0m" 304 -

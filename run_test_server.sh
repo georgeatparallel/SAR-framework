@@ -1,6 +1,7 @@
 #!/bin/bash
-# Generate a random port number between 1024 and 49151
-PORT=$((RANDOM % 48128 + 1024))
+# Find an available port and save it to a file
+PORT=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+echo $PORT > .port
 
 echo "Starting server on port $PORT"
 
