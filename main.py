@@ -1,15 +1,16 @@
+
 import os
+import logging
+from app import create_app
+import random
 
-from flask import Flask, send_file
+# Configure logging
+logging.basicConfig(filename='app.log', level=logging.DEBUG, 
+                    format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
-app = Flask(__name__)
+app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
-@app.route("/")
-def index():
-    return send_file('src/index.html')
+port_id = random.randint(1000, 9999)
 
-def main():
-    app.run(port=int(os.environ.get('PORT', 80)))
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    app.run(port=int(os.environ.get('PORT', port_id)))

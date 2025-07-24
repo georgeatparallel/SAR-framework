@@ -1,0 +1,74 @@
+ * Serving Flask app 'app'
+ * Debug mode: on
+Address * Detected change in '/home/user/prometheus/main.py', reloading
+1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 976, in ensure_sync
+    return self.async_to_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/.venv/lib/python3.11/site-packages/flask/app.py", line 997, in async_to_sync
+    raise RuntimeError(
+RuntimeError: Install Flask with the 'async' extra in order to use async views.
+ * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:56:59,209 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:56:59,214 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:56:59,826 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:56:59,832 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:57:25,133 INFO werkzeug MainThread :  * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:57:25,502 INFO werkzeug MainThread :  * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:57:26,976 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:57:26,988 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:57:27,452 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:57:27,457 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:57:28,062 INFO werkzeug MainThread :  * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:57:29,222 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:57:29,238 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:57:36,352 INFO werkzeug MainThread :  * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:57:36,593 INFO werkzeug MainThread :  * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:57:39,824 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:57:39,830 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:57:43,898 INFO werkzeug MainThread :  * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:57:45,160 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:57:45,172 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:57:47,216 INFO werkzeug MainThread :  * Detected change in '/home/user/prometheus/main.py', reloading
+2025-07-24 15:57:48,406 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:57:48,417 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:57:59,016 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5756
+2025-07-24 15:57:59,016 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2025-07-24 15:57:59,017 INFO werkzeug MainThread :  * Restarting with stat
+2025-07-24 15:57:59,963 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:57:59,974 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:58:01,154 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [24/Jul/2025 15:58:01] "[33mGET / HTTP/1.1[0m" 404 -
+2025-07-24 15:59:13,821 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:9317
+2025-07-24 15:59:13,821 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2025-07-24 15:59:13,823 INFO werkzeug MainThread :  * Restarting with stat
+2025-07-24 15:59:15,033 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:59:15,040 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:59:15,467 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [24/Jul/2025 15:59:15] "[33mGET / HTTP/1.1[0m" 404 -
+2025-07-24 15:59:43,646 INFO werkzeug MainThread : [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:1309
+2025-07-24 15:59:43,646 INFO werkzeug MainThread : [33mPress CTRL+C to quit[0m
+2025-07-24 15:59:43,647 INFO werkzeug MainThread :  * Restarting with stat
+2025-07-24 15:59:44,640 WARNING werkzeug MainThread :  * Debugger is active!
+2025-07-24 15:59:44,649 INFO werkzeug MainThread :  * Debugger PIN: 429-694-543
+2025-07-24 15:59:45,019 INFO werkzeug Thread-2 (process_request_thread) : 127.0.0.1 - - [24/Jul/2025 15:59:45] "[33mGET / HTTP/1.1[0m" 404 -
