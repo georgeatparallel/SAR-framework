@@ -1,17 +1,16 @@
 #!/bin/bash
 #
 # This script performs a factory reinstall of the Python virtual environment.
-# It now uses `nix-shell` to ensure that all commands are run inside the
-# environment defined by `default.nix`, which provides the necessary system
-# libraries for Playwright.
+# It now uses `nix-shell .idx/dev.nix` to explicitly load the correct
+# environment configuration for the IDX platform.
 
-echo "--- Starting Nix-based Environment Factory Reset ---"
-echo "This will build the environment from 'default.nix' and then set up Python."
+echo "--- Starting IDX Environment Factory Reset ---"
+echo "This will build the environment from '.idx/dev.nix' and then set up Python."
 
-# The `nix-shell` command starts a new shell configured by default.nix.
+# We explicitly point nix-shell to the correct configuration file for the IDX environment.
 # The --run flag executes the provided string of commands inside that new shell.
 # `set -e` ensures that the script will exit immediately if any command fails.
-nix-shell --run "
+nix-shell .idx/dev.nix --run "
   set -e
 
   echo
