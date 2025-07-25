@@ -1,6 +1,12 @@
 
 import requests
 import os
+from app.config import logging_config
+import logging
+
+# --- 1. SETUP LOGGING ---
+logging_config.setup_logging()
+logger = logging.getLogger(__name__)
 
 def test_search_endpoint():
     """
@@ -11,7 +17,8 @@ def test_search_endpoint():
             port = f.read().strip()
         
         url = f"http://127.0.0.1:{port}/search"
-        payload = {"query": "What is the capital of France?"}
+        #payload = {"query": "How many municipalities are in Region Metropolitana, Chile?"}
+        payload = {"query": "What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?"}
 
         response = requests.post(url, json=payload)
         response.raise_for_status()  # Raise an exception for bad status codes
