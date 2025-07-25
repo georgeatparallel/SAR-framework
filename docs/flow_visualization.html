@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Pipeline Blueprint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Fallback RGB. Will be overridden by theme classes. */
+            --highlight-rgb: 107, 114, 128; 
+            --arrow-color: #94a3b8; /* slate-400 */
+            --arrow-width: 2.5;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .arrow-path {
+            stroke: var(--arrow-color);
+            stroke-width: var(--arrow-width);
+            fill: none;
+            transition: stroke 0.5s ease-in-out, stroke-width 0.3s ease-in-out;
+        }
+        .marker-end { marker-end: url(#arrowhead); }
+        #arrowhead polygon {
+            fill: var(--arrow-color);
+            transition: fill 0.5s ease-in-out;
+        }
+        .card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transform: scale(1);
+        }
+        .card-container.is-active .card {
+            transform: scale(1.03);
+            border-color: rgb(var(--highlight-rgb));
+            background-color: rgba(var(--highlight-rgb), 0.1);
+            box-shadow: 0 10px 15px -3px rgba(var(--highlight-rgb), 0.3), 0 4px 6px -2px rgba(var(--highlight-rgb), 0.2);
+        }
+
+        /* Color Themes */
+        .highlight-blue {
+            --highlight-rgb: 59, 130, 246;
+            --arrow-color: #2563eb;
+            --arrow-width: 3.5;
+        }
+        .highlight-yellow {
+            --highlight-rgb: 234, 179, 8;
+            --arrow-color: #ca8a04;
+            --arrow-width: 3.5;
+        }
+        .highlight-green {
+            --highlight-rgb: 34, 197, 94;
+            --arrow-color: #16a34a;
+            --arrow-width: 3.5;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex items-center justify-center min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl w-full">
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-2">Agentic AI Pipeline</h1>
+        <p class="text-slate-500 text-center mb-10 md:mb-16">A visual blueprint for a three-agent orchestration model.</p>
+
+        <div id="diagram-container" class="relative">
+            <svg id="svg-canvas" class="absolute top-0 left-0 w-full h-full" style="pointer-events: none;">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9.5" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" />
+                    </marker>
+                </defs>
+            </svg>
+
+            <div class="grid grid-cols-5 gap-y-16 md:gap-y-20 gap-x-4 md:gap-x-8 items-start">
+                <div id="el-user" class="col-start-3 flex flex-col items-center card-container">
+                    <div class="card p-3 md:p-4 bg-white rounded-lg text-center w-full max-w-xs">
+                        <i data-lucide="user-circle-2" class="w-7 h-7 md:w-8 md:h-8 text-slate-500 mx-auto"></i>
+                        <h3 class="font-medium text-slate-600 text-sm md:text-base">User Query</h3>
+                    </div>
+                </div>
+
+                <div id="el-searcher" class="col-start-3 flex flex-col items-center card-container">
+                    <div class="card bg-white p-4 md:p-6 rounded-xl w-full max-w-xs text-center">
+                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="search-code" class="w-9 h-9 md:w-10 md:h-10 text-blue-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">Agent 1:<br>Searcher</h2></div>
+                    </div>
+                </div>
+
+                <div id="el-analyzer" class="col-start-3 flex flex-col items-center card-container">
+                    <div class="card bg-white p-4 md:p-6 rounded-xl w-full max-w-xs text-center">
+                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="brain-circuit" class="w-9 h-9 md:w-10 md:h-10 text-green-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">Agent 2:<br>Analyzer</h2></div>
+                    </div>
+                </div>
+
+                <div id="el-reviewer" class="col-start-3 flex flex-col items-center card-container">
+                    <div class="card bg-white p-4 md:p-6 rounded-xl w-full max-w-xs text-center">
+                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="clipboard-check" class="w-9 h-9 md:w-10 md:h-10 text-purple-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">Agent 3:<br>Reviewer</h2></div>
+                    </div>
+                </div>
+
+                <div id="el-more-info" class="col-start-1 col-span-1 row-start-4 flex flex-col items-center card-container">
+                     <div class="card bg-blue-100 text-blue-800 p-3 md:p-4 rounded-lg w-full max-w-xs text-center">
+                         <i data-lucide="file-search-2" class="w-7 h-7 md:w-8 md:h-8 mx-auto mb-2"></i><h3 class="font-medium text-slate-600 text-sm md:text-base">NEEDS MORE INFO</h3>
+                    </div>
+                </div>
+
+                <div id="el-complete" class="col-start-5 col-span-1 row-start-4 flex flex-col items-center card-container">
+                    <div class="card bg-green-100 text-green-800 p-3 md:p-4 rounded-lg w-full max-w-xs text-center">
+                        <i data-lucide="check-circle" class="w-7 h-7 md:w-8 md:h-8 mx-auto mb-2"></i><h3 class="font-medium text-slate-600 text-sm md:text-base">COMPLETE</h3>
+                    </div>
+                </div>
+
+                <div id="el-rework" class="col-start-1 col-span-1 row-start-3 flex flex-col items-center card-container">
+                     <div class="card bg-yellow-100 text-yellow-800 p-3 md:p-4 rounded-lg w-full max-w-xs text-center">
+                         <i data-lucide="refresh-cw" class="w-7 h-7 md:w-8 md:h-8 mx-auto mb-2"></i><h3 class="font-medium text-slate-600 text-sm md:text-base">NEEDS REWORK</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12 md:mt-16">
+            <button id="run-btn" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-full hover:bg-indigo-700 active:scale-95 transition-all shadow-lg"><i data-lucide="play" class="inline-block -ml-1 mr-2"></i>Run Simulation</button>
+            <button id="stop-btn" class="bg-red-600 text-white font-bold py-3 px-6 rounded-full hover:bg-red-700 active:scale-95 transition-all shadow-lg hidden"><i data-lucide="square" class="inline-block -ml-1 mr-2"></i>Stop Simulation</button>
+        </div>
+    </div>
+
+<script>
+    lucide.createIcons();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const diagramContainer = document.getElementById('diagram-container');
+        const svgCanvas = document.getElementById('svg-canvas');
+        const runBtn = document.getElementById('run-btn');
+        const stopBtn = document.getElementById('stop-btn');
+
+        let isRunning = false;
+        let currentState = 'user';
+
+        const connections = [
+            { start: 'el-user', end: 'el-searcher', id: 'arrow-user-searcher' },
+            { start: 'el-searcher', end: 'el-analyzer', id: 'arrow-searcher-analyzer' },
+            { start: 'el-analyzer', end: 'el-reviewer', id: 'arrow-analyzer-reviewer' },
+            { start: 'el-reviewer', end: 'el-more-info', id: 'arrow-reviewer-moreinfo' },
+            { start: 'el-reviewer', end: 'el-complete', id: 'arrow-reviewer-complete' },
+            { start: 'el-reviewer', end: 'el-rework', id: 'arrow-reviewer-rework' },
+            { start: 'el-rework', end: 'el-analyzer', id: 'arrow-rework-analyzer', curve: 'left' },
+            { start: 'el-more-info', end: 'el-searcher', id: 'arrow-moreinfo-searcher', curve: 'right' }
+        ];
+
+        const getElBox = el => {
+            const elRect = el.getBoundingClientRect();
+            const containerRect = svgCanvas.getBoundingClientRect();
+            return {
+                top: elRect.top - containerRect.top,
+                bottom: elRect.bottom - containerRect.top,
+                left: elRect.left - containerRect.left,
+                right: elRect.right - containerRect.left,
+                width: elRect.width,
+                height: elRect.height,
+                cx: elRect.left - containerRect.left + elRect.width / 2,
+                cy: elRect.top - containerRect.top + elRect.height / 2
+            };
+        };
+
+        const drawArrow = (startEl, endEl, curve) => {
+            const startBox = getElBox(startEl);
+            const endBox = getElBox(endEl);
+            let pathData;
+            let startX, startY, endX, endY;
+
+            if (curve === 'left') { // From Rework -> Analyzer
+                startX = startBox.right;   startY = startBox.cy;
+                endX = endBox.left;       endY = endBox.cy;
+                const c1X = startX + 80;  const c1Y = startY;
+                const c2X = endX - 80;    const c2Y = endY;
+                pathData = `M ${startX},${startY} C ${c1X},${c1Y} ${c2X},${c2Y} ${endX},${endY}`;
+            } else if (curve === 'right') { // From More Info -> Searcher
+                startX = startBox.right;  startY = startBox.cy;
+                endX = endBox.left;       endY = endBox.cy;
+                const c1X = startX + 80;  const c1Y = startY;
+                const c2X = endX - 80;    const c2Y = endY;
+                pathData = `M ${startX},${startY} C ${c1X},${c1Y} ${c2X},${c2Y} ${endX},${endY}`;
+            } else {
+                if (endBox.cy > startBox.cy) { // Down
+                    startX = startBox.cx; startY = startBox.bottom;
+                    endX = endBox.cx; endY = endBox.top;
+                } else { // Sideways
+                    if(endBox.cx > startBox.cx) { // Right
+                        startX = startBox.right; endX = endBox.left;
+                    } else { // Left
+                        startX = startBox.left; endX = endBox.right;
+                    }
+                    startY = startBox.cy; endY = endBox.cy;
+                }
+                pathData = `M ${startX},${startY} L ${endX},${endY}`;
+            }
+            return pathData;
+        };
+
+        const drawAllArrows = () => {
+            connections.forEach(({ start, end, id, curve }) => {
+                let path = svgCanvas.querySelector(`#${id}`);
+                if (!path) {
+                    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('id', id);
+                    path.classList.add('arrow-path', 'marker-end');
+                    svgCanvas.appendChild(path);
+                }
+                path.setAttribute('d', drawArrow(document.getElementById(start), document.getElementById(end), curve));
+            });
+        };
+
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        const highlight = (activeElId, colorClass) => {
+            document.querySelectorAll('.card-container').forEach(el => el.classList.remove('is-active'));
+            document.documentElement.className = colorClass;
+            if (activeElId) {
+                const el = document.getElementById(activeElId);
+                if (el) el.classList.add('is-active');
+            }
+        };
+
+        const runSimulationLoop = async () => {
+            while (isRunning) {
+                switch (currentState) {
+                    case 'user':
+                        highlight('el-user', 'highlight-blue');
+                        currentState = 'searcher';
+                        break;
+                    case 'searcher':
+                        highlight('el-searcher', 'highlight-blue');
+                        currentState = 'analyzer';
+                        break;
+                    case 'analyzer':
+                        highlight('el-analyzer', 'highlight-blue');
+                        currentState = 'reviewer';
+                        break;
+                    case 'reviewer':
+                        highlight('el-reviewer', 'highlight-blue');
+                        const outcomes = ['complete', 'rework', 'more-info'];
+                        const randomChoice = outcomes[Math.floor(Math.random() * outcomes.length)];
+                        currentState = randomChoice;
+                        break;
+                    case 'rework':
+                        highlight('el-rework', 'highlight-yellow');
+                        currentState = 'analyzer';
+                        break;
+                    case 'more-info':
+                        highlight('el-more-info', 'highlight-yellow');
+                        currentState = 'searcher';
+                        break;
+                    case 'complete':
+                        highlight('el-complete', 'highlight-green');
+                        currentState = 'user'; // Reset for next loop
+                        break;
+                }
+                await sleep(1800);
+            }
+        };
+
+        const start = () => {
+            if (isRunning) return;
+            isRunning = true;
+            currentState = 'user'; // Reset to start
+            runBtn.classList.add('hidden');
+            stopBtn.classList.remove('hidden');
+            runSimulationLoop();
+        }
+
+        const stop = () => {
+            isRunning = false;
+            highlight(null, ''); // Clear highlights
+            stopBtn.classList.add('hidden');
+            runBtn.classList.remove('hidden');
+        };
+
+        drawAllArrows();
+        const resizeObserver = new ResizeObserver(() => drawAllArrows());
+        resizeObserver.observe(diagramContainer);
+
+        runBtn.addEventListener('click', start);
+        stopBtn.addEventListener('click', stop);
+    });
+</script>
+</body>
+</html>
