@@ -1,5 +1,5 @@
 # app/services/agent_service.py
-# VERSION 1.1.1 -- STABLE
+# VERSION 2.1.0 -- STABLE
 
 import os
 import json
@@ -20,35 +20,77 @@ logger = logging.getLogger(__name__)
 # --- HELPER FUNCTIONS ---
 # These must be defined before the main pipeline function that uses them.
 
-def parse_reviewer_command(review_text: str) -> tuple[str, str | list[str] | None]:
+# PROPOSED ADDITIONS to app/services/agent_service.py
+# To be placed in the "HELPER FUNCTIONS" section
+
+def mark_as_complete() -> None:
     """
-    Parses the command from the reviewer agent's response.
-    Returns a tuple of (command, payload).
+    Call this function when the provided analysis is satisfactory, accurate,
+    and fully addresses the user's original query.
     """
-    if review_text.startswith("COMPLETE"):
+    pass
+
+def request_rework(feedback: str) -> None:
+    """
+    Call this function when the analysis is flawed, inaccurate, or incomplete,
+    but the existing information seems sufficient to correct it.
+
+    Args:
+        feedback (str): Specific, actionable feedback for the Analyzer Agent.
+                        Explain what is missing, incorrect, or needs improvement
+                        in the analysis.
+    """
+    pass
+
+def request_more_info(queries: list[str]) -> None:
+    """
+    Call this function when the analysis is good but requires additional
+    information that was not available in the initial search results.
+
+    Args:
+        queries (list[str]): A list of new, specific search query strings
+                             to be executed by the Searcher Agent.
+    """
+    pass
+
+# PROPOSED NEW FUNCTION for app/services/agent_service.py
+# To be placed in the "HELPER FUNCTIONS" section
+
+def tool_parser_agent(response: genai.types.GenerateContentResponse) -> tuple[str, str | list[str] | None]:
+    """
+    Parses the function call from a Gemini model response and translates it
+    into a command and payload for the orchestrator.
+    """
+    try:
+        function_call = response.candidates[0].content.parts[0].function_call
+    except (AttributeError, IndexError):
+        # This occurs if the model response does not contain a function call.
+        logger.warning("Tool Parser: No function call found in the response.")
+        return "UNKNOWN", "No function call was returned by the Reviewer Agent."
+
+    command_name = function_call.name
+    args = function_call.args
+
+    print(f" M: Tool Parser decoded function call: {command_name}")
+    logger.info(f"Tool Parser: Decoded function call '{command_name}' from Reviewer.")
+
+    if command_name == "mark_as_complete":
         return "COMPLETE", None
     
-    parts = review_text.split(":", 1)
-    if len(parts) != 2:
-        return "UNKNOWN", review_text
-
-    command, payload_str = parts[0].strip(), parts[1].strip()
-
-    if command == "NEEDS_REWORK":
-        return "NEEDS_REWORK", payload_str
+    if command_name == "request_rework":
+        # The payload is the 'feedback' argument.
+        feedback = args.get('feedback', 'No feedback provided.')
+        return "NEEDS_REWORK", feedback
     
-    if command == "NEEDS_MORE_INFO":
-        try:
-            # Safely parse the JSON string array into a Python list
-            queries = json.loads(payload_str)
-            if isinstance(queries, list):
-                return "NEEDS_MORE_INFO", queries
-            else:
-                return "UNKNOWN", f"Payload for NEEDS_MORE_INFO was not a list: {payload_str}"
-        except json.JSONDecodeError:
-            return "UNKNOWN", f"Invalid JSON in NEEDS_MORE_INFO payload: {payload_str}"
+    if command_name == "request_more_info":
+        # The payload is the 'queries' argument. We must cast it to a native Python list
+        # to ensure it is JSON serializable.
+        queries_proto = args.get('queries', [])
+        queries_list = list(queries_proto)
+        return "NEEDS_MORE_INFO", queries_list
     
-    return "UNKNOWN", review_text
+    logger.error(f"Tool Parser: Encountered an unknown function name: {command_name}")
+    return "UNKNOWN", f"Unknown function call: {command_name}"
 
 async def aggregate_search_results(queries: list[str], existing_results: dict) -> dict:
     """
@@ -101,8 +143,14 @@ def analyzer_agent(query: str, search_results: dict, feedback: str = None) -> st
     prompt = f"""
     You are the Analyzer Agent. Your task is to analyze the provided search results and construct a detailed and accurate answer to the user's original query.
     User Query: "{query}"
+
     Search Results:
     {json.dumps(search_results, indent=2)}
+
+    **Instructions:**
+    1.  First, review each search result. If a result's "content" field contains an error message (e.g., "Error fetching or parsing URL", "403 Forbidden"), explicitly state that this source could not be accessed.
+    2.  Synthesize a comprehensive answer to the user query based *only* on the content from the successfully retrieved results.
+    3.  If critical information is missing due to fetching errors, please note that your analysis may be incomplete.
     """
     if feedback:
         logger.info(f"Analyzer Agent: Incorporating feedback: {feedback}")
@@ -111,7 +159,7 @@ def analyzer_agent(query: str, search_results: dict, feedback: str = None) -> st
         Feedback: "{feedback}"
         """
 
-    prompt += "Based on all the provided information, construct a comprehensive answer."
+    prompt += "Based on all the provided information and the instructions above, construct your analysis."
     
     print("-> [Agent: Analyzer] Generating analysis with Gemini model...")
     response = model.generate_content(prompt)
@@ -119,28 +167,71 @@ def analyzer_agent(query: str, search_results: dict, feedback: str = None) -> st
     logger.info("Analyzer Agent: Analysis complete.")
     return response.text
 
-def reviewer_agent(query: str, analysis: str) -> str:
-    """Reviews the analysis and provides feedback for completion or iteration."""
-    print("\n-> [Agent: Reviewer] Received task to review generated analysis.")
-    logger.info("Reviewer Agent: Reviewing the analysis.")
-    prompt = f"""
-    You are the Reviewer Agent. Your role is to assess the quality of the generated answer based on the user's original query.
-    User Query: "{query}"
-    Generated Answer: "{analysis}"
+# PROPOSED REVISION for app/services/agent_service.py
 
-    Carefully review the answer for accuracy, completeness, and relevance.
+# --- Make sure our new tools are available to be referenced ---
+# (Assuming they were added in the HELPER FUNCTIONS section as per Phase 1)
 
-    Respond with ONE of the following commands and ONLY the command:
-    - `COMPLETE`: If the answer is satisfactory and fully addresses the user's query.
-    - `NEEDS_REWORK: [Provide specific, actionable feedback for the Analyzer Agent. Explain what is missing or incorrect in the analysis.]`: If the information seems sufficient but the analysis is flawed or incomplete.
-    - `NEEDS_MORE_INFO: [Provide a JSON-formatted list of new, specific search query strings. Example: ["query 1", "query 2"]]`: If the answer is good but requires additional information that was not in the initial search results.
+# PROPOSED REVISION for app/services/agent_service.py
+
+def reviewer_agent(query: str, analysis: str, is_final_round: bool = False) -> genai.types.GenerateContentResponse:
     """
-    print("-> [Agent: Reviewer] Evaluating analysis with Gemini model...")
-    response = model.generate_content(prompt)
-    review_command = response.text.strip()
-    print(f"-> [Agent: Reviewer] Review complete. Issued command: {review_command}")
-    logger.info(f"Reviewer Agent: Review complete. Command: {review_command}")
-    return review_command
+    Reviews the analysis and decides which function to call.
+    On the final round, it operates with a restricted toolset.
+    """
+    print(f"\n-> [Agent: Reviewer] Received task to review generated analysis. (Final Round: {is_final_round})")
+    logger.info(f"Reviewer Agent: Reviewing the analysis. Final Round: {is_final_round}")
+
+    if is_final_round:
+        # Final round: The agent cannot request more info. It must accept or request one last rework.
+        available_tools = [
+            mark_as_complete,
+            request_rework,
+        ]
+        prompt = f"""
+        You are the Reviewer Agent. This is the FINAL iteration.
+        Your role is to perform a final quality check. You CANNOT request more information.
+
+        User Query: "{query}"
+        Generated Answer: "{analysis}"
+
+        **Instructions for Final Review:**
+        1.  Read the Generated Answer carefully. Does it adequately address the User Query with the available information?
+        2.  Based on your final assessment, you must call one of the following functions:
+            - If the answer is acceptable as the final output, call `mark_as_complete`.
+            - If the answer has critical flaws that MUST be fixed before returning to the user, call `request_rework` with specific, actionable feedback on what to correct.
+        """
+    else:
+        # Standard round: The agent has all tools available.
+        available_tools = [
+            mark_as_complete,
+            request_rework,
+            request_more_info,
+        ]
+        prompt = f"""
+        You are the Reviewer Agent. Your role is to critically assess the quality and completeness of the generated answer based on the user's original query.
+        User Query: "{query}"
+        Generated Answer: "{analysis}"
+
+        **Instructions:**
+        1.  Read the Generated Answer carefully. Does it fully and accurately address the User Query?
+        2.  **CRITICAL:** Check if the answer mentions any limitations or failures in retrieving source data (e.g., "could not be accessed", "error fetching").
+        3.  Based on your assessment, call one of the following functions:
+            - If the answer is complete, accurate, and based on sufficient data, call `mark_as_complete`.
+            - If the answer is flawed or needs correction but the data seems sufficient, call `request_rework` with specific feedback.
+            - **If the answer explicitly states that key sources were inaccessible or that the analysis is incomplete due to data fetching errors, call `request_more_info`. Provide new, alternative search queries that might find the missing information elsewhere.**
+        """
+
+    print("-> [Agent: Reviewer] Evaluating analysis with Gemini model (function calling enabled)...")
+    
+    response = model.generate_content(
+        prompt,
+        tools=available_tools,
+    )
+    
+    print(f"-> [Agent: Reviewer] Review complete. Model response received.")
+    logger.info("Reviewer Agent: Review complete. Returning full response object.")
+    return response
 
 
 # --- ORCHESTRATION ---
@@ -167,6 +258,7 @@ async def run_agentic_pipeline(initial_query: str):
         logger.info(f"--- Pipeline Iteration {i+1} ---")
         conversation_history.append({"iteration": i + 1, "steps": []})
 
+        # 1. Search Phase
         if feedback is None:
             if isinstance(current_queries, list):
                 print(" M: Calling Search Aggregator to find new information...")
@@ -188,16 +280,21 @@ async def run_agentic_pipeline(initial_query: str):
              logger.info("Pipeline: Skipping Searcher Agent for rework.")
              conversation_history[-1]["steps"].append({"agent": "Searcher", "action": "Skipped, using previous results for rework."})
 
+        # 2. Analysis Phase
         print(" M: Calling Analyzer Agent to synthesize an answer...")
         logger.info("Pipeline: Calling Analyzer Agent.")
         analysis = analyzer_agent(initial_query, search_results, feedback=feedback)
         conversation_history[-1]["steps"].append({"agent": "Analyzer", "feedback_received": feedback, "analysis": analysis})
         feedback = None
 
+        # 3. Review Phase
         logger.info("Pipeline: Calling Reviewer Agent.")
-        review = reviewer_agent(initial_query, analysis)
-        command, payload = parse_reviewer_command(review)
-        conversation_history[-1]["steps"].append({"agent": "Reviewer", "review": review})
+        
+        is_final = (i == max_iterations - 1)
+        
+        review_response = reviewer_agent(initial_query, analysis, is_final_round=is_final)
+        command, payload = tool_parser_agent(review_response)
+        conversation_history[-1]["steps"].append({"agent": "Reviewer", "review": str(review_response.candidates[0].content.parts[0])})
 
         if command == "COMPLETE":
             print("\n M: Reviewer approved the answer. Pipeline complete! ✅")
@@ -215,16 +312,16 @@ async def run_agentic_pipeline(initial_query: str):
             print(f"   [New Search Queries]: {current_queries}")
             logger.info(f"Pipeline: Reviewer requested more info. New queries: {current_queries}")
         else:
-            print(f" M: CRITICAL - Unknown command from Reviewer: {review}. Aborting.")
-            logger.error(f"Pipeline: Unknown command from Reviewer: {review}")
-            return {"error": f"Unknown command from Reviewer: {review}", "history": conversation_history}
+            print(f" M: CRITICAL - Unknown command from Reviewer: {review_response}. Aborting.")
+            logger.error(f"Pipeline: Unknown command from Reviewer: {review_response}")
+            return {"error": f"Unknown command from Reviewer: {review_response}", "history": conversation_history}
 
     print("\n M: Maximum iterations reached. Ending pipeline.")
     logger.warning("Pipeline: Max iterations reached.")
-    print(" M: Calling Analyzer one last time to generate the best possible response.")
-    final_analysis = analyzer_agent(initial_query, search_results)
+
+    final_analysis = conversation_history[-1]["steps"][-2]["analysis"]
+
     return {
-        "response": "Max iterations reached. Returning the best analysis so far.", 
-        "analysis": final_analysis,
+        "response": final_analysis,
         "history": conversation_history
     }
