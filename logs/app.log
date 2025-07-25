@@ -1,215 +1,246 @@
-[2025-07-25 00:32:35,437] INFO in logging_config: Logging has been configured successfully.
-[2025-07-25 00:32:35,453] INFO in agent_service: --- Starting Agentic Pipeline for query: 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?' ---
-[2025-07-25 00:32:35,454] INFO in agent_service: --- Pipeline Iteration 1 ---
-[2025-07-25 00:32:35,454] INFO in agent_service: Pipeline: Calling Searcher Agent.
-[2025-07-25 00:32:35,454] INFO in agent_service: Searcher Agent: Starting search for query: 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?'
-[2025-07-25 00:32:35,455] INFO in search_service: Search Service: Received query 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?'. Starting orchestration.
-[2025-07-25 00:32:35,455] INFO in search_service: Search Service: Executing Google Search API call.
-[2025-07-25 00:32:35,829] INFO in search_service: Search Service: Found 5 results from Google Search.
-[2025-07-25 00:32:35,829] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
-[2025-07-25 00:32:36,837] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
-[2025-07-25 00:32:36,838] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
-[2025-07-25 00:32:36,839] INFO in search_service:   -> Fetcher Task 1: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:32:37,060] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://www.sciencedirect.com/science/article/pii/S0267364924000013
-[2025-07-25 00:32:37,064] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://ir.lawnet.fordham.edu/cgi/viewcontent.cgi?article=5618&context=flr
-[2025-07-25 00:32:37,068] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://link.springer.com/article/10.1007/s10551-024-05705-z
-[2025-07-25 00:32:37,072] INFO in search_service:   -> Fetcher Task 5: Starting to fetch HTML URL: https://pirg.org/resources/john-deere-and-right-to-repair-over-the-years/
-[2025-07-25 00:32:37,143] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
-[2025-07-25 00:32:37,824] INFO in search_service:   -> Fetcher Task 1: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:32:38,493] INFO in search_service:   -> Fetcher Task 5: Successfully parsed content from https://pirg.org/resources/john-deere-and-right-to-repair-over-the-years/
-[2025-07-25 00:32:38,822] WARNING in search_service:   -> Fetcher Task 3: No paragraph content found at https://ir.lawnet.fordham.edu/cgi/viewcontent.cgi?article=5618&context=flr
-[2025-07-25 00:32:39,402] INFO in search_service:   -> Fetcher Task 2: Successfully parsed content from https://www.sciencedirect.com/science/article/pii/S0267364924000013
-[2025-07-25 00:32:41,973] INFO in search_service:   -> Fetcher Task 4: Successfully parsed content from https://link.springer.com/article/10.1007/s10551-024-05705-z
-[2025-07-25 00:32:41,975] INFO in search_service: Search Service: All fetcher tasks have completed.
-[2025-07-25 00:32:42,073] INFO in search_service: Search Service: Combining search data with fetched content.
-[2025-07-25 00:32:42,074] INFO in search_service: Search Service: Orchestration complete. Returning final results.
-[2025-07-25 00:32:42,074] INFO in agent_service: Searcher Agent: Found 5 results.
-[2025-07-25 00:32:42,075] INFO in agent_service: Pipeline: Calling Analyzer Agent.
-[2025-07-25 00:32:42,075] INFO in agent_service: Analyzer Agent: Analyzing search results.
-[2025-07-25 00:32:54,931] INFO in agent_service: Analyzer Agent: Analysis complete.
-[2025-07-25 00:32:54,932] INFO in agent_service: Pipeline: Calling Reviewer Agent.
-[2025-07-25 00:32:54,932] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: False
-[2025-07-25 00:32:55,857] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
-[2025-07-25 00:32:55,857] INFO in agent_service: Tool Parser: Decoded function call 'request_more_info' from Reviewer.
-[2025-07-25 00:32:55,858] INFO in agent_service: Pipeline: Reviewer requested more info. New queries: ['right to repair arguments manufacturers last year', 'right to repair arguments independent repair advocates last year', 'consumer electronics repair restrictions case studies', '"right to repair" movement FTC report', 'automotive industry right to repair self-regulatory model']
-[2025-07-25 00:32:55,859] INFO in agent_service: --- Pipeline Iteration 2 ---
-[2025-07-25 00:32:55,859] INFO in agent_service: Pipeline: Calling Search Aggregator for multiple new queries.
-[2025-07-25 00:32:55,859] INFO in agent_service: Aggregating search results for 5 new queries.
-[2025-07-25 00:32:55,860] INFO in agent_service: Searcher Agent: Starting search for query: 'right to repair arguments manufacturers last year'
-[2025-07-25 00:32:55,860] INFO in search_service: Search Service: Received query 'right to repair arguments manufacturers last year'. Starting orchestration.
-[2025-07-25 00:32:55,860] INFO in search_service: Search Service: Executing Google Search API call.
-[2025-07-25 00:32:56,270] INFO in search_service: Search Service: Found 5 results from Google Search.
-[2025-07-25 00:32:56,271] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
-[2025-07-25 00:32:56,271] INFO in agent_service: Searcher Agent: Starting search for query: 'right to repair arguments independent repair advocates last year'
-[2025-07-25 00:32:56,271] INFO in search_service: Search Service: Received query 'right to repair arguments independent repair advocates last year'. Starting orchestration.
-[2025-07-25 00:32:56,272] INFO in search_service: Search Service: Executing Google Search API call.
-[2025-07-25 00:32:56,739] INFO in search_service: Search Service: Found 5 results from Google Search.
-[2025-07-25 00:32:56,740] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
-[2025-07-25 00:32:56,740] INFO in agent_service: Searcher Agent: Starting search for query: 'consumer electronics repair restrictions case studies'
-[2025-07-25 00:32:56,741] INFO in search_service: Search Service: Received query 'consumer electronics repair restrictions case studies'. Starting orchestration.
-[2025-07-25 00:32:56,742] INFO in search_service: Search Service: Executing Google Search API call.
-[2025-07-25 00:32:57,204] INFO in search_service: Search Service: Found 5 results from Google Search.
-[2025-07-25 00:32:57,205] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
-[2025-07-25 00:32:57,207] INFO in agent_service: Searcher Agent: Starting search for query: '"right to repair" movement FTC report'
-[2025-07-25 00:32:57,207] INFO in search_service: Search Service: Received query '"right to repair" movement FTC report'. Starting orchestration.
-[2025-07-25 00:32:57,207] INFO in search_service: Search Service: Executing Google Search API call.
-[2025-07-25 00:32:57,479] INFO in search_service: Search Service: Found 5 results from Google Search.
-[2025-07-25 00:32:57,479] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
-[2025-07-25 00:32:57,486] INFO in agent_service: Searcher Agent: Starting search for query: 'automotive industry right to repair self-regulatory model'
-[2025-07-25 00:32:57,487] INFO in search_service: Search Service: Received query 'automotive industry right to repair self-regulatory model'. Starting orchestration.
-[2025-07-25 00:32:57,487] INFO in search_service: Search Service: Executing Google Search API call.
-[2025-07-25 00:32:57,942] INFO in search_service: Search Service: Found 5 results from Google Search.
-[2025-07-25 00:32:57,942] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
-[2025-07-25 00:33:01,057] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
-[2025-07-25 00:33:01,063] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
-[2025-07-25 00:33:01,067] INFO in search_service:   -> Fetcher Task 1: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:02,034] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://www.recyclingtoday.com/news/federal-trade-commission-right-to-repair/
-[2025-07-25 00:33:02,039] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://scholarship.law.unc.edu/cgi/viewcontent.cgi?article=1440&context=ncjolt
-[2025-07-25 00:33:02,045] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://www.butlersnow.com/news-and-events/crafting-a-measured-response-to-the-right-to-repair-movement
-[2025-07-25 00:33:02,065] INFO in search_service:   -> Fetcher Task 5: Starting to fetch HTML URL: https://www.regulatoryoversight.com/2025/03/ftc-states-sue-john-deere-in-right-to-repair-lawsuit/
-[2025-07-25 00:33:02,078] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
-[2025-07-25 00:33:02,079] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
-[2025-07-25 00:33:02,080] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
-[2025-07-25 00:33:02,081] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
-[2025-07-25 00:33:02,081] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
-[2025-07-25 00:33:02,082] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
-[2025-07-25 00:33:02,083] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
-[2025-07-25 00:33:02,084] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
-[2025-07-25 00:33:02,085] INFO in search_service:   -> Fetcher Task 1: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:02,300] INFO in search_service:   -> Fetcher Task 2: PDF detected. Starting to fetch URL: https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf
-[2025-07-25 00:33:02,540] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://www.troutman.com/insights/john-deere-and-farmers-get-creative-on-right-to-repair.html
-[2025-07-25 00:33:02,690] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://www.repairerdrivennews.com/2021/05/11/ftc-presents-restricted-parts-oem-body-shop-referrals-as-right-to-repair-issues/
-[2025-07-25 00:33:02,703] INFO in search_service:   -> Fetcher Task 5: Starting to fetch HTML URL: https://legislature.maine.gov/statutes/29-a/title29-Asec1810.html
-[2025-07-25 00:33:02,713] INFO in search_service:   -> Fetcher Task 1: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:02,915] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://voterguide.sos.ca.gov/propositions/2/arguments-rebuttals.htm
-[2025-07-25 00:33:02,926] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://www.seyfarth.com/news-insights/manufacturers-challenge-massachusetts-law-requiring-changes-to-vehicle-telematics-systems.html
-[2025-07-25 00:33:02,937] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://voterguide.sos.ca.gov/propositions/5/arguments-rebuttals.htm
-[2025-07-25 00:33:02,949] INFO in search_service:   -> Fetcher Task 5: PDF detected. Starting to fetch URL: https://docs.house.gov/meetings/JU/JU03/20230718/116230/HHRG-118-JU03-20230718-SD019.pdf
-[2025-07-25 00:33:03,182] INFO in search_service:   -> Fetcher Task 1: Starting to fetch HTML URL: https://www.lightguidesys.com/resource-center/case-study/tech-insurance-company-transforms-electronics-repair-processes-with-ar/
-[2025-07-25 00:33:03,193] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://www.wiley.law/alert-State-Right-to-Repair-Patchwork-Grows-as-Electronic-Device-Manufacturers-Face-New-Compliance-Deadlines
-[2025-07-25 00:33:03,202] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://www.sciencedirect.com/science/article/abs/pii/S235255092100378X
-[2025-07-25 00:33:03,215] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://journals.sagepub.com/doi/10.1177/20438869231178037
-[2025-07-25 00:33:03,230] INFO in search_service:   -> Fetcher Task 5: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:03,479] INFO in search_service:   -> Fetcher Task 1: Starting to fetch HTML URL: https://www.cato.org/regulation/spring-2024/criticism-right-repair-laws
-[2025-07-25 00:33:03,483] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://www.ifixit.com/News/14720/the-asus-malware-fiasco-proves-why-arguments-against-right-to-repair-are-bogus
-[2025-07-25 00:33:03,486] INFO in search_service:   -> Fetcher Task 3: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:03,702] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://pirg.org/articles/who-doesnt-want-the-right-to-repair-companies-worth-over-10-trillion/
-[2025-07-25 00:33:03,707] INFO in search_service:   -> Fetcher Task 5: Starting to fetch HTML URL: https://www.ag.state.mn.us/consumer/handbooks/mncarlaws/CH1.asp
-[2025-07-25 00:33:04,108] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
-[2025-07-25 00:33:04,237] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
-[2025-07-25 00:33:04,286] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
-[2025-07-25 00:33:04,318] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
-[2025-07-25 00:33:04,355] INFO in _client: HTTP Request: GET https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf "HTTP/1.1 403 Forbidden"
-[2025-07-25 00:33:04,379] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
-[2025-07-25 00:33:04,452] ERROR in search_service:   -> Fetcher Task 2: Error fetching or parsing PDF https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf: Client error '403 Forbidden' for url 'https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf'
+[2025-07-25 03:46:26,210] INFO in agent_service: Analyzer Agent: Successfully received and parsed submit_report tool call.
+[2025-07-25 03:46:26,211] ERROR in routes: An error occurred in /search: name 'analysis_response' is not defined
+Traceback (most recent call last):
+  File "/home/user/prometheus/app/main/routes.py", line 25, in search
+    result = await agent_service.run_agentic_pipeline(query)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/prometheus/app/services/agent_service.py", line 445, in run_agentic_pipeline
+    report_text, citations_list = _extract_submit_report(analysis_response)
+                                                         ^^^^^^^^^^^^^^^^^
+NameError: name 'analysis_response' is not defined
+[2025-07-25 03:46:26,223] INFO in _internal: 127.0.0.1 - - [25/Jul/2025 03:46:26] "[35m[1mPOST /search HTTP/1.1[0m" 500 -
+[2025-07-25 03:48:01,135] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:48:01,314] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:48:01,613] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:48:01,700] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:48:02,696] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:48:04,465] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:48:05,332] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:48:05,343] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:48:06,572] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:48:06,588] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:48:07,094] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:48:07,100] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:48:10,202] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:48:10,534] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:48:10,786] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:48:11,047] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:48:11,673] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:48:12,075] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:48:16,047] INFO in logging_config: Logging has been configured successfully.
+[2025-07-25 03:48:17,350] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:48:17,365] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:48:17,482] INFO in agent_service: --- Starting Agentic Pipeline for query: 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?' ---
+[2025-07-25 03:48:17,485] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-25 03:48:17,485] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-25 03:48:17,486] INFO in agent_service: Searcher Agent: Starting search for query: 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?'
+[2025-07-25 03:48:17,495] INFO in search_service: Search Service: Received query 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?'. Starting orchestration.
+[2025-07-25 03:48:17,495] INFO in search_service: Search Service: Executing Google Search API call.
+[2025-07-25 03:48:17,878] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:48:17,895] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:48:17,977] INFO in search_service: Search Service: Found 5 results from Google Search.
+[2025-07-25 03:48:17,979] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
+[2025-07-25 03:48:18,090] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:48:18,107] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:48:20,209] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
+[2025-07-25 03:48:20,213] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
+[2025-07-25 03:48:20,219] INFO in search_service:   -> Fetcher Task 1: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
+[2025-07-25 03:48:20,660] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://www.sciencedirect.com/science/article/pii/S0267364924000013
+[2025-07-25 03:48:20,669] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://ir.lawnet.fordham.edu/cgi/viewcontent.cgi?article=5618&context=flr
+[2025-07-25 03:48:20,676] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://link.springer.com/article/10.1007/s10551-024-05705-z
+[2025-07-25 03:48:20,682] INFO in search_service:   -> Fetcher Task 5: Starting to fetch HTML URL: https://pirg.org/resources/john-deere-and-right-to-repair-over-the-years/
+[2025-07-25 03:48:20,767] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
+[2025-07-25 03:48:22,227] INFO in search_service:   -> Fetcher Task 1: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
+[2025-07-25 03:48:23,196] INFO in search_service:   -> Fetcher Task 5: Successfully parsed content from https://pirg.org/resources/john-deere-and-right-to-repair-over-the-years/
+[2025-07-25 03:48:24,055] WARNING in search_service:   -> Fetcher Task 3: No paragraph content found at https://ir.lawnet.fordham.edu/cgi/viewcontent.cgi?article=5618&context=flr
+[2025-07-25 03:48:24,932] INFO in search_service:   -> Fetcher Task 2: Successfully parsed content from https://www.sciencedirect.com/science/article/pii/S0267364924000013
+[2025-07-25 03:48:32,297] INFO in search_service:   -> Fetcher Task 4: Successfully parsed content from https://link.springer.com/article/10.1007/s10551-024-05705-z
+[2025-07-25 03:48:32,299] INFO in search_service: Search Service: All fetcher tasks have completed.
+[2025-07-25 03:48:32,435] INFO in search_service: Search Service: Combining search data with fetched content.
+[2025-07-25 03:48:32,435] INFO in search_service: Search Service: Orchestration complete. Returning final results.
+[2025-07-25 03:48:32,435] INFO in agent_service: Searcher Agent: Found 5 results.
+[2025-07-25 03:48:32,435] INFO in agent_service: Pipeline: Calling Analyzer Agent.
+[2025-07-25 03:48:32,435] INFO in agent_service: Analyzer Agent: Analyzing search results to generate a structured report via tool call.
+[2025-07-25 03:48:54,637] INFO in agent_service: Analyzer Agent: Successfully received and parsed submit_report tool call.
+[2025-07-25 03:48:54,637] INFO in agent_service: Pipeline: Received parsed payload from Analyzer Agent.
+[2025-07-25 03:48:54,638] INFO in agent_service: Pipeline: Calling Reviewer Agent.
+[2025-07-25 03:48:54,639] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: False
+[2025-07-25 03:48:56,800] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
+[2025-07-25 03:48:56,803] INFO in agent_service: Tool Parser: Decoded function call 'request_rework' from Reviewer.
+[2025-07-25 03:48:56,804] INFO in agent_service: Pipeline: Reviewer requested rework. Feedback: The response is good but needs improvements.  The analysis heavily relies on older reports (2018-2021) and doesn't sufficiently incorporate information from 2023-2024.  The FTC report cited is from 2021, which is not within the specified timeframe.  Many sources listed are from 2019. The answer needs to be updated with more recent sources and data reflecting the arguments for and against right-to-repair in the 2023-2024 timeframe.  Additionally, some claims are presented without strong supporting evidence, and the analysis could benefit from a more balanced and nuanced presentation of each side's arguments, acknowledging the complexities and subtleties of the debate.  Finally, the summary table is helpful but could be improved by adding a column indicating the strength of evidence for each argument.  The answer should also explicitly state where data was sourced from for each year's information (e.g.,  'Data for 2023 was obtained from X', 'Data for 2024 was obtained from Y').
+[2025-07-25 03:48:56,806] INFO in agent_service: --- Pipeline Iteration 2 ---
+[2025-07-25 03:48:56,806] INFO in agent_service: Pipeline: Skipping Searcher Agent for rework.
+[2025-07-25 03:48:56,807] INFO in agent_service: Pipeline: Calling Analyzer Agent.
+[2025-07-25 03:48:56,808] INFO in agent_service: Analyzer Agent: Analyzing search results to generate a structured report via tool call.
+[2025-07-25 03:49:10,890] INFO in agent_service: Analyzer Agent: Successfully received and parsed submit_report tool call.
+[2025-07-25 03:49:10,891] INFO in agent_service: Pipeline: Received parsed payload from Analyzer Agent.
+[2025-07-25 03:49:10,891] INFO in agent_service: Pipeline: Calling Reviewer Agent.
+[2025-07-25 03:49:10,891] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: False
+[2025-07-25 03:49:12,524] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
+[2025-07-25 03:49:12,524] INFO in agent_service: Tool Parser: Decoded function call 'request_rework' from Reviewer.
+[2025-07-25 03:49:12,524] INFO in agent_service: Pipeline: Reviewer requested rework. Feedback: The answer is good but lacks specific citations for the claims made.  The "Data Source (Year)" column in the comparison table only provides a year range and some generic source types (e.g., "news articles," "PIRG reports").  This makes it difficult to verify the accuracy and strength of the evidence presented.  Please replace the generic source references with precise citations including author, title, date, and URL or publication details whenever possible.  Additionally,  the analysis should specify which academic research and PIRG reports were used for 2024 data to improve transparency and allow for verification.  Finally,  the claim that "data for 2023 was obtained from various news articles and industry reports" needs elaboration.  Which specific articles and reports were used? Providing this level of detail will significantly improve the answer’s credibility and usefulness.
+[2025-07-25 03:49:12,525] INFO in agent_service: --- Pipeline Iteration 3 ---
+[2025-07-25 03:49:12,525] INFO in agent_service: Pipeline: Skipping Searcher Agent for rework.
+[2025-07-25 03:49:12,525] INFO in agent_service: Pipeline: Calling Analyzer Agent.
+[2025-07-25 03:49:12,526] INFO in agent_service: Analyzer Agent: Analyzing search results to generate a structured report via tool call.
+[2025-07-25 03:50:44,528] ERROR in agent_service: Analyzer Agent: Failed to get or parse tool call. Raw response part: Could not extract parts from response object.. Error: list index out of range
+[2025-07-25 03:50:44,529] INFO in agent_service: Pipeline: Received parsed payload from Analyzer Agent.
+[2025-07-25 03:50:44,529] INFO in agent_service: Pipeline: Calling Reviewer Agent.
+[2025-07-25 03:50:44,530] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: True
+[2025-07-25 03:50:45,407] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
+[2025-07-25 03:50:45,407] INFO in agent_service: Tool Parser: Decoded function call 'request_rework' from Reviewer.
+[2025-07-25 03:50:45,407] INFO in agent_service: Pipeline: Reviewer requested rework. Feedback: The generated answer is not acceptable. It contains an error message instead of a substantive response to the user query. The Analyzer agent needs to be revised to correctly process and respond to the query, providing a comparison of arguments for and against the "right to repair" movement from the perspectives of consumer electronics manufacturers and independent repair advocates.
+[2025-07-25 03:50:45,407] WARNING in agent_service: Pipeline: Max iterations reached.
+[2025-07-25 03:50:45,417] INFO in _internal: 127.0.0.1 - - [25/Jul/2025 03:50:45] "POST /search HTTP/1.1" 200 -
+[2025-07-25 03:54:15,891] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:54:16,612] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 03:54:17,149] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:54:18,529] INFO in _internal:  * Restarting with stat
+[2025-07-25 03:54:19,603] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:54:19,620] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:54:20,337] INFO in logging_config: Logging has been configured successfully.
+[2025-07-25 03:54:21,508] WARNING in _internal:  * Debugger is active!
+[2025-07-25 03:54:21,521] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:54:21,566] INFO in agent_service: --- Starting Agentic Pipeline for query: 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?' ---
+[2025-07-25 03:54:21,579] INFO in agent_service: --- Pipeline Iteration 1 ---
+[2025-07-25 03:54:21,586] INFO in agent_service: Pipeline: Calling Searcher Agent.
+[2025-07-25 03:54:21,587] INFO in agent_service: Searcher Agent: Starting search for query: 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?'
+[2025-07-25 03:54:21,587] INFO in search_service: Search Service: Received query 'What were the key arguments for and against the 'right to repair' movement in the last year, specifically comparing the perspectives of consumer electronics manufacturers and independent repair advocates?'. Starting orchestration.
+[2025-07-25 03:54:21,588] INFO in search_service: Search Service: Executing Google Search API call.
+[2025-07-25 03:54:22,020] INFO in search_service: Search Service: Found 5 results from Google Search.
+[2025-07-25 03:54:22,020] INFO in search_service: Search Service: Launching headless browser to fetch content for all results.
+[2025-07-25 03:54:23,182] INFO in search_service: Search Service: Creating and queuing all fetcher tasks.
+[2025-07-25 03:54:23,186] INFO in search_service: Search Service: Executing 5 fetcher tasks concurrently...
+[2025-07-25 03:54:23,191] INFO in search_service:   -> Fetcher Task 1: PDF detected. Starting to fetch URL: https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
+[2025-07-25 03:54:23,502] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://www.sciencedirect.com/science/article/pii/S0267364924000013
+[2025-07-25 03:54:23,505] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://ir.lawnet.fordham.edu/cgi/viewcontent.cgi?article=5618&context=flr
+[2025-07-25 03:54:23,510] INFO in search_service:   -> Fetcher Task 4: Starting to fetch HTML URL: https://link.springer.com/article/10.1007/s10551-024-05705-z
+[2025-07-25 03:54:23,517] INFO in search_service:   -> Fetcher Task 5: Starting to fetch HTML URL: https://pirg.org/resources/john-deere-and-right-to-repair-over-the-years/
+[2025-07-25 03:54:23,595] INFO in _client: HTTP Request: GET https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf "HTTP/1.1 200 OK"
+[2025-07-25 03:54:24,530] INFO in search_service:   -> Fetcher Task 1: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
+[2025-07-25 03:54:25,444] INFO in search_service:   -> Fetcher Task 5: Successfully parsed content from https://pirg.org/resources/john-deere-and-right-to-repair-over-the-years/
+[2025-07-25 03:54:25,916] WARNING in search_service:   -> Fetcher Task 3: No paragraph content found at https://ir.lawnet.fordham.edu/cgi/viewcontent.cgi?article=5618&context=flr
+[2025-07-25 03:54:26,562] INFO in search_service:   -> Fetcher Task 2: Successfully parsed content from https://www.sciencedirect.com/science/article/pii/S0267364924000013
+[2025-07-25 03:54:29,909] INFO in search_service:   -> Fetcher Task 4: Successfully parsed content from https://link.springer.com/article/10.1007/s10551-024-05705-z
+[2025-07-25 03:54:29,910] INFO in search_service: Search Service: All fetcher tasks have completed.
+[2025-07-25 03:54:30,039] INFO in search_service: Search Service: Combining search data with fetched content.
+[2025-07-25 03:54:30,040] INFO in search_service: Search Service: Orchestration complete. Returning final results.
+[2025-07-25 03:54:30,041] INFO in agent_service: Searcher Agent: Found 5 results.
+[2025-07-25 03:54:30,041] INFO in agent_service: Pipeline: Calling Analyzer Agent.
+[2025-07-25 03:54:30,042] INFO in agent_service: Analyzer Agent: Analyzing search results to generate a structured report via tool call.
+[2025-07-25 03:54:51,251] INFO in agent_service: Analyzer Agent: Successfully received and parsed submit_report tool call.
+[2025-07-25 03:54:51,252] INFO in agent_service: Pipeline: Received parsed payload from Analyzer Agent.
+[2025-07-25 03:54:51,252] INFO in agent_service: Pipeline: Calling Reviewer Agent.
+[2025-07-25 03:54:51,252] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: False
+[2025-07-25 03:54:52,824] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
+[2025-07-25 03:54:52,825] INFO in agent_service: Tool Parser: Decoded function call 'request_rework' from Reviewer.
+[2025-07-25 03:54:52,826] INFO in agent_service: Pipeline: Reviewer requested rework. Feedback: The analysis relies heavily on a 2021 FTC report and other older sources, making it insufficient to address the query's focus on the last year (2023-2024).  The answer needs to incorporate significantly more recent data from 2023 and 2024 to accurately reflect the arguments for and against the right-to-repair movement during that period.  Specific mentions of recent legislation, court cases, or major industry developments are missing.  The summary table is useful, but the analysis would benefit from a stronger concluding paragraph synthesizing the information and offering a more concise summary of the current state of the debate.  Consider adding information on specific manufacturers’ actions and policies in 2023-2024.
+[2025-07-25 03:54:52,829] INFO in agent_service: --- Pipeline Iteration 2 ---
+[2025-07-25 03:54:52,829] INFO in agent_service: Pipeline: Skipping Searcher Agent for rework.
+[2025-07-25 03:54:52,829] INFO in agent_service: Pipeline: Calling Analyzer Agent.
+[2025-07-25 03:54:52,829] INFO in agent_service: Analyzer Agent: Analyzing search results to generate a structured report via tool call.
+[2025-07-25 03:55:09,918] INFO in agent_service: Analyzer Agent: Successfully received and parsed submit_report tool call.
+[2025-07-25 03:55:09,919] INFO in agent_service: Pipeline: Received parsed payload from Analyzer Agent.
+[2025-07-25 03:55:09,919] INFO in agent_service: Pipeline: Calling Reviewer Agent.
+[2025-07-25 03:55:09,920] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: False
+[2025-07-25 03:55:10,987] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
+[2025-07-25 03:55:10,989] INFO in agent_service: Tool Parser: Decoded function call 'request_more_info' from Reviewer.
+[2025-07-25 03:55:10,990] INFO in agent_service: Pipeline: Reviewer requested more info. New queries: ['right to repair arguments 2023', 'right to repair legislation 2023-2024', 'consumer electronics manufacturers right to repair policies 2023-2024', 'independent repair advocates right to repair arguments 2023-2024', 'impact of right to repair movement on consumer electronics industry 2023-2024']
+[2025-07-25 03:55:10,991] INFO in agent_service: --- Pipeline Iteration 3 ---
+[2025-07-25 03:55:10,992] INFO in agent_service: Pipeline: Calling Search Aggregator for multiple new queries.
+[2025-07-25 03:55:10,993] INFO in agent_service: Aggregating search results for 5 new queries.
+[2025-07-25 03:55:10,995] INFO in search_service: Search Service: Executing Google Search API call.
+[2025-07-25 03:55:11,002] INFO in search_service: Search Service: Executing Google Search API call.
+[2025-07-25 03:55:11,023] INFO in search_service: Search Service: Executing Google Search API call.
+[2025-07-25 03:55:11,032] INFO in search_service: Search Service: Executing Google Search API call.
+[2025-07-25 03:55:11,052] INFO in search_service: Search Service: Executing Google Search API call.
+[2025-07-25 03:55:11,554] INFO in search_service: Search Service: Found 5 results from Google Search.
+[2025-07-25 03:55:11,667] INFO in search_service: Search Service: Found 5 results from Google Search.
+[2025-07-25 03:55:11,672] INFO in search_service: Search Service: Found 5 results from Google Search.
+[2025-07-25 03:55:11,689] INFO in search_service: Search Service: Found 5 results from Google Search.
+[2025-07-25 03:55:11,696] INFO in search_service: Search Service: Found 5 results from Google Search.
+[2025-07-25 03:55:12,891] INFO in search_service:   -> Fetcher Task 1: Starting to fetch HTML URL: https://www.cato.org/regulation/spring-2024/criticism-right-repair-laws
+[2025-07-25 03:55:12,911] INFO in search_service:   -> Fetcher Task 2: Starting to fetch HTML URL: https://pirg.org/articles/the-epa-finally-refutes-john-deere-dealership-arguments-against-right-to-repair/
+[2025-07-25 03:55:12,924] INFO in search_service:   -> Fetcher Task 3: Starting to fetch HTML URL: https://hbr.org/2023/01/research-the-unintended-consequences-of-right-to-repair-laws
+[2025-07-25 03:55:12,931] INFO in search_service:   -> Fetcher Task 4: PDF detected. Starting to fetch URL: https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf
+[2025-07-25 03:55:13,177] INFO in search_service:   -> Fetcher Task 5: Starting to fetch HTML URL: https://towardzerowaste.org/2024/01/22/the-right-to-repair/
+[2025-07-25 03:55:13,182] INFO in search_service:   -> Fetcher Task 6: Starting to fetch HTML URL: https://www.congress.gov/bill/118th-congress/house-bill/906/text
+[2025-07-25 03:55:13,185] INFO in search_service:   -> Fetcher Task 7: PDF detected. Starting to fetch URL: https://bhgs.dca.ca.gov/forms_pubs/sb_244_industry_advisory_english.pdf
+[2025-07-25 03:55:13,390] INFO in search_service:   -> Fetcher Task 8: Starting to fetch HTML URL: https://www.congress.gov/bill/118th-congress/house-bill/906
+[2025-07-25 03:55:13,395] INFO in search_service:   -> Fetcher Task 9: Starting to fetch HTML URL: https://malegislature.gov/Bills/193/SD793
+[2025-07-25 03:55:13,399] INFO in search_service:   -> Fetcher Task 10: Starting to fetch HTML URL: https://www.congress.gov/bill/118th-congress/house-bill/10401
+[2025-07-25 03:55:13,409] INFO in search_service:   -> Fetcher Task 11: PDF detected. Starting to fetch URL: https://documents.nam.org/COMM/NAM-3740-Right%20to%20Repair%20Paper%20R4%20V1%20FIN.pdf
+[2025-07-25 03:55:13,612] INFO in search_service:   -> Fetcher Task 12: Starting to fetch HTML URL: https://www.hofstrajibl.org/2024/03/protecting-the-right-to-repair-the-u-s-vs-the-eu/
+[2025-07-25 03:55:13,615] INFO in search_service:   -> Fetcher Task 13: PDF detected. Starting to fetch URL: https://www.no-burn.org/wp-content/uploads/2024/06/03-Battery-Infosheet-The-Right-to-Repair-of-Electric-Vehicle-Batteries.pdf
+[2025-07-25 03:55:13,814] INFO in search_service:   -> Fetcher Task 14: Starting to fetch HTML URL: https://tish.law/blog/understanding-the-latest-right-to-repair-rules-in-michigan/
+[2025-07-25 03:55:13,818] INFO in search_service:   -> Fetcher Task 15: Starting to fetch HTML URL: https://www.repair.org/blog/2023/10/25/the-tide-is-turning-apples-right-to-repair-concession-is-a-big-win-but-dont-unpack-your-toolkits-just-yet
+[2025-07-25 03:55:13,825] INFO in search_service:   -> Fetcher Task 16: PDF detected. Starting to fetch URL: https://sjud.senate.ca.gov/sites/sjud.senate.ca.gov/files/sb_244_eggman_sjud_analysis.pdf
+[2025-07-25 03:55:14,047] INFO in search_service:   -> Fetcher Task 17: PDF detected. Starting to fetch URL: https://www.sec.gov/files/corpfin/no-action/14a-8/gcefdeere122923-14a8.pdf
+[2025-07-25 03:55:14,265] INFO in search_service:   -> Fetcher Task 18: Starting to fetch HTML URL: https://papers.ssrn.com/sol3/Delivery.cfm/5004196.pdf?abstractid=5004196
+[2025-07-25 03:55:14,552] INFO in _client: HTTP Request: GET https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf "HTTP/1.1 403 Forbidden"
+[2025-07-25 03:55:14,564] ERROR in search_service:   -> Fetcher Task 4: Error fetching or parsing PDF https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf: Client error '403 Forbidden' for url 'https://www.americanbar.org/content/dam/aba/publications/antitrust/magazine/2023/vol-37-issue-3/evolution-right-to-repair.pdf'
 For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
-[2025-07-25 00:33:04,722] INFO in _client: HTTP Request: GET https://docs.house.gov/meetings/JU/JU03/20230718/116230/HHRG-118-JU03-20230718-SD019.pdf "HTTP/1.1 200 OK"
-[2025-07-25 00:33:05,338] INFO in search_service:   -> Fetcher Task 5: Successfully parsed PDF content from https://docs.house.gov/meetings/JU/JU03/20230718/116230/HHRG-118-JU03-20230718-SD019.pdf
-[2025-07-25 00:33:10,461] INFO in search_service:   -> Fetcher Task 1: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:18,857] INFO in search_service:   -> Fetcher Task 3: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:22,643] INFO in search_service:   -> Fetcher Task 5: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:25,831] INFO in search_service:   -> Fetcher Task 1: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:29,067] INFO in search_service:   -> Fetcher Task 1: Successfully parsed PDF content from https://www.ftc.gov/system/files/documents/reports/nixing-fix-ftc-report-congress-repair-restrictions/nixing_the_fix_report_final_5521_630pm-508_002.pdf
-[2025-07-25 00:33:30,058] ERROR in search_service:   -> Fetcher Task 2: Error fetching or parsing https://www.recyclingtoday.com/news/federal-trade-commission-right-to-repair/: Page.goto: Page crashed
+[2025-07-25 03:55:14,579] INFO in _client: HTTP Request: GET https://www.sec.gov/files/corpfin/no-action/14a-8/gcefdeere122923-14a8.pdf "HTTP/1.1 403 Forbidden"
+[2025-07-25 03:55:14,589] INFO in _client: HTTP Request: GET https://documents.nam.org/COMM/NAM-3740-Right%20to%20Repair%20Paper%20R4%20V1%20FIN.pdf "HTTP/1.1 200 OK"
+[2025-07-25 03:55:14,781] ERROR in search_service:   -> Fetcher Task 17: Error fetching or parsing PDF https://www.sec.gov/files/corpfin/no-action/14a-8/gcefdeere122923-14a8.pdf: Client error '403 Forbidden' for url 'https://www.sec.gov/files/corpfin/no-action/14a-8/gcefdeere122923-14a8.pdf'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403
+[2025-07-25 03:55:14,791] INFO in _client: HTTP Request: GET https://www.no-burn.org/wp-content/uploads/2024/06/03-Battery-Infosheet-The-Right-to-Repair-of-Electric-Vehicle-Batteries.pdf "HTTP/1.1 200 OK"
+[2025-07-25 03:55:15,131] INFO in search_service:   -> Fetcher Task 11: Successfully parsed PDF content from https://documents.nam.org/COMM/NAM-3740-Right%20to%20Repair%20Paper%20R4%20V1%20FIN.pdf
+[2025-07-25 03:55:15,389] INFO in search_service:   -> Fetcher Task 13: Successfully parsed PDF content from https://www.no-burn.org/wp-content/uploads/2024/06/03-Battery-Infosheet-The-Right-to-Repair-of-Electric-Vehicle-Batteries.pdf
+[2025-07-25 03:55:15,395] INFO in _client: HTTP Request: GET https://sjud.senate.ca.gov/sites/sjud.senate.ca.gov/files/sb_244_eggman_sjud_analysis.pdf "HTTP/1.1 200 OK"
+[2025-07-25 03:55:15,406] INFO in _client: HTTP Request: GET https://bhgs.dca.ca.gov/forms_pubs/sb_244_industry_advisory_english.pdf "HTTP/1.1 200 OK"
+[2025-07-25 03:55:15,804] INFO in search_service:   -> Fetcher Task 16: Successfully parsed PDF content from https://sjud.senate.ca.gov/sites/sjud.senate.ca.gov/files/sb_244_eggman_sjud_analysis.pdf
+[2025-07-25 03:55:15,832] INFO in search_service:   -> Fetcher Task 7: Successfully parsed PDF content from https://bhgs.dca.ca.gov/forms_pubs/sb_244_industry_advisory_english.pdf
+[2025-07-25 03:55:16,942] WARNING in search_service:   -> Fetcher Task 10: No paragraph content found at https://www.congress.gov/bill/118th-congress/house-bill/10401
+[2025-07-25 03:55:17,306] WARNING in search_service:   -> Fetcher Task 8: No paragraph content found at https://www.congress.gov/bill/118th-congress/house-bill/906
+[2025-07-25 03:55:17,354] WARNING in search_service:   -> Fetcher Task 6: No paragraph content found at https://www.congress.gov/bill/118th-congress/house-bill/906/text
+[2025-07-25 03:55:17,571] INFO in search_service:   -> Fetcher Task 2: Successfully parsed content from https://pirg.org/articles/the-epa-finally-refutes-john-deere-dealership-arguments-against-right-to-repair/
+[2025-07-25 03:55:20,259] ERROR in search_service:   -> Fetcher Task 9: Error fetching or parsing https://malegislature.gov/Bills/193/SD793: Page.goto: Page crashed
 Call log:
-  - navigating to "https://www.recyclingtoday.com/news/federal-trade-commission-right-to-repair/", waiting until "domcontentloaded"
+  - navigating to "https://malegislature.gov/Bills/193/SD793", waiting until "domcontentloaded"
 
-[2025-07-25 00:33:30,112] ERROR in search_service:   -> Fetcher Task 1: Error fetching or parsing https://www.lightguidesys.com/resource-center/case-study/tech-insurance-company-transforms-electronics-repair-processes-with-ar/: Page.goto: Page crashed
+[2025-07-25 03:55:22,151] WARNING in search_service:   -> Fetcher Task 18: No paragraph content found at https://papers.ssrn.com/sol3/Delivery.cfm/5004196.pdf?abstractid=5004196
+[2025-07-25 03:55:24,178] INFO in search_service:   -> Fetcher Task 14: Successfully parsed content from https://tish.law/blog/understanding-the-latest-right-to-repair-rules-in-michigan/
+[2025-07-25 03:55:26,007] INFO in search_service:   -> Fetcher Task 12: Successfully parsed content from https://www.hofstrajibl.org/2024/03/protecting-the-right-to-repair-the-u-s-vs-the-eu/
+[2025-07-25 03:55:26,864] INFO in search_service:   -> Fetcher Task 5: Successfully parsed content from https://towardzerowaste.org/2024/01/22/the-right-to-repair/
+[2025-07-25 03:55:27,543] INFO in search_service:   -> Fetcher Task 1: Successfully parsed content from https://www.cato.org/regulation/spring-2024/criticism-right-repair-laws
+[2025-07-25 03:55:29,501] ERROR in search_service:   -> Fetcher Task 3: Error fetching or parsing https://hbr.org/2023/01/research-the-unintended-consequences-of-right-to-repair-laws: Page.goto: Page crashed
 Call log:
-  - navigating to "https://www.lightguidesys.com/resource-center/case-study/tech-insurance-company-transforms-electronics-repair-processes-with-ar/", waiting until "domcontentloaded"
+  - navigating to "https://hbr.org/2023/01/research-the-unintended-consequences-of-right-to-repair-laws", waiting until "domcontentloaded"
 
-[2025-07-25 00:33:30,632] ERROR in search_service:   -> Fetcher Task 1: Error fetching or parsing https://www.cato.org/regulation/spring-2024/criticism-right-repair-laws: Page.goto: Timeout 20000ms exceeded.
-Call log:
-  - navigating to "https://www.cato.org/regulation/spring-2024/criticism-right-repair-laws", waiting until "domcontentloaded"
-
-[2025-07-25 00:33:30,653] ERROR in search_service:   -> Fetcher Task 2: Error fetching or parsing https://www.ifixit.com/News/14720/the-asus-malware-fiasco-proves-why-arguments-against-right-to-repair-are-bogus: Page.goto: Timeout 20000ms exceeded.
-Call log:
-  - navigating to "https://www.ifixit.com/News/14720/the-asus-malware-fiasco-proves-why-arguments-against-right-to-repair-are-bogus", waiting until "domcontentloaded"
-
-[2025-07-25 00:33:30,738] ERROR in search_service:   -> Fetcher Task 4: Error fetching or parsing https://www.repairerdrivennews.com/2021/05/11/ftc-presents-restricted-parts-oem-body-shop-referrals-as-right-to-repair-issues/: Page.goto: Page crashed
-Call log:
-  - navigating to "https://www.repairerdrivennews.com/2021/05/11/ftc-presents-restricted-parts-oem-body-shop-referrals-as-right-to-repair-issues/", waiting until "domcontentloaded"
-
-[2025-07-25 00:33:31,801] INFO in search_service:   -> Fetcher Task 2: Successfully parsed content from https://www.wiley.law/alert-State-Right-to-Repair-Patchwork-Grows-as-Electronic-Device-Manufacturers-Face-New-Compliance-Deadlines
-[2025-07-25 00:33:32,523] INFO in search_service:   -> Fetcher Task 3: Successfully parsed content from https://scholarship.law.unc.edu/cgi/viewcontent.cgi?article=1440&context=ncjolt
-[2025-07-25 00:33:33,056] INFO in search_service:   -> Fetcher Task 3: Successfully parsed content from https://www.seyfarth.com/news-insights/manufacturers-challenge-massachusetts-law-requiring-changes-to-vehicle-telematics-systems.html
-[2025-07-25 00:33:33,556] INFO in search_service:   -> Fetcher Task 2: Successfully parsed content from https://voterguide.sos.ca.gov/propositions/2/arguments-rebuttals.htm
-[2025-07-25 00:33:33,928] INFO in search_service:   -> Fetcher Task 4: Successfully parsed content from https://voterguide.sos.ca.gov/propositions/5/arguments-rebuttals.htm
-[2025-07-25 00:33:34,025] INFO in search_service: Search Service: All fetcher tasks have completed.
-[2025-07-25 00:33:34,192] INFO in search_service:   -> Fetcher Task 3: Successfully parsed content from https://www.troutman.com/insights/john-deere-and-farmers-get-creative-on-right-to-repair.html
-[2025-07-25 00:33:34,510] WARNING in search_service:   -> Fetcher Task 5: No paragraph content found at https://legislature.maine.gov/statutes/29-a/title29-Asec1810.html
-[2025-07-25 00:33:34,545] INFO in search_service: Search Service: All fetcher tasks have completed.
-[2025-07-25 00:33:34,746] INFO in search_service:   -> Fetcher Task 4: Successfully parsed content from https://pirg.org/articles/who-doesnt-want-the-right-to-repair-companies-worth-over-10-trillion/
-[2025-07-25 00:33:34,954] INFO in search_service: Search Service: Combining search data with fetched content.
-[2025-07-25 00:33:34,961] INFO in search_service: Search Service: Orchestration complete. Returning final results.
-[2025-07-25 00:33:34,965] INFO in agent_service: Searcher Agent: Found 5 results.
-[2025-07-25 00:33:35,213] INFO in search_service:   -> Fetcher Task 4: Successfully parsed content from https://journals.sagepub.com/doi/10.1177/20438869231178037
-[2025-07-25 00:33:35,272] INFO in search_service: Search Service: Combining search data with fetched content.
-[2025-07-25 00:33:35,277] INFO in search_service: Search Service: Orchestration complete. Returning final results.
-[2025-07-25 00:33:35,288] INFO in agent_service: Searcher Agent: Found 5 results.
-[2025-07-25 00:33:36,455] INFO in search_service:   -> Fetcher Task 3: Successfully parsed content from https://www.sciencedirect.com/science/article/abs/pii/S235255092100378X
-[2025-07-25 00:33:36,456] INFO in search_service: Search Service: All fetcher tasks have completed.
-[2025-07-25 00:33:36,762] INFO in search_service:   -> Fetcher Task 5: Successfully parsed content from https://www.ag.state.mn.us/consumer/handbooks/mncarlaws/CH1.asp
-[2025-07-25 00:33:36,763] INFO in search_service: Search Service: All fetcher tasks have completed.
-[2025-07-25 00:33:36,877] INFO in search_service: Search Service: Combining search data with fetched content.
-[2025-07-25 00:33:36,879] INFO in search_service: Search Service: Orchestration complete. Returning final results.
-[2025-07-25 00:33:36,883] INFO in agent_service: Searcher Agent: Found 5 results.
-[2025-07-25 00:33:37,116] INFO in search_service: Search Service: Combining search data with fetched content.
-[2025-07-25 00:33:37,119] INFO in search_service: Search Service: Orchestration complete. Returning final results.
-[2025-07-25 00:33:37,124] INFO in agent_service: Searcher Agent: Found 5 results.
-[2025-07-25 00:33:37,414] INFO in search_service:   -> Fetcher Task 4: Successfully parsed content from https://www.butlersnow.com/news-and-events/crafting-a-measured-response-to-the-right-to-repair-movement
-[2025-07-25 00:33:40,962] INFO in search_service:   -> Fetcher Task 5: Successfully parsed content from https://www.regulatoryoversight.com/2025/03/ftc-states-sue-john-deere-in-right-to-repair-lawsuit/
-[2025-07-25 00:33:40,965] INFO in search_service: Search Service: All fetcher tasks have completed.
-[2025-07-25 00:33:41,141] INFO in search_service: Search Service: Combining search data with fetched content.
-[2025-07-25 00:33:41,141] INFO in search_service: Search Service: Orchestration complete. Returning final results.
-[2025-07-25 00:33:41,142] INFO in agent_service: Searcher Agent: Found 5 results.
-[2025-07-25 00:33:41,142] INFO in agent_service: Aggregation complete. Total unique results: 25
-[2025-07-25 00:33:41,143] INFO in agent_service: Pipeline: Calling Analyzer Agent.
-[2025-07-25 00:33:41,143] INFO in agent_service: Analyzer Agent: Analyzing search results.
-[2025-07-25 00:33:56,121] INFO in agent_service: Analyzer Agent: Analysis complete.
-[2025-07-25 00:33:56,121] INFO in agent_service: Pipeline: Calling Reviewer Agent.
-[2025-07-25 00:33:56,122] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: False
-[2025-07-25 00:33:58,253] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
-[2025-07-25 00:33:58,253] INFO in agent_service: Tool Parser: Decoded function call 'request_rework' from Reviewer.
-[2025-07-25 00:33:58,254] INFO in agent_service: Pipeline: Reviewer requested rework. Feedback: The answer mentions that some search results could not be accessed due to errors, potentially resulting in an incomplete analysis.  This needs to be addressed.  While the analysis is well-structured and presents arguments from both sides, the lack of complete data weakens the conclusions.  The answer should either clarify which specific data was missing and how this impacted the analysis, or it should state that the analysis is preliminary due to incomplete data retrieval.  Additionally, the answer should include specific examples or citations to support its claims, especially in sections where strong assertions are made (e.g.,  "Consumer surveys indicate similar customer satisfaction between OEM and independent repair shops").  Specific citations for the FTC report should be added. Finally, the answer lacks information on the legal landscape surrounding the right to repair, which is an important part of the debate in the last year. Include relevant legislation and court cases to strengthen the analysis.
-[2025-07-25 00:33:58,254] INFO in agent_service: --- Pipeline Iteration 3 ---
-[2025-07-25 00:33:58,255] INFO in agent_service: Pipeline: Skipping Searcher Agent for rework.
-[2025-07-25 00:33:58,255] INFO in agent_service: Pipeline: Calling Analyzer Agent.
-[2025-07-25 00:33:58,255] INFO in agent_service: Analyzer Agent: Analyzing search results.
-[2025-07-25 00:33:58,267] INFO in agent_service: Analyzer Agent: Incorporating feedback: The answer mentions that some search results could not be accessed due to errors, potentially resulting in an incomplete analysis.  This needs to be addressed.  While the analysis is well-structured and presents arguments from both sides, the lack of complete data weakens the conclusions.  The answer should either clarify which specific data was missing and how this impacted the analysis, or it should state that the analysis is preliminary due to incomplete data retrieval.  Additionally, the answer should include specific examples or citations to support its claims, especially in sections where strong assertions are made (e.g.,  "Consumer surveys indicate similar customer satisfaction between OEM and independent repair shops").  Specific citations for the FTC report should be added. Finally, the answer lacks information on the legal landscape surrounding the right to repair, which is an important part of the debate in the last year. Include relevant legislation and court cases to strengthen the analysis.
-[2025-07-25 00:34:16,276] INFO in agent_service: Analyzer Agent: Analysis complete.
-[2025-07-25 00:34:16,277] INFO in agent_service: Pipeline: Calling Reviewer Agent.
-[2025-07-25 00:34:16,277] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: True
-[2025-07-25 00:34:18,212] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
-[2025-07-25 00:34:18,213] INFO in agent_service: Tool Parser: Decoded function call 'request_rework' from Reviewer.
-[2025-07-25 00:34:18,214] INFO in agent_service: Pipeline: Reviewer requested rework. Feedback: The analysis correctly identifies the limitations imposed by inaccessible search results and honestly presents an incomplete analysis.  However, the answer could be significantly improved by restructuring the information.  Currently, the information is organized by arguments for and against right-to-repair, but this structure makes it difficult to compare and contrast the positions of manufacturers and repair advocates directly.  The response should be reorganized to compare and contrast these perspectives point-by-point. For example, create sections addressing each key argument (IP protection, safety, cost, etc.) and then present the manufacturers’ and repair advocates’ views on that specific argument within each section. This would provide a much clearer and more useful comparison.  Additionally, while acknowledging the limitations, the conclusion could benefit from a concise summary of the overall balance of arguments based on the available information, even if incomplete. For example, it could state whether the accessible evidence leans more towards supporting or opposing the right-to-repair movement, based on the available data.
-[2025-07-25 00:34:18,214] WARNING in agent_service: Pipeline: Max iterations reached.
-[2025-07-25 00:34:18,219] INFO in _internal: 127.0.0.1 - - [25/Jul/2025 00:34:18] "POST /search HTTP/1.1" 200 -
-[2025-07-25 01:14:10,766] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/versions/v2/agent_service.py', reloading
-[2025-07-25 01:14:13,177] INFO in _internal:  * Restarting with stat
-[2025-07-25 01:14:15,127] WARNING in _internal:  * Debugger is active!
-[2025-07-25 01:14:15,141] INFO in _internal:  * Debugger PIN: 730-756-593
-[2025-07-25 01:14:23,309] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/versions/v2/agent_service.py', reloading
-[2025-07-25 01:14:23,906] INFO in _internal:  * Restarting with stat
-[2025-07-25 01:14:25,467] WARNING in _internal:  * Debugger is active!
-[2025-07-25 01:14:25,482] INFO in _internal:  * Debugger PIN: 730-756-593
-[2025-07-25 01:14:33,683] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/versions/v2/search_service.py', reloading
-[2025-07-25 01:14:34,198] INFO in _internal:  * Restarting with stat
-[2025-07-25 01:14:35,846] WARNING in _internal:  * Debugger is active!
-[2025-07-25 01:14:35,853] INFO in _internal:  * Debugger PIN: 730-756-593
-[2025-07-25 01:14:37,907] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/versions/v2/search_service.py', reloading
-[2025-07-25 01:14:38,225] INFO in _internal:  * Restarting with stat
-[2025-07-25 01:14:39,417] WARNING in _internal:  * Debugger is active!
-[2025-07-25 01:14:39,423] INFO in _internal:  * Debugger PIN: 730-756-593
-[2025-07-25 01:14:43,541] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
-[2025-07-25 01:14:44,030] INFO in _internal:  * Restarting with stat
-[2025-07-25 01:14:46,976] WARNING in _internal:  * Debugger is active!
-[2025-07-25 01:14:46,993] INFO in _internal:  * Debugger PIN: 730-756-593
-[2025-07-25 01:14:59,265] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
-[2025-07-25 01:14:59,623] INFO in _internal:  * Restarting with stat
-[2025-07-25 01:15:01,036] WARNING in _internal:  * Debugger is active!
-[2025-07-25 01:15:01,041] INFO in _internal:  * Debugger PIN: 730-756-593
-[2025-07-25 01:15:03,100] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/search_service.py', reloading
-[2025-07-25 01:15:03,425] INFO in _internal:  * Restarting with stat
-[2025-07-25 01:15:04,663] WARNING in _internal:  * Debugger is active!
-[2025-07-25 01:15:04,668] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 03:55:31,224] INFO in search_service:   -> Fetcher Task 15: Successfully parsed content from https://www.repair.org/blog/2023/10/25/the-tide-is-turning-apples-right-to-repair-concession-is-a-big-win-but-dont-unpack-your-toolkits-just-yet
+[2025-07-25 03:55:31,430] INFO in agent_service: Aggregation complete. Total unique results: 23
+[2025-07-25 03:55:31,433] INFO in agent_service: Pipeline: Calling Analyzer Agent.
+[2025-07-25 03:55:31,433] INFO in agent_service: Analyzer Agent: Analyzing search results to generate a structured report via tool call.
+[2025-07-25 03:55:57,928] INFO in agent_service: Analyzer Agent: Successfully received and parsed submit_report tool call.
+[2025-07-25 03:55:57,930] INFO in agent_service: Pipeline: Received parsed payload from Analyzer Agent.
+[2025-07-25 03:55:57,930] INFO in agent_service: Pipeline: Calling Reviewer Agent.
+[2025-07-25 03:55:57,931] INFO in agent_service: Reviewer Agent: Reviewing the analysis. Final Round: True
+[2025-07-25 03:55:58,340] INFO in agent_service: Reviewer Agent: Review complete. Returning full response object.
+[2025-07-25 03:55:58,340] INFO in agent_service: Tool Parser: Decoded function call 'mark_as_complete' from Reviewer.
+[2025-07-25 03:55:58,340] INFO in agent_service: Pipeline: Reviewer returned COMPLETE. Finalizing.
+[2025-07-25 03:55:58,351] INFO in _internal: 127.0.0.1 - - [25/Jul/2025 03:55:58] "POST /search HTTP/1.1" 200 -
+[2025-07-25 04:11:16,176] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 04:11:16,223] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 04:11:17,206] INFO in _internal:  * Restarting with stat
+[2025-07-25 04:11:19,525] INFO in _internal:  * Restarting with stat
+[2025-07-25 04:11:19,934] WARNING in _internal:  * Debugger is active!
+[2025-07-25 04:11:19,951] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 04:11:22,196] WARNING in _internal:  * Debugger is active!
+[2025-07-25 04:11:22,209] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 04:12:22,534] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/versions/v2/agent_service.py', reloading
+[2025-07-25 04:12:22,658] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/versions/v2/agent_service.py', reloading
+[2025-07-25 04:12:23,214] INFO in _internal:  * Restarting with stat
+[2025-07-25 04:12:23,551] INFO in _internal:  * Restarting with stat
+[2025-07-25 04:12:26,066] WARNING in _internal:  * Debugger is active!
+[2025-07-25 04:12:26,082] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 04:12:26,857] WARNING in _internal:  * Debugger is active!
+[2025-07-25 04:12:26,874] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 04:12:29,180] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 04:12:29,701] INFO in _internal:  * Restarting with stat
+[2025-07-25 04:12:29,973] INFO in _internal:  * Detected change in '/home/user/prometheus/app/services/agent_service.py', reloading
+[2025-07-25 04:12:30,855] INFO in _internal:  * Restarting with stat
+[2025-07-25 04:12:32,764] WARNING in _internal:  * Debugger is active!
+[2025-07-25 04:12:32,783] INFO in _internal:  * Debugger PIN: 730-756-593
+[2025-07-25 04:12:33,685] WARNING in _internal:  * Debugger is active!
+[2025-07-25 04:12:33,699] INFO in _internal:  * Debugger PIN: 730-756-593

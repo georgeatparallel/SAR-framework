@@ -1,5 +1,5 @@
 # app/services/search_service.py
-# VERSION 2.0.0 -- STABLE
+# VERSION 2.2.0 -- STABLE
 
 import os
 import asyncio
