@@ -167,7 +167,6 @@ async def run_agentic_pipeline(initial_query: str):
         logger.info(f"--- Pipeline Iteration {i+1} ---")
         conversation_history.append({"iteration": i + 1, "steps": []})
 
-        # 1. Call Searcher
         if feedback is None:
             if isinstance(current_queries, list):
                 print(" M: Calling Search Aggregator to find new information...")
@@ -195,7 +194,6 @@ async def run_agentic_pipeline(initial_query: str):
         conversation_history[-1]["steps"].append({"agent": "Analyzer", "feedback_received": feedback, "analysis": analysis})
         feedback = None
 
-        # 3. Call Reviewer
         logger.info("Pipeline: Calling Reviewer Agent.")
         review = reviewer_agent(initial_query, analysis)
         command, payload = parse_reviewer_command(review)
