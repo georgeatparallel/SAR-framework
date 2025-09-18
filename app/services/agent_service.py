@@ -368,7 +368,7 @@ def reviewer_agent(query: str, analysis: str, is_final_round: bool = False) -> g
         3.  Based on your assessment, call one of the following functions:
             - **mark_as_complete:** Call this if the answer is complete, accurate, and based on sufficient data.
             - **request_rework:** Call this if the answer has correctable flaws (e.g., style, structure, minor omissions) but the underlying source data appears to be sufficient.
-            - **request_more_info:** Call this if the analysis is fundamentally weak because the sources are **outdated, irrelevant, or insufficient** to answer the query properly. Provide new, specific search queries to find better information (e.g., queries focused on a more recent timeframe like "right to repair 2024 arguments"). You should also call this if the analysis explicitly mentions data fetching errors.
+            - **request_more_info:** Call this if the analysis is fundamentally weak because the sources are **outdated, irrelevant, or insufficient** to answer the query properly. Provide new, specific search queries to find better information (e.g., queries focused on a more recent timeframe like [QUERY] in [YEAR] context"). You should also call this if the analysis explicitly mentions data fetching errors.
         """
 
     print("-> [Agent: Reviewer] Evaluating analysis with Gemini model (function calling enabled)...")
