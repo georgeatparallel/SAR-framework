@@ -1,52 +1,242 @@
-# Agentic AI Pipeline Blueprint
+# SAR Framework — Architecture Blueprint
+
+## Table of Contents
+
+- [Vision](#vision)
+- [Architecture Overview](#architecture-overview)
+- [Agent Specifications](#agent-specifications)
+- [Pipeline Workflow](#pipeline-workflow)
+- [Technical Implementation](#technical-implementation)
+- [MVP Development Plan](#mvp-development-plan)
+- [Future Enhancements](#future-enhancements)
+
+---
 
 ## Vision
 
-The vision is to build an agentic AI pipeline that, given a search task, can orchestrate multiple agents through custom system prompts and programmatic prompt engineering. These agents will work in a collaborative loop until the task is completed or a predefined limit (e.g., time) is reached.
+The SAR (Search-Analyze-Review) Framework is an agentic AI pipeline that orchestrates multiple specialized agents to automate complex information retrieval and analysis tasks. Given a search task, the system:
 
-This pipeline aims to automate complex information retrieval and analysis tasks by breaking them down into smaller steps handled by specialized agents, mimicking a team-based approach to problem-solving.
+1. **Searches** for relevant information across the web
+2. **Analyzes** and synthesizes findings into structured reports
+3. **Reviews** output quality and iterates until completion
 
-## Agentic Orchestration Model (Three-Agent MVP)
+This approach mimics a research team's workflow — breaking down complex tasks into specialized roles that collaborate through defined interfaces.
 
-For the Minimum Viable Product (MVP), we will implement a three-way agentic orchestration model:
+---
 
-1.  **Agent 1: The Searcher**
-    *   **Goal:** Perform accurate and relevant information retrieval through searching.
-    *   **Functionality:** Take a search query as input, utilize the available search tool (`search_tool.py`) to fetch results, and perform an initial parsing or "loading" of the retrieved content (acting as an NLP Knowledge ETL process).
-    *   **Output:** The raw or semi-processed retrieved content (e.g., parsed snippets, titles, links) passed to Agent 2.
+## Architecture Overview
 
-2.  **Agent 2: The Analyzer**
-    *   **Goal:** Process and analyze the retrieved content in the context of the original user query and generate the requested output.
-    *   **Functionality:** Receive the output from Agent 1, understand the content of the documents, determine their relevance, and perform analytical work based on the user's request. This could involve summarizing, extracting key information, synthesizing insights, or formatting data.
-    *   **Output:** The generated output for the user task (e.g., a Markdown document, a table, a summary) passed to Agent 3.
+### High-Level Flow
 
-3.  **Agent 3: The Reviewer**
-    *   **Goal:** Evaluate the work of Agent 2, determine task completion, and guide the workflow for further refinement or iteration.
-    *   **Functionality:** Receive and review the output from Agent 2. Based on predefined criteria and the original user query, the Reviewer will make a decision:
-        *   **Incomplete (Needs More Search):** If the results are insufficient or the task requires more information, request a new search from Agent 1 (potentially with a refined query).
-        *   **Incomplete (Needs Revision):** If the output needs corrections or improvements, request revisions from Agent 2.
-        *   **Complete:** If the output successfully addresses the user query and meets the quality criteria, signal task completion.
-    *   **Output:** Feedback/instructions directed back to Agent 1 or Agent 2, or a final signal of task completion.
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Searcher  │────▶│  Analyzer   │────▶│  Reviewer   │
+│    Agent    │     │    Agent    │     │    Agent    │
+└─────────────┘     └─────────────┘     └─────────────┘
+       ▲                                       │
+       │                                       ▼
+       │            ┌─────────────┐      ┌──────────┐
+       └────────────│ Orchestrator│◀─────│ Decision │
+                    └─────────────┘      └──────────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │   Output    │
+                    └─────────────┘
+```
 
-## Workflow Cycle
+### Component Stack
 
-The agents will operate in a cycle:
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Web Framework** | Flask (async) | API endpoints, request handling |
+| **AI Model** | Gemini 1.5 Flash | Agent reasoning and generation |
+| **Search** | Google Custom Search API | Web information retrieval |
+| **Content Fetch** | Playwright, httpx | HTML/PDF content extraction |
+| **Parsing** | BeautifulSoup, PyMuPDF | Content processing |
 
-User Query -> Agent 1 (Search) -> Agent 2 (Analyze) -> Agent 3 (Review) -> (Loop back to Agent 1 or Agent 2 based on Reviewer feedback) -> Task Completion or Time Limit Reached.
+---
 
-## Limits and Termination
+## Agent Specifications
 
-*   **Time Limit:** The pipeline will have a predefined time limit. If the task is not completed within this limit, Agent 3 will stop the iteration process and provide the best available output from Agent 2 at that point.
-*   **Completion Criteria:** Agent 3 will determine task completion based on whether Agent 2's output effectively addresses the original user query and meets quality standards.
+### Agent 1: The Searcher
+
+**Goal:** Accurate and relevant information retrieval.
+
+| Attribute | Description |
+|-----------|-------------|
+| **Input** | Search query string |
+| **Process** | Execute Google search, fetch page content (HTML/PDF), parse text |
+| **Output** | Structured results with title, link, snippet, and full content |
+| **Async** | Yes — parallel content fetching with Playwright |
+
+**Capabilities:**
+- Google Custom Search API integration
+- Concurrent URL content fetching
+- PDF text extraction via PyMuPDF
+- HTML parsing with multiple fallback strategies
+- URL deduplication across iterations
+
+### Agent 2: The Analyzer
+
+**Goal:** Synthesize retrieved content into coherent, cited analysis.
+
+| Attribute | Description |
+|-----------|-------------|
+| **Input** | Search results, original query, optional feedback |
+| **Process** | Analyze content, generate structured report, cite sources |
+| **Output** | Markdown report with APA citations and source URLs |
+| **Tool** | `submit_report(report, citations_used)` |
+
+**Capabilities:**
+- Evidence triage and prioritization
+- Theme identification and structuring
+- Comparative analysis with summary tables
+- In-line citation generation
+- Error handling for failed source fetches
+
+### Agent 3: The Reviewer
+
+**Goal:** Quality control and workflow direction.
+
+| Attribute | Description |
+|-----------|-------------|
+| **Input** | Analysis output, original query, iteration status |
+| **Process** | Evaluate completeness, accuracy, and relevance |
+| **Output** | Decision function call |
+| **Tools** | `mark_as_complete()`, `request_rework(feedback)`, `request_more_info(queries)` |
+
+**Decision Matrix:**
+
+| Condition | Action | Effect |
+|-----------|--------|--------|
+| Answer is complete and accurate | `mark_as_complete()` | Pipeline terminates successfully |
+| Answer has correctable flaws | `request_rework(feedback)` | Loops to Analyzer with feedback |
+| Insufficient source data | `request_more_info(queries)` | Loops to Searcher with new queries |
+| Final round + acceptable | `mark_as_complete()` | Forced completion |
+| Final round + critical flaws | `request_rework(feedback)` | One last correction attempt |
+
+---
+
+## Pipeline Workflow
+
+### Pseudocode Logic
+
+```
+PROCEDURE run_pipeline(query):
+    max_iterations ← 3
+    search_results ← empty
+    feedback ← null
+    
+    FOR iteration FROM 1 TO max_iterations:
+        
+        IF feedback IS null:
+            search_results ← SEARCH(query OR new_queries)
+        
+        analysis ← ANALYZE(query, search_results, feedback)
+        feedback ← null
+        
+        decision ← REVIEW(query, analysis, is_final=iteration==max)
+        
+        SWITCH decision:
+            CASE COMPLETE:
+                RETURN analysis
+            CASE NEEDS_REWORK:
+                feedback ← decision.payload
+            CASE NEEDS_MORE_INFO:
+                new_queries ← decision.payload
+    
+    RETURN analysis  // Max iterations reached
+```
+
+### State Management
+
+| State Variable | Purpose |
+|----------------|---------|
+| `current_queries` | Query/queries for next search |
+| `search_results` | Accumulated search data |
+| `feedback` | Rework instructions from Reviewer |
+| `conversation_history` | Full execution trace |
+| `iteration` | Current loop count |
+
+---
+
+## Technical Implementation
+
+### Directory Structure
+
+```
+app/services/
+├── agent_service.py      # Agent logic + orchestration
+│   ├── searcher_agent()
+│   ├── analyzer_agent()
+│   ├── reviewer_agent()
+│   ├── tool_parser_agent()
+│   ├── aggregate_search_results()
+│   └── run_agentic_pipeline()
+│
+└── search_service.py     # Low-level search operations
+    ├── perform_google_search()
+    ├── fetch_and_parse_html_async()
+    ├── fetch_and_parse_pdf_async()
+    └── search_and_fetch_content()
+```
+
+### Key Design Decisions
+
+1. **Function Calling for Decisions**: Reviewer uses Gemini function calling to ensure structured, parseable decisions.
+
+2. **Centralized Content Fetching**: All URL fetching happens in a single async batch to maximize parallelism.
+
+3. **Conversation History**: Full pipeline trace is returned for debugging and transparency.
+
+4. **Graceful Degradation**: Pipeline completes with best available output if max iterations reached.
+
+---
 
 ## MVP Development Plan
 
-To bootstrap our learning and get a basic end-to-end pipeline working quickly, the MVP will focus on:
+### ✅ Completed
 
-1.  **Refining Agent 1 (Searcher):** Create a simple programmatic way to trigger a search using `search_tool.py` and process its JSON output.
-2.  **Building a Basic Agent 2 (Analyzer):** Implement a minimal function to receive search results and perform a very basic transformation or extraction (e.g., just listing snippets).
-3.  **Building a Placeholder Agent 3 (Reviewer):** Create a simple function that checks if Agent 2 produced any output and, if so, signals completion; otherwise, signals a need for more search (without complex analysis).
-4.  **Creating a Simple Orchestration Flow:** Develop a core function or endpoint to initiate the process, call the basic agent functions in sequence, and include a simple time counter to simulate the time limit.
-5.  **Basic Communication:** Use direct function calls or simple data passing between the basic agent functions for the MVP.
+- [x] Google Search integration with content fetching
+- [x] Flask application structure with blueprints
+- [x] Searcher Agent implementation
+- [x] Analyzer Agent with tool-based submission
+- [x] Reviewer Agent with function calling
+- [x] Pipeline orchestration with iteration loop
+- [x] Async content fetching (HTML + PDF)
+- [x] Conversation history tracking
 
-This MVP will provide a concrete foundation to test the basic agentic loop and identify key areas for future enhancement, such as more sophisticated NLP for Agent 2, advanced review logic for Agent 3, robust inter-agent communication, and dynamic prompt engineering.
+### 🔜 Next Steps
+
+- [ ] Improve error handling for edge cases
+- [ ] Add request timeout and rate limiting
+- [ ] Implement caching for repeated queries
+- [ ] Add unit tests for agent functions
+- [ ] Create API documentation with examples
+
+---
+
+## Future Enhancements
+
+### Short-term
+
+- **Enhanced NLP**: Summarization, entity extraction in Analyzer
+- **Source Credibility**: Ranking sources by authority
+- **Multi-modal**: Image/chart analysis from search results
+
+### Long-term
+
+- **Custom Agent Plugins**: Allow user-defined agents
+- **Streaming Responses**: Real-time pipeline progress
+- **Agent Memory**: Cross-session learning and context
+- **Multi-LLM Support**: Swap in different AI providers
+
+---
+
+## References
+
+- [Flask Documentation](https://flask.palletsprojects.com/)
+- [Google Gemini API](https://ai.google.dev/docs)
+- [Google Custom Search API](https://developers.google.com/custom-search)
+- [Playwright Python](https://playwright.dev/python/)
