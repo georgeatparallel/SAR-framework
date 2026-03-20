@@ -1,5 +1,30 @@
-.venv
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
 .env
+.venv/
+venv/
+
+# Logs
+logs/*.log
+
+# Runtime files
+.server.pid
+.port
+
+# IDE / editor config
+.idx/
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # Playwright
 node_modules/
