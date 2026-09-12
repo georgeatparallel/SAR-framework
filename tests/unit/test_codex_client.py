@@ -68,6 +68,17 @@ class TestRecoveryPaths:
         assert resp.content == "ok"
         assert resp.raw["source"] == "handoff-file(repaired)"
 
+    async def test_double_encoded_handoff_unwraps(
+        self, fake_codex, tmp_path, monkeypatch
+    ):
+        # A model that writes the object as a JSON string (double-encoded)
+        # killed a live run; the client now unwraps one level.
+        monkeypatch.setenv("FAKE_CODEX_MODE", "handoff-double")
+        client = make_client(tmp_path)
+        resp = await client.call(simple_request())
+        assert resp.content == "ok"
+        assert resp.raw["source"] == "handoff-file(unwrapped)"
+
     async def test_last_message_fallback(self, fake_codex, tmp_path, monkeypatch):
         monkeypatch.setenv("FAKE_CODEX_MODE", "last-message")
         client = make_client(tmp_path)

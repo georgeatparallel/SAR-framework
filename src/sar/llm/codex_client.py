@@ -85,9 +85,22 @@ def _render_messages(request: LLMRequest) -> str:
 
 
 def _extract_json(text: str) -> dict[str, Any] | None:
-    """Pull the first JSON object out of prose or a fenced block."""
+    """Pull the first JSON object out of prose or a fenced block.
+
+    Also unwraps one level of double encoding: models sometimes emit the
+    requested object as a JSON *string* ("{\"content\": ...}"), which is
+    valid JSON that parses to str, not dict.
+    """
     if not text:
         return None
+    stripped = text.strip()
+    if stripped.startswith('"'):
+        try:
+            inner = json.loads(stripped)
+            if isinstance(inner, str):
+                return _extract_json(inner)
+        except json.JSONDecodeError:
+            pass
     m = _JSON_BLOCK.search(text)
     candidates = [m.group(1)] if m else []
     start = text.find("{")
@@ -266,11 +279,20 @@ class CodexClient:
             payload: dict[str, Any] | None = None
             source = "handoff-file"
             if out_path.exists():
+                text = out_path.read_text(encoding="utf-8")
                 try:
-                    payload = json.loads(out_path.read_text(encoding="utf-8"))
+                    parsed = json.loads(text)
+                    if isinstance(parsed, str):
+                        # Double-encoded: a JSON string wrapping the object.
+                        parsed = json.loads(parsed)
+                        source = "handoff-file(unwrapped)"
+                    payload = parsed if isinstance(parsed, dict) else None
                 except json.JSONDecodeError:
-                    payload = _extract_json(out_path.read_text(encoding="utf-8"))
-                    source = "handoff-file(repaired)"
+                    payload = None
+                if payload is None:
+                    payload = _extract_json(text)
+                    if payload is not None and source == "handoff-file":
+                        source = "handoff-file(repaired)"
             if payload is None and last_msg.exists():
                 payload = _extract_json(last_msg.read_text(encoding="utf-8"))
                 source = "last-message"

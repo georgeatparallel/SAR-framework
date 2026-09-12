@@ -31,7 +31,7 @@ from sar.litmap.contracts import (  # noqa: E402
     LineageSynthesis,
     LitRecord,
 )
-from sar.llm import build_client  # noqa: E402
+from sar.llm import LLMClientError, build_client  # noqa: E402
 from sar.llm.budget import BudgetTracker  # noqa: E402
 from sar.llm.metering import MeteredClient  # noqa: E402
 from sar.persistence.audit import AuditLog  # noqa: E402
@@ -124,16 +124,31 @@ async def synthesize(args) -> int:
 
     output = SynthesisOutput()
     dropped: list[str] = []
+    skipped_units: list[str] = []
 
     async def checked(build_prompt, attach, label: str) -> None:
-        """One synthesis unit: ask, provenance-check, retry once, attach."""
-        payload = await _ask(llm, build_prompt(None))
+        """One synthesis unit: ask, provenance-check, retry once, attach.
+
+        A failed model call skips this unit rather than aborting the run;
+        the audit log records what was skipped.
+        """
+        try:
+            payload = await _ask(llm, build_prompt(None))
+        except LLMClientError as exc:
+            audit.record_error("synthesis_unit", str(exc), {"unit": label})
+            skipped_units.append(label)
+            return
         probe = attach(payload, dry=True)
         problems = check_synthesis(probe, lit_map)
         if problems:
             audit.record("provenance_retry", {"unit": label,
                                               "problems": problems})
-            payload = await _ask(llm, build_prompt(problems))
+            try:
+                payload = await _ask(llm, build_prompt(problems))
+            except LLMClientError as exc:
+                audit.record_error("synthesis_unit", str(exc), {"unit": label})
+                skipped_units.append(label)
+                return
             probe = attach(payload, dry=True)
             problems = check_synthesis(probe, lit_map)
         if problems:
@@ -233,6 +248,7 @@ async def synthesize(args) -> int:
         "unmetered_calls": tracker.unmetered_calls,
         "cost_usd": tracker.estimated_cost_usd,
         "dropped_claims": len(dropped),
+        "skipped_units": skipped_units,
     })
     print(json.dumps({
         "run_id": run_id,
@@ -242,6 +258,7 @@ async def synthesize(args) -> int:
         "claims_total": sum(len(s.claims) for s in output.lineage_syntheses)
         + sum(len(d.claims) for d in output.gap_digests),
         "dropped_claims": len(dropped),
+        "skipped_units": skipped_units,
         "audit_log": str(audit.log_path),
     }, indent=2))
     return 0

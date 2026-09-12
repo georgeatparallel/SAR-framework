@@ -8,6 +8,7 @@ variables, so every recovery path of the client can be exercised offline:
 
 FAKE_CODEX_MODE:
   handoff          write valid JSON to the handoff path (default)
+  handoff-double   write the payload double-encoded (a JSON string of JSON)
   handoff-fenced   write the JSON wrapped in a ```json fence (repair path)
   last-message     write nothing to the handoff; valid JSON to --output-last-message
   stdout           write nothing anywhere; print prose + JSON to stdout
@@ -88,6 +89,11 @@ def main() -> int:
         with open(handoff, "w") as f:
             f.write(payload)
         print("I wrote the file as instructed.")
+        return 0
+    if mode == "handoff-double":
+        assert handoff
+        with open(handoff, "w") as f:
+            f.write(json.dumps(payload))  # payload str -> JSON string literal
         return 0
     if mode == "handoff-fenced":
         assert handoff
