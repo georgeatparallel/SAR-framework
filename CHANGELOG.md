@@ -46,6 +46,14 @@ generation is retired at tag `v1-flask-gemini` (see `docs/MIGRATION.md`).
   rather than the shared `call_with_backoff`, whose retryability heuristics
   are HTTP-oriented and would veto subprocess failures.
 
+### Acceptance run
+
+- The literature-map example ran live end to end on the codex backend
+  (gpt-5.6-terra): 91 records, 26 calls, 105 provenance-checked claims with
+  verbatim quotes, 0 dropped, 3 fabrications caught by the retry loop. The
+  first live attempt exposed and fixed a double-encoded-handoff failure mode
+  now covered by an offline regression test.
+
 ### Added
 
 - Local agent backend: `CodexClient` drives the `codex exec` CLI, passing tool
