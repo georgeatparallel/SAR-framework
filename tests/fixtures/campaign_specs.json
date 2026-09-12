@@ -1,0 +1,34 @@
+{
+  "_comment": "Canned campaign specifications for tests. Field names follow sar.contracts.campaign.CampaignSpec (campaign_id/year), not the legacy campaign_name/year_start shape.",
+  "specs": [
+    {
+      "campaign_id": "euromaidan",
+      "country": "Ukraine",
+      "year": 2013,
+      "description": "Euromaidan protests, Nov 2013 - Feb 2014.",
+      "priority_fields": [
+        "repression_level",
+        "size_peak"
+      ]
+    },
+    {
+      "campaign_id": "estallido-social",
+      "country": "Chile",
+      "year": 2019,
+      "description": "October 2019 social uprising over metro fare increase.",
+      "priority_fields": [
+        "repression_level",
+        "outcome"
+      ]
+    },
+    {
+      "campaign_id": "gezi-park",
+      "country": "Turkey",
+      "year": 2013,
+      "description": "Gezi Park occupation and nationwide protests.",
+      "priority_fields": [
+        "repression_level"
+      ]
+    }
+  ]
+}

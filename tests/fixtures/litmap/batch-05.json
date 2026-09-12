@@ -1,0 +1,302 @@
+{
+ "batch": 5,
+ "records": [
+  {
+   "file": "2022-spring-pol613/Final Paper/03 Model/When do people protest.pdf",
+   "bibliographic": {
+    "title": "When do People Protest? – Using a Game Theoretic Framework to Shed Light on the Relationship Between Repression and Protest in Hybrid and Autocratic Regimes",
+    "authors": [
+     "Daniel Stockemer"
+    ],
+    "year": 2012,
+    "venue": "Social Sciences and Cultural Studies – Issues of Language, Public Opinion, Education and Welfare (IntechOpen edited volume), pp. 205-218",
+    "doi": null,
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "autocracies",
+   "unit_and_data": "No formal dataset; theory illustrated with narrative country cases (China/Tibet, Burma, Iraq/Kurdistan, Sudan, Russia 1917, Soviet bloc 1989, Thailand 2006, Pakistan 2008).",
+   "lineage": "same_family",
+   "lineage_justification": "A game-theoretic (complete-information, sequential-move) model of the state's repression choice and citizens' protest decision, explicitly built to reconcile the inverted-U and backlash hypotheses in the same repression-protest nexus the target paper addresses, and explicitly scoped away from democracies: \"Under democracy, repression should be small to non-existent, which renders protest less conditional of the degree of repression in a country.\" (p. 206, note 1)",
+   "substantive_links": [
+    {
+     "construct": "state moves first, choosing repression level",
+     "relation": "same sequential (state-then-citizens) timing as the target model's Stackelberg structure, though here repression is a binary strong/moderate choice rather than a continuous severity c_r",
+     "quote": "No matter whether it is strong or weak, the government makes the first move in the model by determining the degree of repression.",
+     "locator": "p. 210"
+    },
+    {
+     "construct": "opportunity/reputational cost of high repression to the state",
+     "relation": "conceptual parallel to the target model's theta_1*c_r^2 public-opinion cost term",
+     "quote": "Opportunity costs can also be reputational and economic, as other states might isolate the regime or stop trading with the country as a result of harsh repression.",
+     "locator": "p. 210"
+    }
+   ],
+   "empirical_patterns": [],
+   "could_support_gap": [],
+   "gap_justification": "",
+   "notable_quotes": [
+    {
+     "quote": "None of these equilibria explains the repression protest nexus in all or the majority of the cases. Yet, each equilibrium has empirical referents and explains some events of protest action.",
+     "locator": "p. 216",
+     "why": "The paper's own framing—unifying inverted-U and backlash findings through equilibrium multiplicity rather than declaring one theory correct—parallels the target paper's aim of reconciling divergent repression-protest findings through a single formal model."
+    }
+   ],
+   "confidence": "high",
+   "caveats": "A discrete complete-information game tree (strong/weak state x harsh/moderate repression), not a global game with private signals of an uncertain threshold; no continuum of citizens, no public-good indivisibility, no state optimization over a continuous severity variable. Appears to be an open-access IntechOpen book chapter (non-traditional peer review venue); no DOI is printed anywhere in the document, consistent with the supplied pdfmeta_doi of null. Support for the theory is narrative/illustrative case examples, not systematic data."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/03 Model/cesifo1_wp7463.pdf",
+   "bibliographic": {
+    "title": "Collective Emotions and Protest Vote",
+    "authors": [
+     "Carlo Altomonte",
+     "Gloria Gennaro",
+     "Francesco Passarelli"
+    ],
+    "year": 2019,
+    "venue": "CESifo Working Paper No. 7463, Category 13: Behavioural Economics (January 2019)",
+    "doi": null,
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "democracies",
+   "unit_and_data": "Longitudinal survey data on British households; UK Independence Party (UKIP) vote share in the UK's 2010 and 2015 general elections.",
+   "lineage": "peripheral",
+   "lineage_justification": "Models an individual's electoral choice to cast a protest VOTE for an anti-establishment party, driven by collective emotional 'aggrievement'; there is no repression variable, no state actor choosing enforcement severity, and no collective-action participation threshold against the state. \"In our model, heterogeneous individuals draw material utility from voting for a traditional party. They may also enjoy an emotional utility by casting a protest vote for an alternative party that proposes an anti-establishment platform.\" (p. 1)",
+   "substantive_links": [],
+   "empirical_patterns": [],
+   "could_support_gap": [],
+   "gap_justification": "",
+   "notable_quotes": [],
+   "confidence": "high",
+   "caveats": "Corrected pdfmeta_title, which supplied only the generic working-paper cover label ('CESifo Working Paper no. 7463') rather than the paper's actual title. 'Protest' here denotes electoral protest voting, a distinct phenomenon from street protest against state repression that the target paper models; triaged per protocol without a full deep read of the empirical sections."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/03 Model/qjz002_supplemental_file.pdf",
+   "bibliographic": {
+    "title": "Protests as Strategic Games: Experimental Evidence from Hong Kong's Antiauthoritarian Movement",
+    "authors": [
+     "Davide Cantoni",
+     "David Y. Yang",
+     "Noam Yuchtman",
+     "Y. Jane Zhang"
+    ],
+    "year": 2019,
+    "venue": "Quarterly Journal of Economics (inferred)",
+    "doi": null,
+    "verified_from": "uncertain"
+   },
+   "approach": "experiment",
+   "regime_context": "autocracies",
+   "unit_and_data": "Lab-in-the-field belief-elicitation/information experiment with roughly 1,234 HKUST students; treatment shifts posterior beliefs about others' planned turnout and measures effects on own participation in the 2016 July 1st pro-democracy march in Hong Kong.",
+   "lineage": "method_toolkit",
+   "lineage_justification": "This file's Appendix B is an explicit literature review of the strategic-complementarity/critical-threshold formal apparatus underlying protest-participation models (Bueno de Mesquita 2010; Edmond 2013; Passarelli and Tabellini 2017; Barberà and Jackson 2017)—precisely the continuum-of-citizens, critical-threshold, non-pivotal-participant machinery the target paper's citizen-participation stage builds on. Quote: \"The 'number' of people who join the revolution is N. The regime is replaced if and only if N is greater than or equal to a threshold T ∈ (0, 1), which is commonly known.\" (Online Appendix, Appendix B, p. A.12)",
+   "substantive_links": [
+    {
+     "construct": "THY-3.1-P1 critical participation threshold",
+     "relation": "direct textual precedent for the target's tauhat threshold-equilibrium condition",
+     "quote": "The 'number' of people who join the revolution is N. The regime is replaced if and only if N is greater than or equal to a threshold T ∈ (0, 1), which is commonly known.",
+     "locator": "Online Appendix, Appendix B, p. A.12"
+    },
+    {
+     "construct": "THY-3.1-P2 indivisible, non-excludable public-good benefit",
+     "relation": "shows the benefit of a successful protest accrues regardless of individual participation, matching the target's B_p cancelling from the participation margin",
+     "quote": "ai is the value that an agent gets if the revolution is successful, regardless of whether the agent participates or not, and this can depend on the agent's type and the state.",
+     "locator": "Online Appendix, Appendix B, p. A.15"
+    },
+    {
+     "construct": "THY-3.1-P3 no participant is pivotal in a continuum",
+     "relation": "explicit statement that a single participant's marginal contribution to success is negligible, the microfoundation for free-riding being total",
+     "quote": "this is not the payoff that an agent gets in terms of expecting to be pivotal, but instead the utility they get from knowing or being able to say that they participated in a rev- olution that was successful... It will almost never be the case that one more or one fewer revolutionary would make the d",
+     "locator": "Online Appendix, Appendix B, p. A.14-A.15"
+    },
+    {
+     "construct": "repression as a participation cost (gamma_r*c_r)",
+     "relation": "an existing formal specification of repression severity entering the protester's cost term, directly analogous to the target's gamma_r*c_r",
+     "quote": "The parameter µ > 0 is known and common to all and reflects external conditions such as the risk of violent repression.",
+     "locator": "Online Appendix, Appendix B, p. A.13-A.14"
+    },
+    {
+     "construct": "success-contingent expressive reward (d_p)",
+     "relation": "prior formalization of an expressive/psychological participation benefit paralleling the target's d_p",
+     "quote": "The benefit is purely emotional: it is the psychological reward of joining other group members in a public display of the frustration caused by the policy or of contributing to take revenge on an unfair government.",
+     "locator": "Online Appendix, Appendix B, p. A.13"
+    },
+    {
+     "construct": "continuum of citizens with a privately-informed regime threshold",
+     "relation": "an existing global-game-style setup (unit mass of citizens, unknown regime type, threshold overthrow condition) closely paralleling the target's continuum-with-noisy-signal structure",
+     "quote": "There is a unit mass of ex ante identical citizens, indexed by i ∈ [0, 1]. The citizens face a regime that seeks to preserve the status quo. Each citizen decides whether to participate in an attack on the regime... The regime is overthrown if and only if θ < S.",
+     "locator": "Online Appendix, Appendix B, p. A.12-A.13"
+    }
+   ],
+   "empirical_patterns": [
+    {
+     "claim": "Experimentally shifting subjects' beliefs about others' planned turnout causally shifts their own protest participation, consistent with strategic complementarity in the participation decision.",
+     "quote": "Table shows \"first stage\" (Panel A) and \"reduced form\" (Panel B) estimates, reporting the effects of the experimental treatment on subjects' posterior beliefs about others' participation and on subjects' own protest participation.",
+     "locator": "Online Appendix, Table A.11, p. A.34"
+    }
+   ],
+   "could_support_gap": [
+    "THY-3.1-P1",
+    "THY-3.1-P2",
+    "THY-3.1-P3"
+   ],
+   "gap_justification": "Appendix B's summaries of Bueno de Mesquita (2010), Edmond (2013), and Barberà and Jackson (2017) state, respectively, the threshold-success condition, the participation-independent ('regardless of whether the agent participates or not') public benefit, and the near-zero pivotality of any single participant in a continuum-mass population—the three components of THY-3.1-P1, P2, and P3.",
+   "notable_quotes": [
+    {
+     "quote": "much like Bueno de Mesquita (2010) and Edmond (2013), the Barberà and Jackson (2017) model builds the assumption of strategic complementarity on two elements: first, a protest is only successful if total participation is \"large enough\" (the participation level must exceed the threshold q); second, a",
+     "locator": "Online Appendix, Appendix B, p. A.15",
+     "why": "Names exactly the two structural ingredients (threshold + differential/expressive payoff) that recur across this whole model family and correspond to the target paper's tauhat and d_p."
+    }
+   ],
+   "confidence": "medium",
+   "caveats": "This PDF is the online appendix only (marked 'NOT FOR PUBLICATION, NOT for publication'); no title page or author byline appears anywhere in the file, so the bibliographic title/authors/venue above are inferred from internal content (HKUST student survey on the Hong Kong 2016 July 1st March / Umbrella Movement context, the Appendix B literature review, and the filename 'qjz002', matching an Oxford University Press QJE article-id pattern) rather than confirmed from a masthead — treat as a well-grounded hypothesis, not a verified citation, hence verified_from 'uncertain' and confidence 'medium'. pdfmeta_title ('Baseline survey module (Part 1)') was simply the first subsection heading, not the paper's title, and has been corrected here to the inferred actual title. All quotes above are drawn from this appendix file itself, not from the (unread) main text of the parent article."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/04 Literature/682569.pdf",
+   "bibliographic": {
+    "title": "Elections, Protest, and Alternation of Power",
+    "authors": [
+     "Andrew T. Little",
+     "Joshua A. Tucker",
+     "Tom LaGatta"
+    ],
+    "year": 2015,
+    "venue": "The Journal of Politics, 77(4): 1142-1156",
+    "doi": "10.1086/682569",
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "both",
+   "unit_and_data": null,
+   "lineage": "direct_ancestor",
+   "lineage_justification": "Builds a continuum-of-citizens coordination game of post-election protest with a unique threshold equilibrium (via the ratio of public-to-private information, following Carlsson-van Damme/Morris-Shin global games), an expressive payoff term with two-sided limit dominance, and a state actor who bears a cost increasing in protest size — the same core participation apparatus (continuum, critical threshold, expressive reward, state cost from mobilization) underlying the target paper's citizen-participation stage. Quote: \"The actors in the model are an incumbent denoted I (pronoun ‘she’) and a continuum of citizens of mass 1 (pronoun ‘he’), indexed by j.\" (p. 1145)",
+   "substantive_links": [
+    {
+     "construct": "continuum of citizens / global-games apparatus",
+     "relation": "shared modeling primitive with the target's continuum of citizens and noisy private signals",
+     "quote": "The actors in the model are an incumbent denoted I (pronoun ‘she’) and a continuum of citizens of mass 1 (pronoun ‘he’), indexed by j.",
+     "locator": "p. 1145"
+    },
+    {
+     "construct": "THY-3.1-P1 critical participation threshold",
+     "relation": "the incumbent's stepping-down rule is a threshold on protest size, structurally identical to the target's tauhat condition",
+     "quote": "That is, the incumbent steps down if and only if the protest level is above a critical threshold r*.",
+     "locator": "p. 1147"
+    },
+    {
+     "construct": "INTRO-P3-S4 protest imposes costs on the state",
+     "relation": "the incumbent's payoff explicitly includes a state-borne cost of cracking down/conceding that rises with protest size, analogous to the target's theta_0 per-protester cost",
+     "quote": "The incumbent pays a cost that is increasing in the protest size r, which could represent the chance that the protest movement is large enough to lead to regime change for reasons outside of the model or the cost of cracking down or making concessions to end the protest.",
+     "locator": "p. 1145"
+    },
+    {
+     "construct": "expressive/coordination participation incentive (d_p)",
+     "relation": "captures the same complementarity intuition that the target's participation margin is built around",
+     "quote": "This is how we capture the coordination dynamics inherent to protest: as more citizens take to the streets, the incentive to join increases for those who dislike the regime.",
+     "locator": "p. 1146"
+    },
+    {
+     "construct": "uniqueness/multiplicity of the participation equilibrium",
+     "relation": "the same public-to-private information ratio result the target's unique-threshold-equilibrium claim relies on",
+     "quote": "As discussed extensively in the literature on coordination games with uncertainty (e.g., Hellwig 2002; Morris and Shin 2003), there can be multiple equilibria when the ratio of public to private information about the parameter(s) of uncertainty is large.",
+     "locator": "p. 1148"
+    }
+   ],
+   "empirical_patterns": [],
+   "could_support_gap": [
+    "INTRO-P3-S4",
+    "THY-3.1-P1"
+   ],
+   "gap_justification": "The incumbent's payoff function directly states that protest imposes 'the cost of cracking down or making concessions to end the protest' on the state (INTRO-P3-S4), and the model's stepping-down rule is explicitly a 'critical threshold r*' on the protest level (THY-3.1-P1).",
+   "notable_quotes": [
+    {
+     "quote": "we still tend to want to dichotomize the electoral experience into ‘real’ and ‘fake’ elections... Somewhat surprisingly, as a field, we lack a general theory of elections. By introducing a general framework to capture how elections across regime types can facilitate alternation in power, this articl",
+     "locator": "p. 1154",
+     "why": "States exactly the kind of democracy/autocracy theoretical bifurcation the target paper argues characterizes the protest-repression literature, here applied to election/turnover theory rather than repression severity."
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Corrected pdfmeta_authors, which supplied only [\"Tom LaGatta\", \"Splunk Inc\"] (an affiliation-line extraction artifact) — the paper's actual authors are Andrew T. Little, Joshua A. Tucker, and Tom LaGatta, confirmed on the front matter. The citizens' cost of protest (c) and the incumbent's payoffs are exogenous/fixed parameters, not a state-chosen continuous severity optimized against a stake and a quadratic public-opinion cost — the target model's Stackelberg 'state sets c_r first' move and its comparative statics on c_r* are absent here; the coordination uncertainty in this paper concerns the regime's underlying popularity (revealed by an election), not a repression-triggered mobilization threshold. Deep read covered introduction, model, extension (fraud/monitoring), and conclusion; the technical proof appendix (if any) was not located within this file."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/04 Literature/All the Big Names - Contentious-politics-in-the-trump-era PSRM 2018.pdf",
+   "bibliographic": {
+    "title": "Contentious Politics in the Trump Era",
+    "authors": [
+     "Charles Crabtree",
+     "Christian Davenport"
+    ],
+    "year": 2018,
+    "venue": "PS: Political Science & Politics, January 2018, pp. 17-25 (Politics Spotlight symposium)",
+    "doi": "10.1017/S104909651700141X",
+    "verified_from": "front matter"
+   },
+   "approach": "qualitative",
+   "regime_context": "democracies",
+   "unit_and_data": "Case-based/conceptual analysis of the first year of the Trump administration (2017) in the United States; a Google Trends search-volume series for 'repression'/'oppression'/'discrimination' (06/2016-05/2017); a case study of Occupy Wall Street counter-surveillance tactics.",
+   "lineage": "empirical_backdrop",
+   "lineage_justification": "A symposium of short essays arguing that repression, in the standard social-science sense, is currently observable within an advanced, institutionally intact democracy (the United States), and specifically diagnosing it as a principal-agent/delegation problem — directly motivating the target paper's claim that the formal repression-protest literature has been built for autocracies rather than democracies. Quote: \"Interest from Americanists is especially useful because their potential contributions could enliven the literature and lead to a more nuanced understanding of repression's causes and consequences in an advanced democracy.\" (p. 18)",
+   "substantive_links": [
+    {
+     "construct": "canonical definition of repression severity's underlying action",
+     "relation": "grounds the target paper's repression-severity construct c_r in the field's standard definition",
+     "quote": "the actual or threatened use of physical sanctions against an individual or organization, within the territorial jurisdiction of the state, for the purpose of imposing a cost on the target as well as deterring specific activities and/or beliefs perceived to be challenging to government personnel, pr",
+     "locator": "p. 18"
+    },
+    {
+     "construct": "INTRO-P4-S2 democratic leaders do not directly command repressive bureaus",
+     "relation": "explicit principal-agent framing of a democratic executive's relationship to the operatives who carry out repression",
+     "quote": "This delegation process, common in politics, makes human rights abuses a very likely outcome with little recourse for victims.",
+     "locator": "p. 23"
+    },
+    {
+     "construct": "INTRO-P4-S2 principal-agent/delegation",
+     "relation": "states the general principal-agent model the essay applies to the executive/enforcement-agent relationship",
+     "quote": "In standard principal-agent models, a principal values some output or result and delegates the task to an agent.",
+     "locator": "p. 23"
+    },
+    {
+     "construct": "INTRO-P4-S3 legal/administrative structure implicitly sets permitted severity",
+     "relation": "explicit statement that the degree of repression delegated operatives may use is set by the institutional orders/discretion handed down to them, not chosen freely by each operative",
+     "quote": "Discretion allows for the possibility of repression over the status quo, but the degree of that repression will depend on orders from principals—higher if explicitly ordered, lower if not mentioned, and even lower if explicitly prohibited.",
+     "locator": "p. 23, note 1"
+    },
+    {
+     "construct": "repression backfire (elasticity extension)",
+     "relation": "empirical/observational counterpart to the target model's backfire condition (eps > 1)",
+     "quote": "using brutal repression against opposition often backfires, further de-legitimizing the regime and increasing mobilization against it (Martin 2007)",
+     "locator": "p. 19"
+    },
+    {
+     "construct": "adverse selection into repressive roles",
+     "relation": "a mechanism generating variation in de facto severity independent of top leaders' preferences, relevant to INTRO-P4-S2/S5",
+     "quote": "adverse selection makes them even more likely. When hiring agents, their type—diligent or reckless, pacific or aggressive, preferences for protection or violation—is unknown.",
+     "locator": "p. 23"
+    }
+   ],
+   "empirical_patterns": [
+    {
+     "claim": "US public search interest in the term 'repression' rose sharply around the November 2016 election and at other points during Trump's first months in office.",
+     "quote": "As figure 1 shows, mass interest in this phrase rose dramatically in the days immediately before and after the November election and also at various other points since President Trump took office.",
+     "locator": "p. 17, Figure 1"
+    }
+   ],
+   "could_support_gap": [
+    "INTRO-P4-S2",
+    "INTRO-P4-S3"
+   ],
+   "gap_justification": "Ritter's essay explicitly models US immigration enforcement as a principal-agent delegation problem and states in note 1 that 'the degree of...repression will depend on orders from principals'—i.e., that permitted severity is set by the institutional/administrative framework handed down to operatives rather than chosen ad hoc by each agent, matching INTRO-P4-S2 (delegation) and, more loosely, INTRO-P4-S3 (rules setting permitted force), though here the framework is executive-branch discretion/orders rather than codified statute.",
+   "notable_quotes": [
+    {
+     "quote": "How authoritarian our political system is becoming is therefore not a zero-sum characteristic, but a question of degree.",
+     "locator": "p. 21",
+     "why": "Frames repression/authoritarian practice in a democracy as a continuous, graded property rather than a binary regime-type marker, resonating with the target paper's continuous severity choice c_r."
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Corrected pdfmeta_authors, which was supplied empty. This is a five-essay symposium ('Politics Spotlight'), not a single unified argument; Charles Crabtree and Christian Davenport organized it and co-authored the framing 'Defining the Terms of Debate' essay (listed as bibliographic authors above), while Erica Chenoweth, Dana M. Moss, Jennifer Earl, Emily Hencken Ritter, and Christopher Sullivan each author a distinct short essay within the same issue, quoted individually above by name. The venue is 'PS: Political Science & Politics' (Cambridge, DOI prefix 10.1017/S1049096...), not 'Political Science Research and Methods' ('PSRM') as the saved filename suggests. Page locators use the 'PS • January 2018 NN' running footer/header printed on each page."
+  }
+ ]
+}

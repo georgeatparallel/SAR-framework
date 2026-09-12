@@ -1,0 +1,226 @@
+{
+  "$defs": {
+    "CampaignSpec": {
+      "description": "Input specification for a campaign research run.\n\nProvides the minimum information needed to launch a research\npipeline for a specific campaign.\n\nAttributes:\n    campaign_id: Unique identifier for the campaign (slug format).\n    campaign_name: Human-readable campaign name.\n    country: Country where the campaign occurred.\n    year: Primary year of the campaign.\n    description: Free-text description or research guidance.\n    baseline_row: Pre-existing coded data to compare against (if any).\n    priority_fields: Which codebook fields to prioritize in research.",
+      "properties": {
+        "baseline_row": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline Row"
+        },
+        "campaign_id": {
+          "title": "Campaign Id",
+          "type": "string"
+        },
+        "campaign_name": {
+          "title": "Campaign Name",
+          "type": "string"
+        },
+        "country": {
+          "title": "Country",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "priority_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Priority Fields",
+          "type": "array"
+        },
+        "year": {
+          "title": "Year",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "campaign_id",
+        "campaign_name",
+        "country",
+        "year"
+      ],
+      "title": "CampaignSpec",
+      "type": "object"
+    },
+    "CodedRow": {
+      "description": "A single row of codebook-compliant campaign data.\n\nKeys are codebook column names, values are normalized.\nAll values pass through campaign.validators before storage.\n\nAttributes:\n    campaign_id: Unique identifier for the campaign.\n    fields: Column name to normalized value mapping.\n    evidence: Per-field evidence entries supporting coded values.\n    warnings: Validation warnings or data-quality notes.",
+      "properties": {
+        "campaign_id": {
+          "title": "Campaign Id",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceEntry"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "fields": {
+          "additionalProperties": true,
+          "title": "Fields",
+          "type": "object"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "campaign_id"
+      ],
+      "title": "CodedRow",
+      "type": "object"
+    },
+    "EvidenceEntry": {
+      "description": "A single piece of evidence supporting a coded field value.\n\nAttributes:\n    field_name: Codebook field this evidence supports.\n    value: The value assigned to the field.\n    source_url: URL of the source, if available.\n    source_title: Title of the source document, if available.\n    confidence: Confidence level in [0, 1].\n    notes: Additional context or caveats.",
+      "properties": {
+        "confidence": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "field_name": {
+          "title": "Field Name",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "source_title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Title"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "value": {
+          "title": "Value"
+        }
+      },
+      "required": [
+        "field_name",
+        "value"
+      ],
+      "title": "EvidenceEntry",
+      "type": "object"
+    },
+    "InclusionMemo": {
+      "description": "Decision record for whether a campaign is included in the dataset.\n\nAttributes:\n    campaign_id: Unique identifier for the campaign.\n    included: Whether the campaign meets inclusion criteria.\n    reason: Rationale for inclusion or exclusion.\n    missing_fields: Codebook fields that could not be coded.",
+      "properties": {
+        "campaign_id": {
+          "title": "Campaign Id",
+          "type": "string"
+        },
+        "included": {
+          "title": "Included",
+          "type": "boolean"
+        },
+        "missing_fields": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Fields",
+          "type": "array"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "campaign_id",
+        "included",
+        "reason"
+      ],
+      "title": "InclusionMemo",
+      "type": "object"
+    }
+  },
+  "$id": "dossier_output",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Complete output from a campaign research pipeline run.\n\nBundles the specification, coded data, evidence, inclusion decision,\nand narrative report into a single auditable artifact.\n\nAttributes:\n    spec: The input campaign specification.\n    coded_row: Codebook-normalized data row.\n    inclusion_memo: Inclusion/exclusion decision (None if not yet assessed).\n    report_md: Full narrative Markdown report.\n    uncertainty_notes: Narrative on gaps and disputed facts.\n    sources_consulted: Number of distinct sources consulted.\n    created_at: Timestamp when the dossier was finalized.",
+  "properties": {
+    "coded_row": {
+      "$ref": "#/$defs/CodedRow"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "inclusion_memo": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InclusionMemo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "report_md": {
+      "default": "",
+      "title": "Report Md",
+      "type": "string"
+    },
+    "sources_consulted": {
+      "default": 0,
+      "title": "Sources Consulted",
+      "type": "integer"
+    },
+    "spec": {
+      "$ref": "#/$defs/CampaignSpec"
+    },
+    "uncertainty_notes": {
+      "default": "",
+      "title": "Uncertainty Notes",
+      "type": "string"
+    }
+  },
+  "required": [
+    "spec",
+    "coded_row"
+  ],
+  "title": "CampaignDossier",
+  "type": "object",
+  "x-generated-by": "scripts/generate_schemas.py",
+  "x-schema-version": "2.0.0"
+}

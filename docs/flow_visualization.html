@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agentic AI Pipeline Blueprint</title>
+    <title>SAR v2 pipeline</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,8 +65,8 @@
 <body class="text-slate-800 flex items-center justify-center min-h-screen p-4 md:p-8">
 
     <div class="max-w-7xl w-full">
-        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-2">Agentic AI Pipeline</h1>
-        <p class="text-slate-500 text-center mb-10 md:mb-16">A visual blueprint for a three-agent orchestration model.</p>
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 text-center mb-2">SAR v2 pipeline</h1>
+        <p class="text-slate-500 text-center mb-10 md:mb-16">A visual blueprint of the v2 orchestration state machine.</p>
 
         <div id="diagram-container" class="relative">
             <svg id="svg-canvas" class="absolute top-0 left-0 w-full h-full" style="pointer-events: none;">
@@ -87,19 +87,19 @@
 
                 <div id="el-searcher" class="col-start-3 flex flex-col items-center card-container">
                     <div class="card bg-white p-4 md:p-6 rounded-xl w-full max-w-xs text-center">
-                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="search-code" class="w-9 h-9 md:w-10 md:h-10 text-blue-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">Agent 1:<br>Searcher</h2></div>
+                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="search-code" class="w-9 h-9 md:w-10 md:h-10 text-blue-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">EXPAND &rarr; SEARCH &rarr;<br>JUDGE &rarr; READ</h2></div>
                     </div>
                 </div>
 
                 <div id="el-analyzer" class="col-start-3 flex flex-col items-center card-container">
                     <div class="card bg-white p-4 md:p-6 rounded-xl w-full max-w-xs text-center">
-                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="brain-circuit" class="w-9 h-9 md:w-10 md:h-10 text-green-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">Agent 2:<br>Analyzer</h2></div>
+                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="brain-circuit" class="w-9 h-9 md:w-10 md:h-10 text-green-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">ANALYZE</h2></div>
                     </div>
                 </div>
 
                 <div id="el-reviewer" class="col-start-3 flex flex-col items-center card-container">
                     <div class="card bg-white p-4 md:p-6 rounded-xl w-full max-w-xs text-center">
-                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="clipboard-check" class="w-9 h-9 md:w-10 md:h-10 text-purple-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">Agent 3:<br>Reviewer</h2></div>
+                        <div class="flex items-center justify-center gap-3 mb-2"><i data-lucide="clipboard-check" class="w-9 h-9 md:w-10 md:h-10 text-purple-500"></i><h2 class="text-xl md:text-2xl font-bold text-slate-800">REVIEW</h2></div>
                     </div>
                 </div>
 

@@ -1,0 +1,58 @@
+{
+  "$id": "campaign_spec",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Input specification for a campaign research run.\n\nProvides the minimum information needed to launch a research\npipeline for a specific campaign.\n\nAttributes:\n    campaign_id: Unique identifier for the campaign (slug format).\n    campaign_name: Human-readable campaign name.\n    country: Country where the campaign occurred.\n    year: Primary year of the campaign.\n    description: Free-text description or research guidance.\n    baseline_row: Pre-existing coded data to compare against (if any).\n    priority_fields: Which codebook fields to prioritize in research.",
+  "properties": {
+    "baseline_row": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline Row"
+    },
+    "campaign_id": {
+      "title": "Campaign Id",
+      "type": "string"
+    },
+    "campaign_name": {
+      "title": "Campaign Name",
+      "type": "string"
+    },
+    "country": {
+      "title": "Country",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "priority_fields": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Priority Fields",
+      "type": "array"
+    },
+    "year": {
+      "title": "Year",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "campaign_id",
+    "campaign_name",
+    "country",
+    "year"
+  ],
+  "title": "CampaignSpec",
+  "type": "object",
+  "x-generated-by": "scripts/generate_schemas.py",
+  "x-schema-version": "2.0.0"
+}

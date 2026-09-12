@@ -1,0 +1,68 @@
+{
+  "_comment": "Realistic backend payload excerpts for backend tests.",
+  "semantic_scholar": {
+    "total": 1,
+    "data": [
+      {
+        "paperId": "abc123",
+        "title": "Dynamics of Political Protests",
+        "abstract": "We frame protest in terms of concession and disruption costs.",
+        "year": 2018,
+        "citationCount": 210,
+        "externalIds": {
+          "DOI": "10.1017/S0020818318000061"
+        },
+        "url": "https://www.semanticscholar.org/paper/abc123",
+        "authors": [
+          {
+            "name": "Graig R. Klein"
+          },
+          {
+            "name": "Patrick M. Regan"
+          }
+        ]
+      }
+    ]
+  },
+  "crossref": {
+    "message": {
+      "items": [
+        {
+          "DOI": "10.1177/0022002717750450",
+          "title": [
+            "Preemptive Repression: Deterrence, Backfiring, Iron Fists, and Velvet Gloves"
+          ],
+          "author": [
+            {
+              "given": "Kris",
+              "family": "De Jaegher"
+            },
+            {
+              "given": "Britta",
+              "family": "Hoyer"
+            }
+          ],
+          "issued": {
+            "date-parts": [
+              [
+                2019
+              ]
+            ]
+          },
+          "URL": "https://doi.org/10.1177/0022002717750450"
+        }
+      ]
+    }
+  },
+  "wikipedia": {
+    "query": {
+      "search": [
+        {
+          "title": "Protest",
+          "snippet": "A protest is a public expression of objection",
+          "pageid": 24925
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "ToolDefinition": {
+      "description": "Schema for a callable tool exposed to the LLM.\n\nAttributes:\n    name: Function name the LLM will call.\n    description: What the tool does (shown to the LLM).\n    parameters: JSON Schema dict for the function's arguments.",
+      "properties": {
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "parameters"
+      ],
+      "title": "ToolDefinition",
+      "type": "object"
+    }
+  },
+  "$id": "llm_request",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Input to the LLM client.\n\nEncapsulates everything needed for a single LLM API call,\nincluding conversation history, tool schemas, and generation params.\n\nAttributes:\n    messages: Conversation messages (system, user, assistant, tool roles).\n    tools: Tool schemas to expose (None means no tools).\n    tool_choice: Force a specific tool or 'auto' (None means provider default).\n    model: Model identifier override (None means use config default).\n    temperature: Sampling temperature.\n    max_tokens: Maximum number of tokens to generate.",
+  "properties": {
+    "max_tokens": {
+      "default": 4096,
+      "title": "Max Tokens",
+      "type": "integer"
+    },
+    "messages": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Messages",
+      "type": "array"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model"
+    },
+    "temperature": {
+      "default": 0.3,
+      "title": "Temperature",
+      "type": "number"
+    },
+    "tool_choice": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tool Choice"
+    },
+    "tools": {
+      "anyOf": [
+        {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ToolDefinition"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tools"
+    }
+  },
+  "title": "LLMRequest",
+  "type": "object",
+  "x-generated-by": "scripts/generate_schemas.py",
+  "x-schema-version": "2.0.0"
+}
