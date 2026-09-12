@@ -235,3 +235,27 @@ class TestRequireQuote:
         assert_synthesis(out, lit_map)
         with pytest.raises(ProvenanceError, match="no quote"):
             assert_synthesis(out, lit_map, require_quote=True)
+
+
+def test_contracts_import_without_warnings():
+    """The ontology's 'construct' field must not warn on every run.
+
+    It shadows a deprecated pydantic v1 method. The field name is the key in
+    the records already on disk, so the warning is suppressed at the class
+    definition and the data is left alone.
+    """
+    import importlib
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", UserWarning)
+        mod = importlib.import_module("sar.litmap.contracts")
+        importlib.reload(mod)
+
+    assert "construct" in mod.SubstantiveLink.model_fields
+    rec = mod.LitRecord(
+        file="x.pdf",
+        substantive_links=[{"construct": "threshold", "quote": "q"}],
+    )
+    assert "construct" in rec.model_dump()["substantive_links"][0], (
+        "the on-disk JSON key must survive")

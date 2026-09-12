@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -23,9 +24,18 @@ class Quote(BaseModel):
     locator: str = ""
 
 
-class SubstantiveLink(Quote):
-    construct: str = ""
-    relation: str = ""
+# "construct" is the extraction ontology's own field name and the key in the
+# records already on disk, so it stays. Pydantic warns at class creation
+# because the name shadows BaseModel.construct, a v1 method deprecated in v2
+# and unused here. Suppress that one warning rather than rename the data.
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore", message=r'Field name "construct" .*shadows',
+        category=UserWarning)
+
+    class SubstantiveLink(Quote):
+        construct: str = ""
+        relation: str = ""
 
 
 class EmpiricalPattern(Quote):
