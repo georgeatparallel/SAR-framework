@@ -9,7 +9,7 @@ Migrated from: agentic_sar/agent_service.py _emit() function
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
 from sar.contracts.events import Event, EventType
 

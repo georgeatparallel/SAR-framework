@@ -58,6 +58,11 @@ class AppConfig(BaseSettings):
 
     # --- Pipeline tuning ---
     MAX_ITERATIONS: int = 3
+    # Rework bound per expansion round: the ANALYZE <-> REVIEW cycle does not
+    # advance the iteration counter, so it needs its own guard.
+    MAX_REWORKS_PER_ITERATION: int = 2
+    # Cost ceiling for metered backends (USD). None keeps TokenBudget's default.
+    BUDGET_CEILING_USD: float | None = None
     MIN_RESULTS_TO_PROCEED: int = 3
     QUALITY_THRESHOLD: float = 6.0
     BUDGET_CEILING_USD: float = 5.0

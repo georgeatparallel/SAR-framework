@@ -11,6 +11,12 @@ and validators. A different domain (e.g., company profiles) would
 be a sibling module with its own schema.
 """
 
+from sar.campaign.batch import (
+    build_campaign_spec_from_row,
+    compare_with_baseline,
+    rebuild_batch_index,
+    run_batch,
+)
 from sar.campaign.schema import (
     DATASET_COLUMNS,
     KEY_FIELDS,
@@ -22,12 +28,6 @@ from sar.campaign.validators import (
     normalize_coded_row,
     validate_campaign_dossier,
     validate_coded_row,
-)
-from sar.campaign.batch import (
-    build_campaign_spec_from_row,
-    compare_with_baseline,
-    rebuild_batch_index,
-    run_batch,
 )
 
 __all__ = [

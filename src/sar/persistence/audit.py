@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -67,7 +67,7 @@ class AuditLog:
             data: Arbitrary JSON-serializable payload.
         """
         entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "run_id": self._run_id,
             "event_type": event_type,
             "data": data or {},
@@ -82,6 +82,7 @@ class AuditLog:
         input_tokens: int,
         output_tokens: int,
         tool_calls: list[str] | None = None,
+        extra: dict[str, object] | None = None,
     ) -> None:
         """Convenience: record an LLM API call.
 
@@ -98,7 +99,8 @@ class AuditLog:
             "input_tokens": input_tokens,
             "output_tokens": output_tokens,
             "tool_calls": tool_calls or [],
-        })
+            **(extra or {}),
+            })
 
     def record_gate_decision(
         self,
@@ -174,7 +176,7 @@ class AuditLog:
         if not self._log_path.exists():
             return []
         entries: list[dict[str, Any]] = []
-        with open(self._log_path, "r", encoding="utf-8") as f:
+        with open(self._log_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:

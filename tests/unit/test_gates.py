@@ -11,20 +11,19 @@ from sar.contracts.pipeline import (
     ReviewerVerdict,
     TokenBudget,
 )
-from sar.contracts.search import SearchResult, SourceType
+from sar.contracts.search import SearchResult
 from sar.orchestrator.gates import (
     check_budget_remaining,
     check_max_iterations,
-    check_queries_generated,
+    check_needs_more_info,
+    check_needs_rework,
     check_quality_threshold,
+    check_queries_generated,
     check_report_submitted,
     check_results_obtained,
     check_reviewer_approved,
-    check_needs_more_info,
-    check_needs_rework,
     check_summaries_ready,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers

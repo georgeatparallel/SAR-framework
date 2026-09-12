@@ -7,26 +7,22 @@ default values, and enum behavior.
 import pytest
 from pydantic import ValidationError
 
-from sar.contracts.search import SearchRequest, SearchResponse, SearchResult, SourceType
+from sar.contracts.campaign import (
+    CampaignSpec,
+    CodedRow,
+    EvidenceEntry,
+    InclusionMemo,
+)
 from sar.contracts.pipeline import (
     GateDecision,
     IterationRecord,
-    PaperSummary,
     PipelinePhase,
     PipelineResult,
     PipelineState,
     ReviewerVerdict,
     TokenBudget,
 )
-from sar.contracts.campaign import (
-    BatchManifest,
-    CampaignDossier,
-    CampaignSpec,
-    CodedRow,
-    EvidenceEntry,
-    InclusionMemo,
-)
-
+from sar.contracts.search import SearchRequest, SearchResponse, SearchResult, SourceType
 
 # ---------------------------------------------------------------------------
 # SearchResult

@@ -1,16 +1,372 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "pipeline_state",
-    "title": "PipelineState",
-    "description": "Full mutable state of a pipeline run. TODO(schemas): auto-generate from Pydantic model.",
-    "type": "object",
-    "required": ["run_id", "phase"],
-    "properties": {
-        "run_id": {"type": "string", "description": "Unique pipeline run identifier."},
-        "phase": {"type": "string", "enum": ["expand", "search", "judge", "read", "analyze", "review", "complete", "failed"], "description": "Current phase."},
-        "iteration": {"type": "integer", "default": 1, "description": "Current iteration (1-indexed)."},
-        "queries": {"type": "array", "items": {"type": "string"}, "default": [], "description": "Active search queries."},
-        "report": {"type": ["string", "null"], "default": null, "description": "Current report text."},
-        "feedback": {"type": ["string", "null"], "default": null, "description": "Reviewer feedback."}
+  "$defs": {
+    "GateDecision": {
+      "description": "Record of a gate check at a phase transition.\n\nEvery transition between phases passes through a gate function.\nThe decision is logged to the audit trail for full transparency.\n\nAttributes:\n    gate_name: Identifier of the gate (e.g., 'quality_threshold').\n    passed: Whether the gate allowed the transition.\n    reason: Human-readable explanation.\n    metrics: Quantitative data behind the decision.\n    timestamp: When the gate was evaluated.",
+      "properties": {
+        "gate_name": {
+          "title": "Gate Name",
+          "type": "string"
+        },
+        "metrics": {
+          "additionalProperties": true,
+          "title": "Metrics",
+          "type": "object"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_name",
+        "passed",
+        "reason"
+      ],
+      "title": "GateDecision",
+      "type": "object"
+    },
+    "IterationRecord": {
+      "description": "Snapshot of one iteration through the pipeline loop.\n\nCaptures the queries used, results obtained, summaries produced,\nand gate decisions made during a single iteration.\n\nAttributes:\n    iteration: 1-indexed iteration number.\n    phase: The phase that was active during this iteration.\n    queries: Search queries executed in this iteration.\n    results_count: Number of search results obtained.\n    summaries_count: Number of papers read and summarized.\n    gate_decisions: All gate checks during this iteration.\n    feedback: Reviewer feedback text (if NEEDS_REWORK or NEEDS_MORE_INFO).\n    reviewer_verdict: The reviewer's verdict for this iteration (if any).",
+      "properties": {
+        "feedback": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Feedback"
+        },
+        "gate_decisions": {
+          "items": {
+            "$ref": "#/$defs/GateDecision"
+          },
+          "title": "Gate Decisions",
+          "type": "array"
+        },
+        "iteration": {
+          "title": "Iteration",
+          "type": "integer"
+        },
+        "phase": {
+          "$ref": "#/$defs/PipelinePhase"
+        },
+        "queries": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Queries",
+          "type": "array"
+        },
+        "results_count": {
+          "default": 0,
+          "title": "Results Count",
+          "type": "integer"
+        },
+        "reviewer_verdict": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReviewerVerdict"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "summaries_count": {
+          "default": 0,
+          "title": "Summaries Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "iteration",
+        "phase"
+      ],
+      "title": "IterationRecord",
+      "type": "object"
+    },
+    "PaperSummary": {
+      "description": "Structured extraction from a single document by the reader agent.\n\nLinks the original SearchResult to the agent's extraction and\nquality assessment.\n\nAttributes:\n    source: The SearchResult this summary was extracted from.\n    extraction: Structured data extracted from the document (key claims,\n        methodology, findings, etc.).\n    quality_score: Agent-assigned quality score on a 0-10 scale.\n    notes: Free-text notes, caveats, or observations about the document.",
+      "properties": {
+        "extraction": {
+          "additionalProperties": true,
+          "title": "Extraction",
+          "type": "object"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "quality_score": {
+          "default": 0.0,
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "title": "Quality Score",
+          "type": "number"
+        },
+        "source": {
+          "$ref": "#/$defs/SearchResult"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "title": "PaperSummary",
+      "type": "object"
+    },
+    "PipelinePhase": {
+      "description": "Named phases of the orchestration state machine.\n\nTransitions: EXPAND -> SEARCH -> JUDGE -> READ -> ANALYZE -> REVIEW -> {COMPLETE | EXPAND}\nFAILED is a terminal state reached when an unrecoverable error occurs.",
+      "enum": [
+        "expand",
+        "search",
+        "judge",
+        "read",
+        "analyze",
+        "review",
+        "complete",
+        "failed"
+      ],
+      "title": "PipelinePhase",
+      "type": "string"
+    },
+    "ReviewerVerdict": {
+      "description": "Possible outcomes from the reviewer agent.\n\nAttributes:\n    APPROVED: Report meets quality bar.\n    NEEDS_MORE_INFO: Sources are insufficient; new queries needed.\n    NEEDS_REWORK: Sources are sufficient but analysis is flawed.\n    FAILED: Unrecoverable quality failure.",
+      "enum": [
+        "approved",
+        "needs_more_info",
+        "needs_rework",
+        "failed"
+      ],
+      "title": "ReviewerVerdict",
+      "type": "string"
+    },
+    "SearchResult": {
+      "description": "A single search result from any backend.\n\nThis is the universal schema -- every backend normalizes its raw\nAPI response into this shape before returning.\n\nAttributes:\n    title: Title of the document or page.\n    url: Canonical URL (used for deduplication).\n    snippet: Short text excerpt or abstract.\n    source_type: Category of the source (academic, web, etc.).\n    doi: Digital Object Identifier, if available.\n    authors: List of author names.\n    year: Publication year, if available.\n    citation_count: Number of citations, if known.\n    relevance_score: Backend-assigned relevance in [0, 1].\n    backend_name: Name of the search backend that produced this result.\n    raw_metadata: Unprocessed backend-specific metadata for debugging.",
+      "properties": {
+        "authors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authors",
+          "type": "array"
+        },
+        "backend_name": {
+          "default": "",
+          "title": "Backend Name",
+          "type": "string"
+        },
+        "citation_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Citation Count"
+        },
+        "doi": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doi"
+        },
+        "raw_metadata": {
+          "additionalProperties": true,
+          "title": "Raw Metadata",
+          "type": "object"
+        },
+        "relevance_score": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Relevance Score",
+          "type": "number"
+        },
+        "snippet": {
+          "default": "",
+          "title": "Snippet",
+          "type": "string"
+        },
+        "source_type": {
+          "$ref": "#/$defs/SourceType",
+          "default": "unknown"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        }
+      },
+      "required": [
+        "title",
+        "url"
+      ],
+      "title": "SearchResult",
+      "type": "object"
+    },
+    "SourceType": {
+      "description": "Categorizes the provenance of a search result.\n\nAttributes:\n    ACADEMIC: Peer-reviewed journal or conference paper.\n    WEB: General web page (news, blog, documentation).\n    WIKI: Wikipedia or wiki-family page.\n    PREPRINT: Non-peer-reviewed preprint (arXiv, SSRN, etc.).\n    GREY_LIT: Grey literature (NGO reports, government docs, working papers).\n    UNKNOWN: Source type could not be determined.",
+      "enum": [
+        "academic",
+        "web",
+        "wiki",
+        "preprint",
+        "grey_lit",
+        "unknown"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    },
+    "TokenBudget": {
+      "description": "Token and cost tracking for a pipeline run.\n\nAccumulates token usage and estimated cost across all LLM calls\nin a single pipeline execution.\n\nAttributes:\n    prompt_tokens: Total prompt/input tokens consumed.\n    completion_tokens: Total completion/output tokens consumed.\n    total_tokens: Sum of prompt and completion tokens.\n    cost_usd: Running estimated cost in USD.\n    ceiling_usd: Maximum allowed cost before the pipeline is halted.",
+      "properties": {
+        "ceiling_usd": {
+          "default": 5.0,
+          "title": "Ceiling Usd",
+          "type": "number"
+        },
+        "completion_tokens": {
+          "default": 0,
+          "title": "Completion Tokens",
+          "type": "integer"
+        },
+        "cost_usd": {
+          "default": 0.0,
+          "title": "Cost Usd",
+          "type": "number"
+        },
+        "prompt_tokens": {
+          "default": 0,
+          "title": "Prompt Tokens",
+          "type": "integer"
+        },
+        "total_tokens": {
+          "default": 0,
+          "title": "Total Tokens",
+          "type": "integer"
+        }
+      },
+      "title": "TokenBudget",
+      "type": "object"
     }
+  },
+  "$id": "pipeline_state",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Full mutable state of a pipeline run.\n\nPassed through every phase transition. The orchestrator reads and\nwrites this; agents receive read-only slices of it.\n\nAttributes:\n    phase: Current phase of the state machine.\n    iteration: Current iteration (0-indexed).\n    queries: Active search queries.\n    results: Accumulated search results across all iterations.\n    summaries: Paper summaries from reader agents.\n    report: Current report text (None until ANALYZE phase).\n    feedback: Reviewer feedback (None until REVIEW phase).\n    gate_log: All gate decisions across all iterations.\n    budget: Token and cost tracking.\n    iterations: Per-iteration history records.",
+  "properties": {
+    "budget": {
+      "$ref": "#/$defs/TokenBudget"
+    },
+    "feedback": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Feedback"
+    },
+    "gate_log": {
+      "items": {
+        "$ref": "#/$defs/GateDecision"
+      },
+      "title": "Gate Log",
+      "type": "array"
+    },
+    "iteration": {
+      "default": 0,
+      "title": "Iteration",
+      "type": "integer"
+    },
+    "iterations": {
+      "items": {
+        "$ref": "#/$defs/IterationRecord"
+      },
+      "title": "Iterations",
+      "type": "array"
+    },
+    "phase": {
+      "$ref": "#/$defs/PipelinePhase",
+      "default": "expand"
+    },
+    "queries": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Queries",
+      "type": "array"
+    },
+    "report": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report"
+    },
+    "results": {
+      "items": {
+        "$ref": "#/$defs/SearchResult"
+      },
+      "title": "Results",
+      "type": "array"
+    },
+    "summaries": {
+      "items": {
+        "$ref": "#/$defs/PaperSummary"
+      },
+      "title": "Summaries",
+      "type": "array"
+    }
+  },
+  "title": "PipelineState",
+  "type": "object",
+  "x-generated-by": "scripts/generate_schemas.py",
+  "x-schema-version": "2.0.0"
 }

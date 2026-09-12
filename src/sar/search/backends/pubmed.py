@@ -11,14 +11,14 @@ from __future__ import annotations
 
 import logging
 
-import aiohttp
+import httpx
 
 from sar.contracts.search import SearchResult, SourceType
 
 logger = logging.getLogger(__name__)
 
 _EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
-_TIMEOUT = aiohttp.ClientTimeout(total=20)
+_TIMEOUT = httpx.Timeout(20.0)
 
 
 class PubMedBackend:
@@ -56,7 +56,9 @@ class PubMedBackend:
             Normalized SearchResult list.
         """
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
                 # Step 1: ESearch — get PMIDs
                 esearch_params = {
                     "db": "pubmed",
@@ -66,11 +68,11 @@ class PubMedBackend:
                     "tool": "agentic_sar",
                     "email": self._email,
                 }
-                async with session.get(
+                resp = await client.get(
                     f"{_EUTILS_BASE}/esearch.fcgi", params=esearch_params
-                ) as resp:
-                    resp.raise_for_status()
-                    search_data = await resp.json()
+                )
+                resp.raise_for_status()
+                search_data = resp.json()
 
                 pmids = (
                     search_data.get("esearchresult", {}).get("idlist", [])
@@ -87,11 +89,11 @@ class PubMedBackend:
                     "tool": "agentic_sar",
                     "email": self._email,
                 }
-                async with session.get(
+                resp = await client.get(
                     f"{_EUTILS_BASE}/esummary.fcgi", params=esummary_params
-                ) as resp:
-                    resp.raise_for_status()
-                    summary_data = await resp.json()
+                )
+                resp.raise_for_status()
+                summary_data = resp.json()
 
             results: list[SearchResult] = []
             result_map = summary_data.get("result", {})
@@ -151,10 +153,12 @@ class PubMedBackend:
             "retmode": "json",
         }
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(
                     f"{_EUTILS_BASE}/esearch.fcgi", params=params
-                ) as resp:
-                    return resp.status == 200
+                )
+                return resp.status_code == 200
         except Exception:
             return False

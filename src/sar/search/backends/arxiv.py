@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 import xml.etree.ElementTree as ET
 
-import aiohttp
+import httpx
 
 from sar.contracts.search import SearchResult, SourceType
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 _BASE_URL = "http://export.arxiv.org/api/query"
 _ATOM_NS = "http://www.w3.org/2005/Atom"
 _ARXIV_NS = "http://arxiv.org/schemas/atom"
-_TIMEOUT = aiohttp.ClientTimeout(total=20)
+_TIMEOUT = httpx.Timeout(20.0)
 
 
 class ArxivBackend:
@@ -53,17 +53,19 @@ class ArxivBackend:
         }
 
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(_BASE_URL, params=params) as resp:
-                    resp.raise_for_status()
-                    text = await resp.text()
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(_BASE_URL, params=params)
+                resp.raise_for_status()
+                text = resp.text
 
             root = ET.fromstring(text)
             entries = root.findall(f"{{{_ATOM_NS}}}entry")
             results: list[SearchResult] = []
 
             for entry in entries:
-                def _text(tag: str) -> str:
+                def _text(tag: str, entry=entry) -> str:
                     el = entry.find(f"{{{_ATOM_NS}}}{tag}")
                     return el.text.strip() if el is not None and el.text else ""
 
@@ -122,8 +124,10 @@ class ArxivBackend:
         """
         params = {"search_query": "all:test", "max_results": 1}
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(_BASE_URL, params=params) as resp:
-                    return resp.status == 200
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(_BASE_URL, params=params)
+                return resp.status_code == 200
         except Exception:
             return False

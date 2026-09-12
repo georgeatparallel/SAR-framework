@@ -14,12 +14,12 @@ import logging
 from typing import TYPE_CHECKING
 
 from sar.contracts.events import EventType
-from sar.contracts.llm import LLMRequest, ToolCall
+from sar.contracts.llm import LLMRequest
 from sar.llm.tools import submit_queries_tool
 
 if TYPE_CHECKING:
-    from sar.llm.client import LLMClient
     from sar.events import EventBus
+    from sar.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
 

@@ -65,3 +65,7 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+# UP042 (StrEnum) would change str(PipelinePhase.EXPAND) from
+# "PipelinePhase.EXPAND" to "expand" everywhere the enums are formatted;
+# suppressed deliberately rather than absorbed as a silent behavior change.
+ignore = ["UP042"]

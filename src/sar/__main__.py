@@ -54,8 +54,11 @@ def _doctor() -> int:
         present = all(importlib.util.find_spec(m) is not None for m in mods)
         print(f"extra [{extra:7s}] : {'installed' if present else 'not installed'}")
 
-    print(f"model default    : "
-          f"{os.environ.get('SAR_CODEX_MODEL', 'gpt-5.6-terra') if backend == 'codex' else os.environ.get('OPENAI_MODEL_FAST', 'gpt-4o-mini')}")
+    if backend == "codex":
+        default_model = os.environ.get("SAR_CODEX_MODEL", "gpt-5.6-terra")
+    else:
+        default_model = os.environ.get("OPENAI_MODEL_FAST", "gpt-4o-mini")
+    print(f"model default    : {default_model}")
     return 0 if ok else 1
 
 

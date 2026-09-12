@@ -65,7 +65,6 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _build_search_engine(config=None):
-    from sar.search.engine import SearchEngine
     from sar.search.backends import (
         ArxivBackend,
         CrossRefBackend,
@@ -74,6 +73,7 @@ def _build_search_engine(config=None):
         SemanticScholarBackend,
         WikipediaBackend,
     )
+    from sar.search.engine import SearchEngine
     backends = [
         DuckDuckGoBackend(),
         WikipediaBackend(),
@@ -141,9 +141,9 @@ async def main(args: argparse.Namespace) -> int:
             dataset_path, args.slug, args.country, args.limit, args.offset,
         )
 
-    from sar.config import AppConfig
     from sar.campaign.batch import run_batch
     from sar.cli import build_llm
+    from sar.config import AppConfig
 
     try:
         config = AppConfig()

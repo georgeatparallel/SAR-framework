@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 
-import aiohttp
+import httpx
 
 from sar.contracts.search import SearchResult, SourceType
 
@@ -23,7 +23,7 @@ _FIELDS = (
     "title,url,abstract,authors,year,citationCount,"
     "isOpenAccess,openAccessPdf,externalIds"
 )
-_TIMEOUT = aiohttp.ClientTimeout(total=20)
+_TIMEOUT = httpx.Timeout(20.0)
 
 
 class SemanticScholarBackend:
@@ -64,10 +64,12 @@ class SemanticScholarBackend:
             headers["x-api-key"] = self._api_key
 
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(url, params=params, headers=headers) as resp:
-                    resp.raise_for_status()
-                    data = await resp.json()
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(url, params=params, headers=headers)
+                resp.raise_for_status()
+                data = resp.json()
 
             results: list[SearchResult] = []
             for paper in data.get("data", []):
@@ -119,8 +121,10 @@ class SemanticScholarBackend:
             headers["x-api-key"] = self._api_key
 
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(url, params=params, headers=headers) as resp:
-                    return resp.status == 200
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(url, params=params, headers=headers)
+                return resp.status_code == 200
         except Exception:
             return False

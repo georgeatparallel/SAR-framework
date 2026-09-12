@@ -213,7 +213,7 @@ class SearchEngine:
         all_results: list[SearchResult] = []
         failed: set[str] = set()
 
-        for backend, results in zip(backends, per_backend):
+        for backend, results in zip(backends, per_backend, strict=True):
             if results is None:
                 # _safe_backend_call signals failure by returning None.
                 failed.add(backend.name)
@@ -358,9 +358,7 @@ class SearchEngine:
         if len(secondary.snippet) > len(primary.snippet):
             updates["snippet"] = secondary.snippet
 
-        if primary.citation_count is None and secondary.citation_count is not None:
-            updates["citation_count"] = secondary.citation_count
-        elif (
+        if primary.citation_count is None and secondary.citation_count is not None or (
             primary.citation_count is not None
             and secondary.citation_count is not None
             and secondary.citation_count > primary.citation_count

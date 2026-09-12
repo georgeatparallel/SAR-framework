@@ -17,9 +17,8 @@ from sar.contracts.llm import LLMRequest
 from sar.llm.tools import get_reviewer_tools
 
 if TYPE_CHECKING:
-    from sar.contracts.pipeline import ReviewerVerdict
-    from sar.llm.client import LLMClient
     from sar.events import EventBus
+    from sar.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
 

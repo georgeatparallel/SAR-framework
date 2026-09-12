@@ -12,14 +12,14 @@ from __future__ import annotations
 import logging
 import re
 
-import aiohttp
+import httpx
 
 from sar.contracts.search import SearchResult, SourceType
 
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://api.crossref.org/works"
-_TIMEOUT = aiohttp.ClientTimeout(total=20)
+_TIMEOUT = httpx.Timeout(20.0)
 
 
 class CrossRefBackend:
@@ -69,12 +69,14 @@ class CrossRefBackend:
         }
 
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(
                     _BASE_URL, params=params, headers=headers
-                ) as resp:
-                    resp.raise_for_status()
-                    data = await resp.json()
+                )
+                resp.raise_for_status()
+                data = resp.json()
 
             results: list[SearchResult] = []
             for item in data.get("message", {}).get("items", []):
@@ -138,10 +140,12 @@ class CrossRefBackend:
             ),
         }
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(
                     _BASE_URL, params=params, headers=headers
-                ) as resp:
-                    return resp.status == 200
+                )
+                return resp.status_code == 200
         except Exception:
             return False

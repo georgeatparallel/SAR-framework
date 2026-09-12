@@ -15,13 +15,13 @@ import logging
 from typing import Any
 
 from sar.campaign.schema import (
+    _DATASET_COLUMNS_SET,
     BINARY_FIELDS,
     CATEGORICAL_FIELDS,
     DATASET_COLUMNS,
     NA_TOKENS,
     NUMERIC_FIELDS,
     TRIVALUED_FIELDS,
-    _DATASET_COLUMNS_SET,
 )
 
 logger = logging.getLogger(__name__)
@@ -123,14 +123,12 @@ def normalize_binary(value: Any) -> str:
         One of "0.0", "1.0", or "NA".
     """
     text = _text(value).lower()
-    if text in NA_TOKENS:
-        return "NA"
-
     mapping: dict[str, str] = {
         "0": "0.0",
         "0.0": "0.0",
         "no": "0.0",
         "false": "0.0",
+        "none": "0.0",
         "absent": "0.0",
         "1": "1.0",
         "1.0": "1.0",
@@ -140,6 +138,12 @@ def normalize_binary(value: Any) -> str:
     }
     if text in mapping:
         return mapping[text]
+    # The shared NA vocabulary is consulted only after the field's own
+    # mapping: "none" is a semantic zero for a binary field, not a
+    # missing value. Genuine NA tokens ("", "na", "unknown") still land here.
+    if text in NA_TOKENS:
+        return "NA"
+
 
     if text.startswith("yes"):
         return "1.0"
@@ -223,9 +227,6 @@ def normalize_repression(value: Any) -> str:
         One of "0", "1", "2", "3", or "NA".
     """
     text = _text(value).lower()
-    if text in NA_TOKENS:
-        return "NA"
-
     mapping: dict[str, str] = {
         "0": "0",
         "1": "1",
@@ -251,6 +252,12 @@ def normalize_repression(value: Any) -> str:
     }
     if text in mapping:
         return mapping[text]
+    # NA check deliberately follows the mapping: "none" is repression
+    # level 0 (the scale's own zero point), not a missing value. The
+    # collision with NA_TOKENS made the mapping's "none" entry unreachable.
+    if text in NA_TOKENS:
+        return "NA"
+
 
     # Numeric fallback
     try:
@@ -377,6 +384,12 @@ def validate_coded_row(row: dict[str, str]) -> list[str]:
         value = _text(row.get(field, "NA"))
         if value not in {"0.0", "1.0", "NA"}:
             issues.append(f"invalid code for {field}: {value}")
+
+    # Check the repression scale (its own field: ordinal 0-3 or NA)
+    if "repression_level" in row:
+        value = _text(row.get("repression_level", "NA"))
+        if value not in {"0", "1", "2", "3", "NA"}:
+            issues.append(f"invalid code for repression_level: {value}")
 
     # Check categorical fields
     for field, allowed in CATEGORICAL_FIELDS.items():

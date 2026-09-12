@@ -6,9 +6,9 @@ and canned data factories. All fixtures use pytest scope conventions.
 
 from __future__ import annotations
 
-import pytest
 from typing import Any
 
+import pytest
 
 # --- Mock LLM Client ---
 

@@ -12,14 +12,14 @@ import logging
 import re
 from urllib.parse import quote_plus
 
-import aiohttp
+import httpx
 
 from sar.contracts.search import SearchResult, SourceType
 
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://en.wikipedia.org/w/api.php"
-_TIMEOUT = aiohttp.ClientTimeout(total=20)
+_TIMEOUT = httpx.Timeout(20.0)
 
 
 def _strip_html_tags(text: str) -> str:
@@ -65,10 +65,12 @@ class WikipediaBackend:
         }
 
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(_BASE_URL, params=params) as resp:
-                    resp.raise_for_status()
-                    data = await resp.json()
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(_BASE_URL, params=params)
+                resp.raise_for_status()
+                data = resp.json()
 
             results: list[SearchResult] = []
             for item in data.get("query", {}).get("search", []):
@@ -117,8 +119,10 @@ class WikipediaBackend:
             "srlimit": 1,
         }
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(_BASE_URL, params=params) as resp:
-                    return resp.status == 200
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(_BASE_URL, params=params)
+                return resp.status_code == 200
         except Exception:
             return False

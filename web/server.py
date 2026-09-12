@@ -59,7 +59,10 @@ def _build_search_engine(config: AppConfig) -> SearchEngine:
 
     # Map config names to (class, kwargs) pairs.
     available: dict[str, tuple[type, dict[str, str]]] = {
-        "semantic_scholar": (SemanticScholarBackend, {"api_key": config.SEMANTIC_SCHOLAR_API_KEY or None}),
+        "semantic_scholar": (
+            SemanticScholarBackend,
+            {"api_key": config.SEMANTIC_SCHOLAR_API_KEY or None},
+        ),
         "arxiv": (ArxivBackend, {}),
         "crossref": (CrossRefBackend, {}),
         "pubmed": (PubMedBackend, {}),

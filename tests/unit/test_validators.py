@@ -2,6 +2,7 @@
 
 import pytest
 
+from sar.campaign.schema import CATEGORICAL_FIELDS, DATASET_COLUMNS
 from sar.campaign.validators import (
     normalize_binary,
     normalize_categorical,
@@ -12,8 +13,6 @@ from sar.campaign.validators import (
     validate_campaign_dossier,
     validate_coded_row,
 )
-from sar.campaign.schema import DATASET_COLUMNS, CATEGORICAL_FIELDS
-
 
 # ---------------------------------------------------------------------------
 # normalize_trivalued

@@ -13,7 +13,8 @@ import inspect
 import logging
 import random
 import time
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +264,7 @@ class CircuitBreaker:
                 result = await result
             self._record_success()
             return result
-        except Exception as exc:
+        except Exception:
             self._record_failure()
             raise
 

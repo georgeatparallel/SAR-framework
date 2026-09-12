@@ -10,7 +10,7 @@ Migrated from: agentic_sar/campaign_service.py campaign_dossier_synthesizer_agen
 from __future__ import annotations
 
 import logging
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sar.campaign.schema import get_codebook_prompt_block
 from sar.contracts.events import Event, EventType
@@ -18,9 +18,9 @@ from sar.contracts.llm import LLMRequest
 from sar.llm.tools import submit_campaign_dossier_tool
 
 if TYPE_CHECKING:
-    from sar.contracts.campaign import CampaignSpec, CampaignDossier
-    from sar.llm.client import LLMClient
+    from sar.contracts.campaign import CampaignSpec
     from sar.events import EventBus
+    from sar.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
 

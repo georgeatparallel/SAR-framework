@@ -18,8 +18,8 @@ from sar.llm.tools import submit_scores_tool
 
 if TYPE_CHECKING:
     from sar.contracts.search import SearchResult
-    from sar.llm.client import LLMClient
     from sar.events import EventBus
+    from sar.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
 

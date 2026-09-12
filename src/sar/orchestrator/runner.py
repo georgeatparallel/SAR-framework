@@ -28,7 +28,6 @@ from sar.contracts.pipeline import (
     PipelineResult,
     PipelineState,
     ReviewerVerdict,
-    TokenBudget,
 )
 from sar.events import EventBus
 from sar.llm.client import LLMClient
@@ -36,7 +35,6 @@ from sar.orchestrator import gates
 from sar.orchestrator.machine import PipelineMachine, TransitionEntry
 from sar.persistence.audit import AuditLog
 from sar.search.engine import SearchEngine
-from sar.search.fetch import ContentFetcher
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +43,17 @@ _DEFAULT_MAX_ITERATIONS = 3
 _DEFAULT_MIN_RESULTS = 1
 _DEFAULT_QUALITY_THRESHOLD = 4.0
 _DEFAULT_MAX_READ = 10
+_DEFAULT_MAX_REWORKS = 2
+
+# Command strings _parse_verdict recognizes; anything else maps to APPROVED
+# and is flagged in the audit log as review_verdict_unrecognized.
+_KNOWN_VERDICT_COMMANDS = {
+    None,
+    "mark_as_complete", "complete", "approved",
+    "request_rework", "needs_rework",
+    "request_more_info", "needs_more_info",
+    "failed",
+}
 
 
 def _get_config_attr(config: AppConfig, name: str, default: Any) -> Any:
@@ -144,7 +153,20 @@ async def run_pipeline(
     transitions = build_transitions(config)
     machine = PipelineMachine(state, transitions)
 
+    # Meter every LLM call into state.budget so check_budget_remaining is a
+    # live gate rather than a check of a never-mutated default.
+    from sar.llm.budget import BudgetTracker
+    from sar.llm.metering import MeteredClient
+
+    tracker = BudgetTracker(
+        budget=state.budget,
+        ceiling_usd=_get_config_attr(config, "BUDGET_CEILING_USD", None),
+    )
+    llm = MeteredClient(llm, tracker, audit_log)
+
     audit_log.record("pipeline_start", {"run_id": run_id, "query": query})
+
+    reworks_this_iteration = 0
 
     while not machine.is_terminal:
         phase = machine.current_phase
@@ -363,6 +385,27 @@ async def run_pipeline(
 
             # Map command string to ReviewerVerdict enum
             verdict = _parse_verdict(verdict_cmd)
+            _cmd_key = verdict_cmd.lower().strip() if isinstance(verdict_cmd, str) else verdict_cmd
+            if _cmd_key not in _KNOWN_VERDICT_COMMANDS:
+                audit_log.record("review_verdict_unrecognized", {
+                    "raw_command": str(verdict_cmd),
+                    "mapped_to": verdict.value,
+                })
+
+            # Bound the ANALYZE <-> REVIEW rework cycle independently of the
+            # iteration counter, which only advances through EXPAND.
+            max_reworks = _get_config_attr(
+                config, "MAX_REWORKS_PER_ITERATION", _DEFAULT_MAX_REWORKS
+            )
+            if verdict == ReviewerVerdict.NEEDS_REWORK:
+                reworks_this_iteration += 1
+                if reworks_this_iteration > max_reworks:
+                    audit_log.record("rework_bound_exhausted", {
+                        "iteration": state.iteration,
+                        "reworks": reworks_this_iteration,
+                        "max_reworks": max_reworks,
+                    })
+                    is_final = True
 
             # Record iteration
             iteration_record = IterationRecord(
@@ -376,6 +419,7 @@ async def run_pipeline(
                     if g not in _flatten_iteration_gates(state.iterations)
                 ],
                 feedback=payload if isinstance(payload, str) else None,
+                reviewer_verdict=verdict,
             )
             state.iterations.append(iteration_record)
 
@@ -396,6 +440,7 @@ async def run_pipeline(
 
             elif verdict == ReviewerVerdict.NEEDS_MORE_INFO and not is_final:
                 state.feedback = payload if isinstance(payload, str) else None
+                reworks_this_iteration = 0
                 # If the reviewer provided new queries, use them
                 if isinstance(payload, list) and payload:
                     state.queries = payload

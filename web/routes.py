@@ -18,8 +18,8 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from sar.persistence.audit import AuditLog
 from sar.orchestrator.runner import run_campaign_pipeline, run_pipeline
+from sar.persistence.audit import AuditLog
 
 router = APIRouter()
 

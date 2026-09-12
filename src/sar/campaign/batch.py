@@ -12,12 +12,12 @@ from __future__ import annotations
 import csv
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sar.campaign.schema import DATASET_COLUMNS, KEY_FIELDS
-from sar.campaign.validators import normalize_coded_row, _text, _is_na
+from sar.campaign.validators import _is_na, _text, normalize_coded_row
 from sar.persistence.audit import AuditLog
 
 if TYPE_CHECKING:
@@ -263,7 +263,7 @@ async def run_batch(
     output_root.mkdir(parents=True, exist_ok=True)
 
     # Load dataset
-    with open(dataset_path, "r", encoding="utf-8") as f:
+    with open(dataset_path, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         rows = list(reader)
 
@@ -283,10 +283,10 @@ async def run_batch(
         specs = specs[:limit]
 
     # Build manifest
-    run_id = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    run_id = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     manifest: dict[str, Any] = {
         "run_id": run_id,
-        "started_at": datetime.now(timezone.utc).isoformat(),
+        "started_at": datetime.now(UTC).isoformat(),
         "dataset_path": str(dataset_path),
         "total_campaigns": len(specs),
         "completed": [],
@@ -342,7 +342,7 @@ async def run_batch(
             logger.error("Failed: %s: %s", slug, e)
 
     # Finalize manifest
-    manifest["finished_at"] = datetime.now(timezone.utc).isoformat()
+    manifest["finished_at"] = datetime.now(UTC).isoformat()
     manifest["success_count"] = len(manifest["completed"])
     manifest["failure_count"] = len(manifest["failed"])
     manifest["skip_count"] = len(manifest["skipped"])
@@ -387,7 +387,7 @@ def rebuild_batch_index(output_root: str | Path) -> None:
         campaign_slugs.append(slug)
 
         try:
-            with open(dossier_path, "r", encoding="utf-8") as f:
+            with open(dossier_path, encoding="utf-8") as f:
                 data = json.loads(f.read())
 
             # Build summary row
@@ -401,7 +401,7 @@ def rebuild_batch_index(output_root: str | Path) -> None:
             # Load diffs if available
             diff_path = dossier_path.parent / "verification_diff.csv"
             if diff_path.exists():
-                with open(diff_path, "r", encoding="utf-8") as f:
+                with open(diff_path, encoding="utf-8") as f:
                     reader = csv.DictReader(f)
                     for row in reader:
                         row["campaign_slug"] = slug
@@ -452,7 +452,7 @@ def rebuild_batch_index(output_root: str | Path) -> None:
 
     # Write batch_manifest.json
     manifest = {
-        "rebuilt_at": datetime.now(timezone.utc).isoformat(),
+        "rebuilt_at": datetime.now(UTC).isoformat(),
         "total_campaigns": len(campaign_slugs),
         "campaigns": campaign_slugs,
     }

@@ -1,15 +1,18 @@
 """Token and cost budget tracking.
 
-Tracks cumulative token usage and estimated cost across all LLM calls
-in a pipeline run. Can enforce budget ceilings to prevent runaway costs.
+Tracks cumulative token usage and estimated cost across all LLM calls in a
+pipeline run. The tracker mutates a live :class:`TokenBudget` (normally
+``state.budget``), so the orchestrator's ``check_budget_remaining`` gate sees
+every recorded call.
 
-New in v2 — no v1 equivalent.
+Unmetered backends: the Codex CLI reports no token counts, so its responses
+carry all-zero usage. Those calls are counted (``unmetered_calls``) but add
+nothing to tokens or cost, and they can never trip the cost ceiling.
 """
 
 from __future__ import annotations
 
 import logging
-import warnings
 
 from sar.contracts.pipeline import TokenBudget
 
@@ -17,14 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class BudgetTracker:
-    """Tracks token usage and cost for a single pipeline run.
-
-    Accumulates input/output tokens from each LLM call and
-    estimates cost based on per-token pricing. Thread-safe for
-    single-threaded async contexts (no concurrent mutations).
+    """Accumulates LLM usage into a TokenBudget.
 
     Attributes:
-        PRICING: Model -> {"prompt": price_per_1M, "completion": price_per_1M} mapping.
+        PRICING: Model -> {"prompt": price_per_1M, "completion": price_per_1M}.
     """
 
     # Pricing per 1M tokens (approximate, as of 2024-2025)
@@ -37,132 +36,117 @@ class BudgetTracker:
         "gpt-3.5-turbo": {"prompt": 0.50, "completion": 1.50},
     }
 
-    def __init__(self, max_input_tokens: int = 0, ceiling_usd: float = 0.0) -> None:
-        """Initialize the budget tracker.
+    def __init__(
+        self,
+        budget: TokenBudget | None = None,
+        ceiling_usd: float | None = None,
+    ) -> None:
+        """Wrap a live TokenBudget (or create a fresh one).
 
         Args:
-            max_input_tokens: Token ceiling (0 = unlimited).
-            ceiling_usd: Cost ceiling in USD (0.0 = unlimited). Not currently
-                enforced but logged as a warning when exceeded.
+            budget: The budget to accumulate into. Pass ``state.budget`` so
+                gates observe the totals. A new TokenBudget when omitted.
+            ceiling_usd: Overrides the budget's cost ceiling when given.
         """
-        self._budget = TokenBudget(max_input_tokens=max_input_tokens)
-        self._ceiling_usd = ceiling_usd
+        self._budget = budget if budget is not None else TokenBudget()
+        if ceiling_usd is not None:
+            self._budget.ceiling_usd = ceiling_usd
         self._call_count: int = 0
+        self._unmetered_calls: int = 0
+        self._unknown_models: set[str] = set()
 
-    def record(self, model: str, usage: dict[str, int]) -> None:
-        """Record token usage from one LLM call.
+    def record(self, model: str, usage: dict[str, int] | None) -> None:
+        """Record one LLM call's usage.
 
-        Accumulates prompt and completion tokens into the running total
-        and estimates cost based on the model's pricing tier.
+        All-zero (or missing) usage is treated as an unmetered call: counted,
+        but contributing no tokens and no cost. This is the normal case for
+        the Codex CLI backend, which does not report token counts.
 
         Args:
-            model: Model identifier used for this call (e.g., "gpt-4o-mini").
-            usage: Dict with keys "prompt_tokens", "completion_tokens", and
-                optionally "total_tokens".
+            model: Model identifier used for this call.
+            usage: Dict with "prompt_tokens" / "completion_tokens" keys.
         """
-        prompt_tokens = usage.get("prompt_tokens", 0)
-        completion_tokens = usage.get("completion_tokens", 0)
-
-        self._budget.input_tokens += prompt_tokens
-        self._budget.output_tokens += completion_tokens
         self._call_count += 1
+        usage = usage or {}
+        prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
+        completion_tokens = int(usage.get("completion_tokens", 0) or 0)
 
-        # Estimate cost
+        if prompt_tokens == 0 and completion_tokens == 0:
+            self._unmetered_calls += 1
+            logger.debug(
+                "BudgetTracker: call #%d model=%s unmetered (no usage reported)",
+                self._call_count, model,
+            )
+            return
+
+        self._budget.prompt_tokens += prompt_tokens
+        self._budget.completion_tokens += completion_tokens
+        self._budget.total_tokens = (
+            self._budget.prompt_tokens + self._budget.completion_tokens
+        )
+
         pricing = self._resolve_pricing(model)
         cost_increment = (
             prompt_tokens * pricing["prompt"] / 1_000_000
             + completion_tokens * pricing["completion"] / 1_000_000
         )
-        self._budget.estimated_cost_usd += cost_increment
+        self._budget.cost_usd += cost_increment
 
         logger.debug(
-            "BudgetTracker: call #%d model=%s +%d/%d tokens, cost +$%.6f (cumulative: $%.4f)",
-            self._call_count,
-            model,
-            prompt_tokens,
-            completion_tokens,
-            cost_increment,
-            self._budget.estimated_cost_usd,
+            "BudgetTracker: call #%d model=%s +%d/%d tokens, cost +$%.6f "
+            "(cumulative: $%.4f)",
+            self._call_count, model, prompt_tokens, completion_tokens,
+            cost_increment, self._budget.cost_usd,
         )
 
-        # Warn if approaching or exceeding ceilings
-        if self._budget.is_over_budget:
-            warnings.warn(
-                f"Token budget exceeded: {self._budget.input_tokens} input tokens "
-                f"vs ceiling of {self._budget.max_input_tokens}.",
-                ResourceWarning,
-                stacklevel=2,
-            )
-
-        if self._ceiling_usd > 0 and self._budget.estimated_cost_usd >= self._ceiling_usd:
-            warnings.warn(
-                f"Cost budget exceeded: ${self._budget.estimated_cost_usd:.4f} "
-                f"vs ceiling of ${self._ceiling_usd:.2f}.",
-                ResourceWarning,
-                stacklevel=2,
-            )
-
     def _resolve_pricing(self, model: str) -> dict[str, float]:
-        """Look up pricing for a model, falling back to gpt-4o-mini rates.
+        """Pricing for a model; unknown models cost zero, warned once.
 
-        Args:
-            model: Model identifier string.
-
-        Returns:
-            Dict with "prompt" and "completion" prices per 1M tokens.
+        Billing an unknown model at some other model's rate would silently
+        misstate cost, so unknown means unpriced.
         """
         if model in self.PRICING:
             return self.PRICING[model]
-
-        # Try prefix matching for versioned model names
         for known_model in self.PRICING:
             if model.startswith(known_model):
                 return self.PRICING[known_model]
-
-        logger.debug(
-            "BudgetTracker: unknown model '%s', using gpt-4o-mini pricing.", model
-        )
-        return self.PRICING["gpt-4o-mini"]
+        if model not in self._unknown_models:
+            self._unknown_models.add(model)
+            logger.warning(
+                "BudgetTracker: no pricing for model '%s'; its tokens are "
+                "counted but not billed.", model,
+            )
+        return {"prompt": 0.0, "completion": 0.0}
 
     def is_over_budget(self) -> bool:
-        """Check if cumulative input tokens exceed the ceiling.
-
-        Returns:
-            True if over budget (and ceiling is set), False otherwise.
-        """
+        """True when accumulated cost has reached the budget's ceiling."""
         return self._budget.is_over_budget
 
     def snapshot(self) -> TokenBudget:
-        """Return a copy of the current budget state.
+        """An independent copy of the current budget state."""
+        return self._budget.model_copy()
 
-        Returns:
-            Independent TokenBudget snapshot.
-        """
-        return self._budget.copy()
+    @property
+    def budget(self) -> TokenBudget:
+        """The live TokenBudget this tracker accumulates into."""
+        return self._budget
 
     @property
     def call_count(self) -> int:
-        """Return the number of LLM calls recorded.
-
-        Returns:
-            Total number of calls tracked.
-        """
+        """Number of LLM calls recorded, metered or not."""
         return self._call_count
 
     @property
-    def total_tokens(self) -> int:
-        """Return the total number of tokens (input + output).
+    def unmetered_calls(self) -> int:
+        """Calls recorded with no reported usage (e.g. the codex backend)."""
+        return self._unmetered_calls
 
-        Returns:
-            Sum of input and output tokens.
-        """
-        return self._budget.input_tokens + self._budget.output_tokens
+    @property
+    def total_tokens(self) -> int:
+        """Total tokens across all metered calls."""
+        return self._budget.total_tokens
 
     @property
     def estimated_cost_usd(self) -> float:
-        """Return the estimated cumulative cost in USD.
-
-        Returns:
-            Running cost estimate.
-        """
-        return self._budget.estimated_cost_usd
+        """Running cost estimate in USD."""
+        return self._budget.cost_usd

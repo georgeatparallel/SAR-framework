@@ -16,7 +16,6 @@ import logging
 
 from sar.contracts.pipeline import (
     GateDecision,
-    PipelinePhase,
     PipelineState,
     ReviewerVerdict,
 )

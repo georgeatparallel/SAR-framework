@@ -12,14 +12,14 @@ from __future__ import annotations
 import logging
 from urllib.parse import quote_plus
 
-import aiohttp
+import httpx
 
 from sar.contracts.search import SearchResult
 
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://api.unpaywall.org/v2"
-_TIMEOUT = aiohttp.ClientTimeout(total=20)
+_TIMEOUT = httpx.Timeout(20.0)
 
 
 class UnpaywallBackend:
@@ -80,17 +80,19 @@ class UnpaywallBackend:
         params = {"email": self._email}
 
         try:
-            async with aiohttp.ClientSession(timeout=_TIMEOUT) as session:
-                async with session.get(url, params=params) as resp:
-                    # 404 = DOI not found; 422 = non-journal DOI
-                    if resp.status in (404, 422):
-                        logger.debug(
-                            "Unpaywall: skipping DOI %s (HTTP %d)",
-                            doi, resp.status,
-                        )
-                        return None
-                    resp.raise_for_status()
-                    data = await resp.json()
+            async with httpx.AsyncClient(
+                timeout=_TIMEOUT, follow_redirects=True
+            ) as client:
+                resp = await client.get(url, params=params)
+                # 404 = DOI not found; 422 = non-journal DOI
+                if resp.status_code in (404, 422):
+                    logger.debug(
+                        "Unpaywall: skipping DOI %s (HTTP %d)",
+                        doi, resp.status_code,
+                    )
+                    return None
+                resp.raise_for_status()
+                data = resp.json()
 
             best = data.get("best_oa_location")
             if best:
@@ -110,8 +112,8 @@ class UnpaywallBackend:
             True if API responds for a known DOI.
         """
         try:
-            result = await self.resolve_doi("10.1038/nature12373")
-            # The DOI should exist; result may or may not have a PDF
+            await self.resolve_doi("10.1038/nature12373")
+            # The DOI should exist; a PDF may or may not come back
             return True
         except Exception:
             return False

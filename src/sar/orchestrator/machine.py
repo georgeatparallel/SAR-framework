@@ -15,7 +15,7 @@ Migrated from: implicit if/elif chains in agent_service.py run_agentic_pipeline(
 from __future__ import annotations
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
 from sar.contracts.pipeline import GateDecision, PipelinePhase, PipelineState
 

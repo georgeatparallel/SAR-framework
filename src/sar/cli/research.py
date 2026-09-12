@@ -55,7 +55,6 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _build_search_engine(backend_names: list[str] | None, config=None):
-    from sar.search.engine import SearchEngine
     from sar.search.backends import (
         ArxivBackend,
         CrossRefBackend,
@@ -64,6 +63,7 @@ def _build_search_engine(backend_names: list[str] | None, config=None):
         SemanticScholarBackend,
         WikipediaBackend,
     )
+    from sar.search.engine import SearchEngine
 
     available = {
         "duckduckgo": DuckDuckGoBackend,
@@ -121,10 +121,12 @@ async def main(args: argparse.Namespace) -> int:
 
     if args.max_iterations is not None:
         # AppConfig is pydantic; copy with override.
-        try:
-            config = config.model_copy(update={"MAX_ITERATIONS": args.max_iterations})
-        except Exception:
-            pass
+        import contextlib
+
+        with contextlib.suppress(Exception):
+            config = config.model_copy(
+                update={"MAX_ITERATIONS": args.max_iterations}
+            )
 
     backend_names = [b.strip() for b in args.backends.split(",") if b.strip()]
     search_engine = _build_search_engine(backend_names or None, config)

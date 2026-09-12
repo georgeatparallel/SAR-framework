@@ -14,7 +14,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 # --- Dataset column definitions ---
 # Full ordered list of codebook columns, matching master_dataset.csv exactly.
 
@@ -202,7 +201,8 @@ def get_extraction_schema() -> dict[str, Any]:
         if field in TRIVALUED_FIELDS:
             properties[field] = {
                 "type": ["number", "null"],
-                "description": "Trivalued: 0.0 (no/failure), 0.5 (partial/mixed), 1.0 (yes/success)",
+                "description": ("Trivalued: 0.0 (no/failure), 0.5 (partial/mixed), "
+                                "1.0 (yes/success)"),
                 "enum": [0.0, 0.5, 1.0, None],
             }
         elif field in CATEGORICAL_FIELDS:

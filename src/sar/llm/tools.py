@@ -127,7 +127,7 @@ def submit_extraction_tool(
                 "type": "number",
                 "description": field_desc,
             }
-        elif "findings" in field_name.lower() or "claims" in field_name.lower() or "quotes" in field_name.lower():
+        elif any(k in field_name.lower() for k in ("findings", "claims", "quotes")):
             properties[field_name] = {
                 "type": "array",
                 "items": {"type": "string"},

@@ -67,7 +67,6 @@ def _slug(name: str) -> str:
 
 def _build_search_engine(config):
     """Construct a SearchEngine with all keyless backends registered."""
-    from sar.search.engine import SearchEngine
     from sar.search.backends import (
         ArxivBackend,
         CrossRefBackend,
@@ -76,6 +75,7 @@ def _build_search_engine(config):
         SemanticScholarBackend,
         WikipediaBackend,
     )
+    from sar.search.engine import SearchEngine
 
     backends = [
         DuckDuckGoBackend(),
@@ -128,7 +128,7 @@ def _save_dossier(out_dir: Path, result: dict) -> None:
 
     evidence = result.get("evidence_log") or []
     if evidence:
-        keys = sorted({k for row in evidence for k in (row or {}).keys()})
+        keys = sorted({k for row in evidence for k in (row or {})})
         with (out_dir / "evidence_log.csv").open("w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=keys)
             w.writeheader()
@@ -144,9 +144,9 @@ async def main(args: argparse.Namespace) -> int:
     """Run the campaign research pipeline with the given arguments."""
     _load_env()
 
+    from sar.cli import build_llm
     from sar.config import AppConfig
     from sar.contracts.campaign import CampaignSpec
-    from sar.cli import build_llm
     from sar.events import EventBus
     from sar.orchestrator.runner import run_campaign_pipeline
     from sar.persistence.audit import AuditLog

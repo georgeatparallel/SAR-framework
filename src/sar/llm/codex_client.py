@@ -37,6 +37,17 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL = "gpt-5.6-terra"
 
+# A prompt larger than this is almost certainly a caller bug (e.g. a whole
+# corpus pasted into one request) and would stall the CLI for a long time.
+MAX_PROMPT_BYTES = 2_000_000
+
+
+class CodexProcessError(LLMClientError):
+    """The codex process failed in a way worth one retry: it timed out or
+    exited nonzero. Parse failures are NOT this class; retrying a model that
+    answered, but answered badly, just spends another full call for the same
+    likely outcome."""
+
 _JSON_BLOCK = re.compile(r"```(?:json)?\s*(\{.*?\})\s*```", re.S)
 
 
@@ -124,6 +135,8 @@ class CodexClient:
         timeout: float = 900.0,
         profile: str | None = None,
         binary: str | None = None,
+        max_attempts: int = 2,
+        retry_delay: float = 5.0,
     ) -> None:
         resolved = binary or shutil.which("codex")
         if not resolved:
@@ -137,6 +150,12 @@ class CodexClient:
         self._sandbox = sandbox
         self._timeout = timeout
         self._profile = profile
+        # Local bounded retry for process-level failures. The shared
+        # call_with_backoff helper judges retryability by HTTP status and
+        # message heuristics that do not apply to a subprocess, so the retry
+        # lives here, scoped to CodexProcessError only.
+        self._max_attempts = max(1, max_attempts)
+        self._retry_delay = retry_delay
 
     def _compose(self, request: LLMRequest, out_path: Path) -> str:
         tools = _tool_schemas(request)
@@ -200,17 +219,34 @@ class CodexClient:
             stdout, _ = await asyncio.wait_for(
                 proc.communicate(prompt.encode()), timeout=self._timeout
             )
-        except asyncio.TimeoutError as exc:
+        except TimeoutError as exc:
             proc.kill()
-            raise LLMClientError(
-                f"codex exec exceeded {self._timeout}s"
+            await proc.wait()
+            raise CodexProcessError(
+                f"codex exec timed out after {self._timeout}s"
             ) from exc
         text = (stdout or b"").decode("utf-8", "replace")
         if proc.returncode != 0:
-            raise LLMClientError(
+            raise CodexProcessError(
                 f"codex exec exited {proc.returncode}: {text[-800:]}"
             )
         return text
+
+    async def _run_with_retry(self, prompt: str, out_path: Path, last_msg: Path) -> str:
+        """Run codex, retrying process-level failures once with a delay."""
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                return await self._run(prompt, out_path, last_msg)
+            except CodexProcessError as exc:
+                if attempt >= self._max_attempts:
+                    raise
+                logger.warning(
+                    "codex attempt %d/%d failed (%s); retrying in %.0fs",
+                    attempt, self._max_attempts, exc, self._retry_delay,
+                )
+                await asyncio.sleep(self._retry_delay)
 
     async def call(self, request: LLMRequest) -> LLMResponse:
         """Run one turn through the Codex CLI and return a structured response."""
@@ -220,7 +256,12 @@ class CodexClient:
         last_msg = work / "last-message.txt"
         try:
             prompt = self._compose(request, out_path)
-            stdout = await self._run(prompt, out_path, last_msg)
+            if len(prompt.encode("utf-8")) > MAX_PROMPT_BYTES:
+                raise LLMClientError(
+                    f"prompt is {len(prompt.encode('utf-8'))} bytes, over the "
+                    f"{MAX_PROMPT_BYTES} limit; batch the input instead"
+                )
+            stdout = await self._run_with_retry(prompt, out_path, last_msg)
 
             payload: dict[str, Any] | None = None
             source = "handoff-file"

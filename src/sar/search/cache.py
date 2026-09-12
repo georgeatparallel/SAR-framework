@@ -10,7 +10,7 @@ Migrated from: agentic_sar/cache_service.py (URL cache portion)
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 
@@ -89,9 +89,9 @@ class URLCache:
 
         # Ensure offset-aware comparison.
         if fetched_at.tzinfo is None:
-            fetched_at = fetched_at.replace(tzinfo=timezone.utc)
+            fetched_at = fetched_at.replace(tzinfo=UTC)
 
-        age = datetime.now(timezone.utc) - fetched_at
+        age = datetime.now(UTC) - fetched_at
         if age.days >= self.ttl_days:
             return None  # Entry has expired; treat as a cache miss.
 
@@ -107,7 +107,7 @@ class URLCache:
             url: The URL key.
             content: The text content to cache.
         """
-        now_iso = datetime.now(timezone.utc).isoformat()
+        now_iso = datetime.now(UTC).isoformat()
         self._conn.execute(
             "INSERT OR REPLACE INTO url_cache (url, content, fetched_at) VALUES (?, ?, ?)",
             (url, content, now_iso),
@@ -123,7 +123,7 @@ class URLCache:
         Returns:
             Number of rows deleted.
         """
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=self.ttl_days)).isoformat()
+        cutoff = (datetime.now(UTC) - timedelta(days=self.ttl_days)).isoformat()
         cursor = self._conn.execute(
             "DELETE FROM url_cache WHERE fetched_at < ?",
             (cutoff,),
@@ -142,7 +142,7 @@ class URLCache:
 
     def __del__(self) -> None:
         """Close the SQLite connection on garbage collection."""
-        try:
+        import contextlib
+
+        with contextlib.suppress(Exception):
             self._conn.close()
-        except Exception:
-            pass

@@ -10,7 +10,7 @@ Migrated from: agentic_sar/agent_service.py analyzer_agent()
 from __future__ import annotations
 
 import logging
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sar.contracts.events import Event, EventType
 from sar.contracts.llm import LLMRequest
@@ -18,14 +18,15 @@ from sar.llm.tools import submit_report_tool
 
 if TYPE_CHECKING:
     from sar.contracts.pipeline import PaperSummary
-    from sar.llm.client import LLMClient
     from sar.events import EventBus
+    from sar.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
 
 _REPORT_SECTIONS = (
     "1. Executive Summary — 2-3 sentence overview of the answer to the query.\n"
-    "2. Key Findings — bullet list of the most important results, each with at least one [Source N] citation.\n"
+    "2. Key Findings — bullet list of the most important results, each with "
+    "at least one [Source N] citation.\n"
     "3. Methodology — describe the research approaches used in the sources.\n"
     "4. Evidence — detailed synthesis of evidence from all sources, grouped by theme.\n"
     "5. Gaps & Limitations — what the available sources do not cover or where evidence is weak.\n"

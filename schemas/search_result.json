@@ -1,124 +1,107 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "search_result",
-    "title": "SearchResult",
-    "description": "Universal search result schema. All backends normalize to this shape.",
-    "type": "object",
-    "required": ["title", "url"],
-    "properties": {
-        "title": {
-            "type": "string",
-            "description": "Document title."
-        },
-        "url": {
-            "type": "string",
-            "description": "Canonical URL (dedup key)."
-        },
-        "snippet": {
-            "type": "string",
-            "default": "",
-            "description": "Short excerpt or abstract."
-        },
-        "source_type": {
-            "type": "string",
-            "enum": ["academic", "web", "wiki", "preprint", "grey_lit", "unknown"],
-            "default": "unknown",
-            "description": "Category of the source."
-        },
-        "doi": {
-            "type": ["string", "null"],
-            "default": null,
-            "description": "Digital Object Identifier."
-        },
-        "authors": {
-            "type": "array",
-            "items": {"type": "string"},
-            "default": [],
-            "description": "Author names."
-        },
-        "year": {
-            "type": ["integer", "null"],
-            "default": null,
-            "description": "Publication year."
-        },
-        "citation_count": {
-            "type": ["integer", "null"],
-            "default": null,
-            "description": "Citation count (null if unknown)."
-        },
-        "relevance_score": {
-            "type": "number",
-            "minimum": 0.0,
-            "maximum": 1.0,
-            "default": 0.0,
-            "description": "Backend-assigned relevance score in [0, 1]."
-        },
-        "backend_name": {
-            "type": "string",
-            "default": "",
-            "description": "Name of the search backend that produced this result."
-        },
-        "raw_metadata": {
-            "type": "object",
-            "default": {},
-            "description": "Unprocessed backend-specific metadata for debugging."
-        }
-    },
-    "$defs": {
-        "SourceType": {
-            "type": "string",
-            "enum": ["academic", "web", "wiki", "preprint", "grey_lit", "unknown"],
-            "description": "Categorizes the provenance of a search result."
-        },
-        "SearchRequest": {
-            "type": "object",
-            "required": ["query"],
-            "properties": {
-                "query": {"type": "string", "description": "The search query string."},
-                "backends": {
-                    "type": ["array", "null"],
-                    "items": {"type": "string"},
-                    "default": null,
-                    "description": "Which backends to use (null = all available)."
-                },
-                "limit": {
-                    "type": "integer",
-                    "default": 10,
-                    "description": "Maximum results per backend."
-                },
-                "academic_only": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "If true, only return academic-type results."
-                }
-            }
-        },
-        "SearchResponse": {
-            "type": "object",
-            "properties": {
-                "results": {
-                    "type": "array",
-                    "items": {"$ref": "#"},
-                    "default": [],
-                    "description": "Deduplicated, merged results."
-                },
-                "query": {"type": "string", "default": "", "description": "Original query."},
-                "backends_queried": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "default": [],
-                    "description": "Successfully queried backends."
-                },
-                "backends_failed": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "default": [],
-                    "description": "Backends that returned errors."
-                },
-                "total_raw": {"type": "integer", "default": 0, "description": "Results before dedup."},
-                "total_deduped": {"type": "integer", "default": 0, "description": "Results after dedup."},
-                "elapsed_seconds": {"type": "number", "default": 0.0, "description": "Wall-clock time."}
-            }
-        }
+  "$defs": {
+    "SourceType": {
+      "description": "Categorizes the provenance of a search result.\n\nAttributes:\n    ACADEMIC: Peer-reviewed journal or conference paper.\n    WEB: General web page (news, blog, documentation).\n    WIKI: Wikipedia or wiki-family page.\n    PREPRINT: Non-peer-reviewed preprint (arXiv, SSRN, etc.).\n    GREY_LIT: Grey literature (NGO reports, government docs, working papers).\n    UNKNOWN: Source type could not be determined.",
+      "enum": [
+        "academic",
+        "web",
+        "wiki",
+        "preprint",
+        "grey_lit",
+        "unknown"
+      ],
+      "title": "SourceType",
+      "type": "string"
     }
+  },
+  "$id": "search_result",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A single search result from any backend.\n\nThis is the universal schema -- every backend normalizes its raw\nAPI response into this shape before returning.\n\nAttributes:\n    title: Title of the document or page.\n    url: Canonical URL (used for deduplication).\n    snippet: Short text excerpt or abstract.\n    source_type: Category of the source (academic, web, etc.).\n    doi: Digital Object Identifier, if available.\n    authors: List of author names.\n    year: Publication year, if available.\n    citation_count: Number of citations, if known.\n    relevance_score: Backend-assigned relevance in [0, 1].\n    backend_name: Name of the search backend that produced this result.\n    raw_metadata: Unprocessed backend-specific metadata for debugging.",
+  "properties": {
+    "authors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Authors",
+      "type": "array"
+    },
+    "backend_name": {
+      "default": "",
+      "title": "Backend Name",
+      "type": "string"
+    },
+    "citation_count": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Citation Count"
+    },
+    "doi": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Doi"
+    },
+    "raw_metadata": {
+      "additionalProperties": true,
+      "title": "Raw Metadata",
+      "type": "object"
+    },
+    "relevance_score": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Relevance Score",
+      "type": "number"
+    },
+    "snippet": {
+      "default": "",
+      "title": "Snippet",
+      "type": "string"
+    },
+    "source_type": {
+      "$ref": "#/$defs/SourceType",
+      "default": "unknown"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "url": {
+      "title": "Url",
+      "type": "string"
+    },
+    "year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Year"
+    }
+  },
+  "required": [
+    "title",
+    "url"
+  ],
+  "title": "SearchResult",
+  "type": "object",
+  "x-generated-by": "scripts/generate_schemas.py",
+  "x-schema-version": "2.0.0"
 }

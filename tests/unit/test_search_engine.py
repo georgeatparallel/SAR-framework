@@ -1,11 +1,10 @@
 """Tests for SearchEngine: registration, fan-out, deduplication."""
 
+
 import pytest
-from unittest.mock import AsyncMock
 
-from sar.contracts.search import SearchRequest, SearchResponse, SearchResult, SourceType
+from sar.contracts.search import SearchRequest, SearchResult, SourceType
 from sar.search.engine import SearchEngine
-
 
 # ---------------------------------------------------------------------------
 # Mock backend helper

@@ -16,14 +16,22 @@ Available backends:
 
 from __future__ import annotations
 
-from .arxiv import ArxivBackend
-from .brave import BraveBackend
-from .crossref import CrossRefBackend
-from .duckduckgo import DuckDuckGoBackend
-from .pubmed import PubMedBackend
-from .semantic_scholar import SemanticScholarBackend
-from .unpaywall import UnpaywallBackend
-from .wikipedia import WikipediaBackend
+# SearchBackend is dependency-free, so it is imported eagerly. The concrete
+# backends are loaded lazily via module __getattr__ below: importing this
+# package must not require optional HTTP/scrape dependencies (test collection
+# of orchestrator modules previously failed on exactly that).
+from ._protocol import SearchBackend
+
+_BACKENDS = {
+    "ArxivBackend": "arxiv",
+    "BraveBackend": "brave",
+    "CrossRefBackend": "crossref",
+    "DuckDuckGoBackend": "duckduckgo",
+    "PubMedBackend": "pubmed",
+    "SemanticScholarBackend": "semantic_scholar",
+    "UnpaywallBackend": "unpaywall",
+    "WikipediaBackend": "wikipedia",
+}
 
 __all__ = [
     "ArxivBackend",
@@ -31,7 +39,21 @@ __all__ = [
     "CrossRefBackend",
     "DuckDuckGoBackend",
     "PubMedBackend",
+    "SearchBackend",
     "SemanticScholarBackend",
     "UnpaywallBackend",
     "WikipediaBackend",
 ]
+
+
+def __getattr__(name: str):
+    if name in _BACKENDS:
+        import importlib
+
+        module = importlib.import_module(f".{_BACKENDS[name]}", __name__)
+        return getattr(module, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__():
+    return sorted(set(globals()) | set(_BACKENDS))

@@ -14,7 +14,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sar.contracts.events import EventType
 from sar.contracts.llm import LLMRequest
@@ -22,9 +22,8 @@ from sar.llm.tools import submit_extraction_tool
 
 if TYPE_CHECKING:
     from sar.contracts.search import SearchResult
-    from sar.contracts.pipeline import PaperSummary
-    from sar.llm.client import LLMClient
     from sar.events import EventBus
+    from sar.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +148,7 @@ async def run(
         for field in schema:
             if "score" in field.lower():
                 empty_result[field] = 0
-            elif "claims" in field.lower() or "findings" in field.lower() or "quotes" in field.lower():
+            elif any(k in field.lower() for k in ("claims", "findings", "quotes")):
                 empty_result[field] = []
             else:
                 empty_result[field] = "N/A"

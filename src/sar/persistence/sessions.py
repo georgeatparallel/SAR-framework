@@ -15,7 +15,7 @@ import json
 import logging
 import sqlite3
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
@@ -123,7 +123,7 @@ class SessionStore:
             Session UUID.
         """
         session_id = str(uuid.uuid4())
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self._conn.execute(
             """INSERT INTO sessions (id, query, report, citations, history, created_at)
                VALUES (?, ?, ?, ?, ?, ?)""",

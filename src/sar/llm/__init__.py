@@ -16,6 +16,7 @@ from sar.llm.client import LLMClient, LLMClientError, OpenAIClient
 from sar.llm.codex_client import CodexClient
 from sar.llm.retry import CircuitBreaker, CircuitOpenError, call_with_backoff
 
+
 def build_client(
     backend: str | None = None,
     *,
