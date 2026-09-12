@@ -22,8 +22,20 @@ jobs:
         run: ruff check src/ tests/ scripts/ web/
       - name: Schema drift
         run: python scripts/generate_schemas.py --check
-      - name: Offline test suite
-        run: pytest -q -m "not slow and not live" --cov=sar --cov-report=term
+      - name: Type check
+        run: mypy src/sar
+      # One run, one floor, measured over the whole package. The floor used to
+      # be scoped to sar.llm and sar.orchestrator, so the modules that carried
+      # the defects -- the search backends, the CLI entry points, the content
+      # fetcher -- were never measured and sat at 0% behind a green build.
+      # Raise this number as coverage lands; never lower it.
+      - name: Offline test suite and coverage floor
+        run: |
+          pytest -q -m "not slow and not live" \
+            --cov=sar --cov-report=term \
+            --cov-fail-under=80
+      # The two subpackages that hold the orchestration core are held to a
+      # higher bar than the package as a whole.
       - name: Coverage floor on llm and orchestrator
         run: |
           pytest -q -m "not slow and not live" \

@@ -1,3 +1,20 @@
+> **SUPERSEDED (2026-09).** This file records the May 2026 port of v2 out of
+> the research repo. It is kept for history and should not be followed as
+> instructions:
+>
+> - The paths it uses (`tools/agentic_sar_v2/`, `python -m cli.<name>`) no
+>   longer exist. The package installs as `agentic-sar` and the entry point is
+>   `sar research | campaign | batch | doctor`.
+> - Its advice to "prefer the v1 port at `tools/agentic_sar/`" is dead: v1 was
+>   retired to the tag `v1-flask-gemini` and is not on disk.
+> - Its "What still needs work" list is resolved. `ContentFetcher` is
+>   implemented and wired, backend backoff and throttling exist,
+>   `duckduckgo_search` has been replaced by `ddgs` and declared, and the
+>   suite is not scaffolding (585 tests).
+>
+> For current state see `CHANGELOG.md`; for the v1 → v2 move see
+> `docs/MIGRATION.md`.
+
 # agentic_sar v2 — wiring notes (2026-05-19)
 
 ## What this port did

@@ -282,7 +282,10 @@ class TestHappyPath:
         result, llm = await run_with(default_scripts(), tmp_audit_log)
 
         assert result.success is True
-        assert result.report == REPORT_TEXT
+        # The analyzer's prose is preserved verbatim; an APA reference list
+        # is appended after REVIEW, so this is no longer an exact match.
+        assert result.report.startswith(REPORT_TEXT)
+        assert "## References" in result.report
         assert result.iterations_used == 1
         # One call each for expander/judge/analyzer/reviewer; one reader
         # call per judged result.
@@ -487,7 +490,10 @@ class TestMaxIterations:
         result, llm = await run_with(scripts, tmp_audit_log, config=config)
 
         assert result.success is True
-        assert result.report == REPORT_TEXT
+        # The analyzer's prose is preserved verbatim; an APA reference list
+        # is appended after REVIEW, so this is no longer an exact match.
+        assert result.report.startswith(REPORT_TEXT)
+        assert "## References" in result.report
         assert result.iterations_used == 1
         assert len(llm.requests["expander"]) == 1
         assert len(llm.requests["reviewer"]) == 1
@@ -529,7 +535,20 @@ class TestAuditTrail:
         # 3 readers, analyzer, reviewer).
         llm_calls = [e for e in entries if e["event_type"] == "llm_call"]
         assert len(llm_calls) == 7
-        assert all(c["data"]["agent_name"] == "ScriptedLLM" for c in llm_calls)
+        # agent_name is the agent that made the call. It used to be the
+        # client class for every call, so cost could not be attributed.
+        assert [c["data"]["agent_name"] for c in llm_calls] == [
+            "query_expander",
+            "source_judge",
+            "reader",
+            "reader",
+            "reader",
+            "analyzer",
+            "reviewer",
+        ]
+        # extra is spread into the event payload, not nested under "extra".
+        assert all(c["data"]["phase"] for c in llm_calls)
+        assert all(c["data"]["backend"] == "ScriptedLLM" for c in llm_calls)
         assert all(c["data"]["input_tokens"] == 100 for c in llm_calls)
         called_tools = {t for c in llm_calls for t in c["data"]["tool_calls"]}
         assert "submit_queries" in called_tools
@@ -544,17 +563,25 @@ class TestAuditTrail:
         assert "review_decision" in types
 
     async def test_gate_decisions_recorded(self, tmp_audit_log):
-        # Per the code, per-transition gate decisions are appended to
-        # PipelineResult.gate_log by the state machine; the audit file
-        # only receives a gate_decision event when the cross-cutting
-        # budget gate fails. Verify both halves of that contract.
+        # Every per-transition gate decision reaches BOTH the in-memory
+        # gate_log and the audit file. The audit file previously received a
+        # gate_decision event only when the cross-cutting budget gate failed,
+        # so a run's JSONL could not explain why it ended -- contradicting
+        # BLUEPRINT.md and the README, which both promise it can.
         result, _ = await run_with(default_scripts(), tmp_audit_log)
 
         assert len(result.gate_log) == 5
         audit_gates = [
             e for e in tmp_audit_log.dump() if e["event_type"] == "gate_decision"
         ]
-        assert audit_gates == []  # budget never tripped in this run
+        assert len(audit_gates) == len(result.gate_log)
+        recorded = [e["data"]["gate_name"] for e in audit_gates]
+        assert recorded == [d.gate_name for d in result.gate_log]
+        for entry in audit_gates:
+            assert "passed" in entry["data"]
+            assert "reason" in entry["data"]
+            assert "from_phase" in entry["data"]
+            assert "to_phase" in entry["data"]
 
     async def test_budget_exceeded_gate_reaches_audit(self, tmp_audit_log):
         # Force the ceiling to zero: the pre-phase budget gate fails
@@ -572,3 +599,63 @@ class TestAuditTrail:
         assert len(audit_gates) == 1
         assert audit_gates[0]["data"]["gate_name"] == "budget_remaining"
         assert audit_gates[0]["data"]["passed"] is False
+
+
+class TestReviewFailsClosed:
+    """A review that could not produce a verdict must not pass as approval.
+
+    The runner previously caught any reviewer exception and set the verdict to
+    "complete", so a reviewer that never ran returned an unreviewed report as a
+    successful run -- the exact outcome the reviewer exists to prevent.
+    """
+
+    async def test_reviewer_without_tool_call_fails_the_run(self, tmp_audit_log):
+        scripts = default_scripts(reviewer=[FakeLLMResponse(content="Looks fine.")])
+
+        result, _ = await run_with(scripts, tmp_audit_log)
+
+        assert result.success is False
+        errors = [e for e in tmp_audit_log.dump() if e["event_type"] == "error"]
+        assert any(e["data"]["error_type"] == "reviewer" for e in errors)
+
+    async def test_report_is_still_returned_for_inspection(self, tmp_audit_log):
+        """Failing the run must not destroy the artifact it produced."""
+        scripts = default_scripts(reviewer=[FakeLLMResponse(content="Looks fine.")])
+
+        result, _ = await run_with(scripts, tmp_audit_log)
+
+        assert result.success is False
+        assert result.report  # the unreviewed report is available, just not blessed
+
+
+class TestBibliography:
+    """The report ends with a reference list built from its own sources.
+
+    `citations.py` was implemented and imported by nothing, so reports carried
+    inline [Source N] markers with no bibliography behind them.
+    """
+
+    async def test_report_gains_a_reference_section(self, tmp_audit_log):
+        result, _ = await run_with(default_scripts(), tmp_audit_log)
+
+        assert result.success is True
+        assert "## References" in result.report
+        # The analyzer's own prose is untouched and comes first.
+        assert result.report.index(REPORT_TEXT[:40]) < result.report.index("## References")
+
+    async def test_citations_are_returned_structured(self, tmp_audit_log):
+        result, _ = await run_with(default_scripts(), tmp_audit_log)
+
+        assert result.citations, "structured citations must accompany the report"
+        assert len(result.citations) == len(result.summaries)
+        for citation in result.citations:
+            assert citation["url"]
+            assert citation["title"]
+
+    async def test_reviewer_never_sees_the_reference_list(self, tmp_audit_log):
+        """References are appended after REVIEW, so the reviewer judges the
+        analyzer's prose rather than a list it did not write."""
+        _, llm = await run_with(default_scripts(), tmp_audit_log)
+
+        reviewed = str(llm.requests.get("reviewer", ""))
+        assert "## References" not in reviewed

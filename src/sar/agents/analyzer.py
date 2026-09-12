@@ -51,7 +51,10 @@ def _format_summaries(summaries: list[PaperSummary]) -> str:
         url = getattr(source, "url", None) or ""
         extraction = ps.extraction or {}
 
-        key_claims = extraction.get("key_findings", [])
+        # PAPER_SUMMARY_SCHEMA (the schema the reader actually requests) emits
+        # key_claims/key_quotes; DEFAULT_SCHEMA and a custom extraction_schema
+        # may emit key_findings/summary instead, so accept both spellings.
+        key_claims = extraction.get("key_claims") or extraction.get("key_findings") or []
         if isinstance(key_claims, list):
             claims_text = "; ".join(str(c) for c in key_claims) if key_claims else "N/A"
         else:
@@ -59,6 +62,13 @@ def _format_summaries(summaries: list[PaperSummary]) -> str:
 
         methodology = extraction.get("methodology", "N/A") or "N/A"
         summary_text = extraction.get("summary", "") or ps.notes or ""
+
+        # Verbatim quotes are the evidence the report's citations rest on. They
+        # were previously extracted and then dropped here, leaving the analyzer
+        # asked to cite [Source N] with nothing to cite from.
+        quotes = extraction.get("key_quotes") or []
+        if isinstance(quotes, str):
+            quotes = [quotes]
 
         year_str = f" ({year})" if year else ""
         block = (
@@ -69,6 +79,10 @@ def _format_summaries(summaries: list[PaperSummary]) -> str:
         )
         if summary_text:
             block += f"\nSummary: {summary_text}"
+        if quotes:
+            quoted = "\n".join(f'  - "{str(q)}"' for q in quotes if str(q).strip())
+            if quoted:
+                block += f"\nVerbatim quotes:\n{quoted}"
         blocks.append(block)
 
     return "\n\n".join(blocks) if blocks else "(No sources available)"

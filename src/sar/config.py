@@ -32,6 +32,10 @@ class AppConfig(BaseSettings):
         MIN_RESULTS_TO_PROCEED: Minimum search results required to proceed past SEARCH phase.
         QUALITY_THRESHOLD: Minimum average quality score for paper summaries (0-10).
         BUDGET_CEILING_USD: Maximum allowed LLM spend per pipeline run in USD.
+        FETCH_CONTENT: Whether search results are enriched with full document
+            text. With this off the reader sees only backend snippets.
+        FETCH_USE_PLAYWRIGHT: Whether to render JS-heavy pages with a headless
+            browser when direct HTTP yields too little text.
         URL_CACHE_TTL_DAYS: Time-to-live for URL content cache entries in days.
         CACHE_DB_PATH: Path to the SQLite cache database.
         RETRY_MAX_ATTEMPTS: Maximum number of retry attempts for transient failures.
@@ -67,6 +71,8 @@ class AppConfig(BaseSettings):
     QUALITY_THRESHOLD: float = 6.0
 
     # --- Cache ---
+    FETCH_CONTENT: bool = True
+    FETCH_USE_PLAYWRIGHT: bool = True
     URL_CACHE_TTL_DAYS: int = 7
     CACHE_DB_PATH: str = "data/cache.db"
 

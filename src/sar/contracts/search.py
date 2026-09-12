@@ -44,12 +44,17 @@ class SearchResult(BaseModel):
         title: Title of the document or page.
         url: Canonical URL (used for deduplication).
         snippet: Short text excerpt or abstract.
+        content: Full document text when a ContentFetcher retrieved it;
+            None when only the snippet is available. Readers fall back to
+            the snippet, so this being None silently thins every extraction.
         source_type: Category of the source (academic, web, etc.).
         doi: Digital Object Identifier, if available.
         authors: List of author names.
         year: Publication year, if available.
         citation_count: Number of citations, if known.
-        relevance_score: Backend-assigned relevance in [0, 1].
+        relevance_score: Source-judge relevance on a 0-10 scale, matching the
+            scale the judge is prompted to return and ``QUALITY_THRESHOLD``.
+            Backends never set it; it stays 0.0 until the JUDGE phase runs.
         backend_name: Name of the search backend that produced this result.
         raw_metadata: Unprocessed backend-specific metadata for debugging.
     """
@@ -57,12 +62,13 @@ class SearchResult(BaseModel):
     title: str
     url: str
     snippet: str = ""
+    content: str | None = None
     source_type: SourceType = SourceType.UNKNOWN
     doi: str | None = None
     authors: list[str] = Field(default_factory=list)
     year: int | None = None
     citation_count: int | None = None
-    relevance_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    relevance_score: float = Field(default=0.0, ge=0.0, le=10.0)
     backend_name: str = ""
     raw_metadata: dict[str, object] = Field(default_factory=dict)
 

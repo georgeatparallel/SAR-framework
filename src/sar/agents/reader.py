@@ -245,10 +245,16 @@ async def run(
             "url": url,
             "citation_count": citation_count,
         }
+        # Mark the extraction as degraded rather than inventing a score. A
+        # fabricated middling relevance_score was indistinguishable from a real
+        # judgement, so a source the reader never managed to read could outrank
+        # one it did.
+        fallback["extraction_failed"] = True
+        fallback["extraction_error"] = str(exc)
         if "key_claims" in schema:
             fallback["key_claims"] = [snippet[:200]] if snippet else []
             fallback["methodology"] = "N/A"
-            fallback["relevance_score"] = 3
+            fallback["relevance_score"] = 0.0
             fallback["key_quotes"] = []
         return fallback
 
@@ -314,7 +320,7 @@ async def run_batch(
 
     clean: list[dict[str, Any]] = []
     for item in raw_results:
-        if isinstance(item, Exception):
+        if isinstance(item, BaseException):
             logger.warning("Reader batch: agent raised exception -- %s", item)
         else:
             clean.append(item)

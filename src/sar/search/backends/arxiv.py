@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import xml.etree.ElementTree as ET
+from typing import Any
 
 import httpx
 
@@ -46,7 +47,7 @@ class ArxivBackend:
         Returns:
             Normalized SearchResult list.
         """
-        params = {
+        params: dict[str, Any] = {
             "search_query": f"all:{query}",
             "max_results": limit,
             "sortBy": "relevance",
@@ -76,11 +77,11 @@ class ArxivBackend:
                 pub = _text("published")
                 year = int(pub[:4]) if pub and len(pub) >= 4 else None
 
-                authors = [
-                    (a.find(f"{{{_ATOM_NS}}}name").text or "")
+                author_nodes = (
+                    a.find(f"{{{_ATOM_NS}}}name")
                     for a in entry.findall(f"{{{_ATOM_NS}}}author")
-                    if a.find(f"{{{_ATOM_NS}}}name") is not None
-                ]
+                )
+                authors = [n.text or "" for n in author_nodes if n is not None]
 
                 # PDF link
                 pdf_url: str | None = None
@@ -122,7 +123,7 @@ class ArxivBackend:
         Returns:
             True if API responds.
         """
-        params = {"search_query": "all:test", "max_results": 1}
+        params: dict[str, Any] = {"search_query": "all:test", "max_results": 1}
         try:
             async with httpx.AsyncClient(
                 timeout=_TIMEOUT, follow_redirects=True

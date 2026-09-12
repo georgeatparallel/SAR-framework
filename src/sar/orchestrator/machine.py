@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
+from typing import Any
 
 from sar.contracts.pipeline import GateDecision, PipelinePhase, PipelineState
 
@@ -52,6 +53,7 @@ class PipelineMachine:
         self,
         state: PipelineState,
         transitions: dict[PipelinePhase, list[TransitionEntry]],
+        audit_log: Any | None = None,
     ) -> None:
         """Initialize the state machine.
 
@@ -59,9 +61,14 @@ class PipelineMachine:
             state: Starting pipeline state (phase should be EXPAND).
             transitions: Mapping from source phase to ordered list of
                 (target_phase, gate_function) candidates.
+            audit_log: Optional AuditLog. Gate decisions are written to it as
+                they are made, so a run's JSONL can explain why it ended.
+                Previously decisions only ever reached the in-memory gate_log,
+                which the audit trail never saw.
         """
         self._state = state
         self._transitions = transitions
+        self._audit_log = audit_log
 
     @property
     def state(self) -> PipelineState:
@@ -136,6 +143,7 @@ class PipelineMachine:
 
             decision = gate_fn(self._state)
             self._state.gate_log.append(decision)
+            self._record_gate(decision, target_phase)
             logger.info(
                 "Gate [%s]: %s -- %s",
                 decision.gate_name,
@@ -161,6 +169,22 @@ class PipelineMachine:
         )
         self._state.phase = PipelinePhase.FAILED
         return last_decision
+
+    def _record_gate(self, decision: GateDecision, target_phase: PipelinePhase) -> None:
+        """Write one gate decision to the audit trail, if one is attached."""
+        if self._audit_log is None:
+            return
+        try:
+            self._audit_log.record("gate_decision", {
+                "gate_name": decision.gate_name,
+                "passed": decision.passed,
+                "reason": decision.reason,
+                "from_phase": self._state.phase.value,
+                "to_phase": target_phase.value,
+                "iteration": getattr(self._state, "iteration", None),
+            })
+        except Exception:  # pragma: no cover - auditing must never break a run
+            logger.debug("Failed to record gate decision", exc_info=True)
 
     def force_phase(self, phase: PipelinePhase) -> None:
         """Force the pipeline to a specific phase (for reviewer loops).

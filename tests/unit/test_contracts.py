@@ -69,11 +69,26 @@ class TestSearchResult:
         assert sr.backend_name == ""
 
     def test_rejects_when_relevance_score_out_of_range(self):
-        """relevance_score outside [0, 1] raises ValidationError."""
+        """relevance_score outside [0, 10] raises ValidationError."""
         with pytest.raises(ValidationError):
-            SearchResult(title="T", url="https://x.com", relevance_score=1.5)
+            SearchResult(title="T", url="https://x.com", relevance_score=10.5)
         with pytest.raises(ValidationError):
             SearchResult(title="T", url="https://x.com", relevance_score=-0.1)
+
+    def test_accepts_the_scale_the_source_judge_actually_assigns(self):
+        """The judge scores 0-10 against QUALITY_THRESHOLD=6.0.
+
+        The bound used to be le=1.0, so every real judge score violated the
+        contract; nothing caught it because Pydantic does not validate on
+        attribute assignment, which is how the judge sets it.
+        """
+        for score in (0.0, 5.0, 6.0, 10.0):
+            assert (
+                SearchResult(
+                    title="T", url="https://x.com", relevance_score=score
+                ).relevance_score
+                == score
+            )
 
     def test_rejects_when_invalid_source_type(self):
         """Invalid SourceType string raises ValidationError."""

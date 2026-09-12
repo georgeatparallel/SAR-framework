@@ -10,6 +10,7 @@ Migrated from: agentic_sar/academic_sources.py search_pubmed()
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import httpx
 
@@ -60,7 +61,7 @@ class PubMedBackend:
                 timeout=_TIMEOUT, follow_redirects=True
             ) as client:
                 # Step 1: ESearch — get PMIDs
-                esearch_params = {
+                esearch_params: dict[str, Any] = {
                     "db": "pubmed",
                     "term": query,
                     "retmax": limit,
@@ -82,7 +83,7 @@ class PubMedBackend:
                     return []
 
                 # Step 2: ESummary — get metadata
-                esummary_params = {
+                esummary_params: dict[str, Any] = {
                     "db": "pubmed",
                     "id": ",".join(pmids),
                     "retmode": "json",
@@ -146,7 +147,7 @@ class PubMedBackend:
         Returns:
             True if esearch responds.
         """
-        params = {
+        params: dict[str, Any] = {
             "db": "pubmed",
             "term": "test",
             "retmax": 1,

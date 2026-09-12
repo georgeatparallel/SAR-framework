@@ -62,7 +62,10 @@ class LLMRequest(BaseModel):
     Attributes:
         messages: Conversation messages (system, user, assistant, tool roles).
         tools: Tool schemas to expose (None means no tools).
-        tool_choice: Force a specific tool or 'auto' (None means provider default).
+        tool_choice: Force tool use. A dict names one specific tool; the string
+            "required" forces some tool without naming it (used by agents that
+            expose several mutually-exclusive verdict tools); "auto"/"none" are
+            also accepted. None means the provider default.
         model: Model identifier override (None means use config default).
         temperature: Sampling temperature.
         max_tokens: Maximum number of tokens to generate.
@@ -73,7 +76,7 @@ class LLMRequest(BaseModel):
     # dicts (``{"type": "function", "function": {...}}``). The client
     # normalises both forms before calling the provider.
     tools: list[ToolDefinition | dict[str, Any]] | None = None
-    tool_choice: dict[str, Any] | None = None
+    tool_choice: dict[str, Any] | str | None = None
     model: str | None = None
     temperature: float = 0.3
     max_tokens: int = 4096

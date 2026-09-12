@@ -10,7 +10,7 @@ Migrated from: agentic_sar/agent_service.py reviewer_agent()
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sar.contracts.events import Event, EventType
 from sar.contracts.llm import LLMRequest
@@ -21,6 +21,15 @@ if TYPE_CHECKING:
     from sar.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
+
+
+class ReviewerError(Exception):
+    """The reviewer could not produce a verdict.
+
+    Raised instead of silently approving, so that a review which did not
+    actually happen cannot be mistaken for a passed one.
+    """
+
 
 _EVALUATION_CRITERIA = (
     "1. Citation coverage — every factual claim must have an inline [Source N] citation.\n"
@@ -118,7 +127,7 @@ async def run(
         "Evaluate the report against all criteria and call the appropriate tool."
     )
 
-    tools = get_reviewer_tools(is_final_round)
+    tools: list[Any] = list(get_reviewer_tools(is_final_round))
 
     request = LLMRequest(
         messages=[
@@ -126,6 +135,11 @@ async def run(
             {"role": "user", "content": user_prompt},
         ],
         tools=tools,
+        # The reviewer exposes several mutually-exclusive verdict tools, so it
+        # cannot name one the way the other agents do -- but it must still be
+        # made to call one. Without this the model may answer in prose and the
+        # review silently degrades into an approval.
+        tool_choice="required",
     )
 
     response = await llm.call(request)
@@ -156,14 +170,17 @@ async def run(
             )
             return ("needs_more_info", queries)
 
-        # Unknown tool name — default to complete
-        logger.warning(
-            "Reviewer: unknown tool call %r — defaulting to complete.", name
+        # Unknown tool name. Approving here would let an unrecognised response
+        # pass as a positive review, so refuse instead.
+        raise ReviewerError(
+            f"Reviewer returned an unrecognised tool call {name!r}; "
+            "refusing to treat it as an approval."
         )
-        _emit_decision(event_bus, "complete")
-        return ("complete", None)
 
-    # No tool call at all — default to complete
-    logger.warning("Reviewer: LLM produced no tool call — defaulting to complete.")
-    _emit_decision(event_bus, "complete")
-    return ("complete", None)
+    # No tool call at all. This is the failure mode reasoning models exhibit
+    # (tool_calls=[] even under a forced choice). The reviewer exists to withhold
+    # approval from output it cannot vouch for, so it must not approve by default.
+    raise ReviewerError(
+        "Reviewer produced no tool call, so no verdict was given; "
+        "refusing to treat the absence of a verdict as an approval."
+    )

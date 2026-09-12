@@ -34,6 +34,16 @@ class MeteredClient:
         self.inner = inner
         self.tracker = tracker
         self.audit_log = audit_log
+        # Set by the orchestrator before each phase. Without it every call was
+        # logged as the client class ("OpenAIClient"), so cost and tokens could
+        # not be attributed to an agent, a phase, or an iteration.
+        self.context: dict[str, Any] = {}
+
+    def set_context(
+        self, agent: str | None = None, phase: str | None = None, iteration: int | None = None
+    ) -> None:
+        """Label subsequent calls with the agent and phase making them."""
+        self.context = {"agent": agent, "phase": phase, "iteration": iteration}
 
     async def call(self, request: LLMRequest) -> LLMResponse:
         """Delegate to the wrapped client, then record usage and audit."""
@@ -47,8 +57,12 @@ class MeteredClient:
                 # Codex backend: which recovery path produced the JSON
                 # (handoff-file, last-message, or stdout scrape).
                 extra["response_source"] = raw["source"]
+            for key in ("phase", "iteration"):
+                if self.context.get(key) is not None:
+                    extra[key] = self.context[key]
+            extra["backend"] = type(self.inner).__name__
             self.audit_log.record_llm_call(
-                agent_name=type(self.inner).__name__,
+                agent_name=self.context.get("agent") or type(self.inner).__name__,
                 model=model,
                 input_tokens=response.usage.get("prompt_tokens", 0),
                 output_tokens=response.usage.get("completion_tokens", 0),

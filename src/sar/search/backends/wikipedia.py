@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import Any
 from urllib.parse import quote_plus
 
 import httpx
@@ -62,7 +63,7 @@ class WikipediaBackend:
         Returns:
             Normalized SearchResult list.
         """
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "search",
@@ -118,7 +119,7 @@ class WikipediaBackend:
         Returns:
             True if API responds.
         """
-        params = {
+        params: dict[str, Any] = {
             "action": "query",
             "format": "json",
             "list": "search",

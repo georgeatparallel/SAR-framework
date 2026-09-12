@@ -16,7 +16,7 @@
   },
   "$id": "search_result",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "A single search result from any backend.\n\nThis is the universal schema -- every backend normalizes its raw\nAPI response into this shape before returning.\n\nAttributes:\n    title: Title of the document or page.\n    url: Canonical URL (used for deduplication).\n    snippet: Short text excerpt or abstract.\n    source_type: Category of the source (academic, web, etc.).\n    doi: Digital Object Identifier, if available.\n    authors: List of author names.\n    year: Publication year, if available.\n    citation_count: Number of citations, if known.\n    relevance_score: Backend-assigned relevance in [0, 1].\n    backend_name: Name of the search backend that produced this result.\n    raw_metadata: Unprocessed backend-specific metadata for debugging.",
+  "description": "A single search result from any backend.\n\nThis is the universal schema -- every backend normalizes its raw\nAPI response into this shape before returning.\n\nAttributes:\n    title: Title of the document or page.\n    url: Canonical URL (used for deduplication).\n    snippet: Short text excerpt or abstract.\n    content: Full document text when a ContentFetcher retrieved it;\n        None when only the snippet is available. Readers fall back to\n        the snippet, so this being None silently thins every extraction.\n    source_type: Category of the source (academic, web, etc.).\n    doi: Digital Object Identifier, if available.\n    authors: List of author names.\n    year: Publication year, if available.\n    citation_count: Number of citations, if known.\n    relevance_score: Source-judge relevance on a 0-10 scale, matching the\n        scale the judge is prompted to return and ``QUALITY_THRESHOLD``.\n        Backends never set it; it stays 0.0 until the JUDGE phase runs.\n    backend_name: Name of the search backend that produced this result.\n    raw_metadata: Unprocessed backend-specific metadata for debugging.",
   "properties": {
     "authors": {
       "items": {
@@ -42,6 +42,18 @@
       "default": null,
       "title": "Citation Count"
     },
+    "content": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Content"
+    },
     "doi": {
       "anyOf": [
         {
@@ -61,7 +73,7 @@
     },
     "relevance_score": {
       "default": 0.0,
-      "maximum": 1.0,
+      "maximum": 10.0,
       "minimum": 0.0,
       "title": "Relevance Score",
       "type": "number"

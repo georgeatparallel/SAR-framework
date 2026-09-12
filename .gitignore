@@ -14,3 +14,17 @@ cache/
 dist/
 build/
 *.egg-info/
+
+# Coverage data is a build artifact, not source.
+.coverage
+.coverage.*
+htmlcov/
+
+# Golden fixture DATA stays local: it carries local file paths and verbatim
+# excerpts from copyrighted PDFs, and this repository is public. The golden
+# tests are committed and skip when the data is absent -- see
+# tests/golden/README.md for how to place it.
+tests/golden/litmap/
+
+# Local run artifacts from the fetcher cache and audit trail.
+data/

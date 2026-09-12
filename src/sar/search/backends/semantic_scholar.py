@@ -11,6 +11,7 @@ Migrated from: agentic_sar/academic_sources.py search_semantic_scholar()
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import httpx
 
@@ -58,7 +59,7 @@ class SemanticScholarBackend:
             Normalized SearchResult list.
         """
         url = f"{_BASE_URL}/paper/search"
-        params = {"query": query, "limit": limit, "fields": _FIELDS}
+        params: dict[str, Any] = {"query": query, "limit": limit, "fields": _FIELDS}
         headers: dict[str, str] = {}
         if self._api_key:
             headers["x-api-key"] = self._api_key
@@ -115,7 +116,7 @@ class SemanticScholarBackend:
             True if API responds with 200.
         """
         url = f"{_BASE_URL}/paper/search"
-        params = {"query": "test", "limit": 1, "fields": "title"}
+        params: dict[str, Any] = {"query": "test", "limit": 1, "fields": "title"}
         headers: dict[str, str] = {}
         if self._api_key:
             headers["x-api-key"] = self._api_key

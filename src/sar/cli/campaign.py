@@ -66,29 +66,9 @@ def _slug(name: str) -> str:
 
 
 def _build_search_engine(config):
-    """Construct a SearchEngine with all keyless backends registered."""
-    from sar.search.backends import (
-        ArxivBackend,
-        CrossRefBackend,
-        DuckDuckGoBackend,
-        PubMedBackend,
-        SemanticScholarBackend,
-        WikipediaBackend,
-    )
-    from sar.search.engine import SearchEngine
+    from sar.cli import build_search_engine
 
-    backends = [
-        DuckDuckGoBackend(),
-        WikipediaBackend(),
-        CrossRefBackend(),
-        SemanticScholarBackend(),
-        ArxivBackend(),
-        PubMedBackend(),
-    ]
-    from sar.cli import keyed_backends
-
-    backends.extend(keyed_backends(config))
-    return SearchEngine(backends=backends)
+    return build_search_engine(config=config)
 
 
 def _save_dossier(out_dir: Path, result: dict) -> None:
@@ -100,7 +80,8 @@ def _save_dossier(out_dir: Path, result: dict) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     spec = result.get("campaign_spec")
-    spec_dict = spec.model_dump() if hasattr(spec, "model_dump") else (spec or {})
+    dump = getattr(spec, "model_dump", None)
+    spec_dict = dump() if callable(dump) else (spec or {})
 
     payload = {
         "campaign_spec": spec_dict,

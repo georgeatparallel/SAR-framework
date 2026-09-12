@@ -13,6 +13,7 @@ Migrated from: agentic_sar/agent_service.py run_agentic_pipeline()
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 from functools import partial
@@ -42,6 +43,15 @@ logger = logging.getLogger(__name__)
 _DEFAULT_MAX_ITERATIONS = 3
 _DEFAULT_MIN_RESULTS = 1
 _DEFAULT_QUALITY_THRESHOLD = 4.0
+
+#: Which agent does the LLM work in each phase, for audit attribution.
+_PHASE_AGENTS = {
+    PipelinePhase.EXPAND: "query_expander",
+    PipelinePhase.JUDGE: "source_judge",
+    PipelinePhase.READ: "reader",
+    PipelinePhase.ANALYZE: "analyzer",
+    PipelinePhase.REVIEW: "reviewer",
+}
 _DEFAULT_MAX_READ = 10
 _DEFAULT_MAX_REWORKS = 2
 
@@ -151,7 +161,7 @@ async def run_pipeline(
     run_id = str(uuid.uuid4())
     state = PipelineState()
     transitions = build_transitions(config)
-    machine = PipelineMachine(state, transitions)
+    machine = PipelineMachine(state, transitions, audit_log=audit_log)
 
     # Meter every LLM call into state.budget so check_budget_remaining is a
     # live gate rather than a check of a never-mutated default.
@@ -171,6 +181,15 @@ async def run_pipeline(
 
     while not machine.is_terminal:
         phase = machine.current_phase
+
+        # Label every LLM call made during this phase, so the audit trail can
+        # attribute cost and tokens to an agent rather than to the client class.
+        if hasattr(llm, "set_context"):
+            llm.set_context(
+                agent=_PHASE_AGENTS.get(phase),
+                phase=phase.value,
+                iteration=state.iteration,
+            )
 
         # Cross-cutting: check budget before every phase
         budget_gate = gates.check_budget_remaining(state)
@@ -230,21 +249,53 @@ async def run_pipeline(
             try:
                 from sar.contracts.search import SearchRequest
 
-                all_results: list[Any] = []
-                for q in state.queries:
-                    req = SearchRequest(query=q)
-                    resp = await search_engine.search(req)
-                    if resp is not None:
-                        results_list = getattr(resp, "results", [])
-                        if results_list:
-                            all_results.extend(results_list)
+                # Queries run concurrently: each one fans out over every
+                # backend, so running them serially made SEARCH cost the sum of
+                # the per-query latencies rather than the slowest one.
+                responses = await asyncio.gather(
+                    *(search_engine.search(SearchRequest(query=q)) for q in state.queries),
+                    return_exceptions=True,
+                )
 
-                # Deduplicate if the engine provides the method
-                dedup = getattr(search_engine, "_deduplicate", None)
-                if dedup is not None and all_results:
-                    all_results = dedup(all_results)
+                all_results: list[Any] = []
+                backends_queried: set[str] = set()
+                backends_failed: set[str] = set()
+                for q, resp in zip(state.queries, responses, strict=True):
+                    if isinstance(resp, BaseException):
+                        logger.warning("SEARCH: query %r failed -- %s", q, resp)
+                        audit_log.record_error("search", str(resp), {"query": q})
+                        continue
+                    if resp is None:
+                        continue
+                    all_results.extend(getattr(resp, "results", []) or [])
+                    backends_queried.update(getattr(resp, "backends_queried", []) or [])
+                    backends_failed.update(getattr(resp, "backends_failed", []) or [])
+
+                if all_results:
+                    all_results = search_engine.deduplicate(all_results)
 
                 state.results = all_results
+
+                # Backend failures were previously visible only in Python
+                # logging: the SearchResponse envelope was discarded here, so a
+                # backend that silently contributed nothing left no trace in the
+                # run's audit trail.
+                audit_log.record_search(
+                    query=" | ".join(state.queries),
+                    backends=sorted(backends_queried),
+                    result_count=len(state.results),
+                    elapsed=0.0,
+                )
+                if backends_failed:
+                    logger.warning(
+                        "SEARCH: %d backend(s) failed: %s",
+                        len(backends_failed),
+                        ", ".join(sorted(backends_failed)),
+                    )
+                    audit_log.record("search_backends_failed", {
+                        "backends": sorted(backends_failed),
+                        "queries": len(state.queries),
+                    })
                 logger.info("SEARCH: %d results obtained", len(state.results))
             except Exception as exc:
                 logger.error("SEARCH: search failed -- %s", exc)
@@ -393,9 +444,11 @@ async def run_pipeline(
             except Exception as exc:
                 logger.error("REVIEW: reviewer failed -- %s", exc)
                 audit_log.record_error("reviewer", str(exc), {"phase": "review"})
-                # On reviewer failure, accept the current report
-                verdict_cmd = "complete"
-                payload = None
+                # A review that did not happen is not a passed review. Accepting
+                # here would return an unreviewed report as a successful run,
+                # which is the failure the reviewer exists to prevent.
+                machine.force_phase(PipelinePhase.FAILED)
+                continue
 
             # Map command string to ReviewerVerdict enum
             verdict = _parse_verdict(verdict_cmd)
@@ -483,15 +536,56 @@ async def run_pipeline(
         "gate_count": len(state.gate_log),
     })
 
+    # Build the bibliography from the sources that survived to synthesis. This
+    # happens after REVIEW deliberately: the reviewer judges the analyzer's own
+    # prose, not a reference list it did not write.
+    citations = _collect_citations(state.summaries)
+    report = _append_references(state.report, citations)
+
     return PipelineResult(
         success=state.phase == PipelinePhase.COMPLETE,
-        report=state.report,
+        report=report,
         summaries=state.summaries,
+        citations=[c for c in citations.to_dicts()] if citations else [],
         iterations_used=state.iteration,
         gate_log=state.gate_log,
         budget=state.budget,
     )
 
+
+
+def _collect_citations(summaries: list[Any]) -> Any:
+    """Build a CitationStore from the sources behind a report.
+
+    Returns None if nothing could be collected, so a citation failure never
+    costs the caller the report itself.
+    """
+    try:
+        from sar.persistence.citations import CitationStore
+
+        store = CitationStore()
+        for summary in summaries:
+            source = getattr(summary, "source", None)
+            if source is not None and str(getattr(source, "url", "") or ""):
+                store.add_from_search_result(source)
+        return store if store.count else None
+    except Exception as exc:  # pragma: no cover - bibliography is additive
+        logger.warning("Could not build citations -- %s", exc)
+        return None
+
+
+def _append_references(report: str | None, citations: Any) -> str | None:
+    """Append an APA reference list to the report, if there is one."""
+    if not report or citations is None:
+        return report
+    try:
+        formatted = citations.format_all_apa()
+    except Exception as exc:  # pragma: no cover - bibliography is additive
+        logger.warning("Could not format references -- %s", exc)
+        return report
+    if not formatted.strip():
+        return report
+    return f"{report.rstrip()}\n\n## References\n\n{formatted}\n"
 
 async def run_campaign_pipeline(
     campaign_spec: Any,

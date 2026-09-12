@@ -257,7 +257,10 @@ class TestMeteredClient:
         assert call["input_tokens"] == 100
         assert call["output_tokens"] == 50
         assert call["tool_calls"] == ["submit_row"]
-        assert call["extra"] == {"response_source": "handoff-file"}
+        # `extra` also carries the backend class; agent_name is now the
+        # agent the orchestrator labelled the call with, when it set one.
+        assert call["extra"]["response_source"] == "handoff-file"
+        assert call["extra"]["backend"] == "StubLLMClient"
 
     async def test_no_source_in_raw_sends_extra_none(self):
         response = LLMResponse(model="gpt-4o-mini", usage=_usage(10, 5))
@@ -268,7 +271,7 @@ class TestMeteredClient:
 
         await client.call(LLMRequest())
 
-        assert audit.llm_calls[0]["extra"] is None
+        assert audit.llm_calls[0]["extra"] == {"backend": "StubLLMClient"}
 
     async def test_model_falls_back_to_request_model(self):
         """Empty response.model defers to the request's model."""

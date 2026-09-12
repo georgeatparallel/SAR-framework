@@ -64,29 +64,10 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def _build_search_engine(config=None):
-    from sar.search.backends import (
-        ArxivBackend,
-        CrossRefBackend,
-        DuckDuckGoBackend,
-        PubMedBackend,
-        SemanticScholarBackend,
-        WikipediaBackend,
-    )
-    from sar.search.engine import SearchEngine
-    backends = [
-        DuckDuckGoBackend(),
-        WikipediaBackend(),
-        CrossRefBackend(),
-        SemanticScholarBackend(),
-        ArxivBackend(),
-        PubMedBackend(),
-    ]
-    if config is not None:
-        from sar.cli import keyed_backends
+def _build_search_engine(config):
+    from sar.cli import build_search_engine
 
-        backends.extend(keyed_backends(config))
-    return SearchEngine(backends=backends)
+    return build_search_engine(config=config)
 
 
 def _dry_run_list(dataset_path: Path, slug: str, country: str,

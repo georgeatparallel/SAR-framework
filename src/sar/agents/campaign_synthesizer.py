@@ -56,19 +56,43 @@ def _format_campaign_context(campaign_spec: CampaignSpec) -> str:
         Formatted multi-line string describing the campaign.
     """
     lines: list[str] = [
-        f"Campaign: {campaign_spec.campaign_name}",
-        f"Country: {campaign_spec.country}",
-        f"Year: {campaign_spec.year}",
+        f"Campaign: {_spec_get(campaign_spec, 'campaign_name')}",
+        f"Country: {_spec_get(campaign_spec, 'country')}",
+        f"Year: {_spec_get(campaign_spec, 'year', 'year_start')}",
     ]
-    if hasattr(campaign_spec, "region") and campaign_spec.region:
-        lines.append(f"Region: {campaign_spec.region}")
-    if campaign_spec.description:
-        lines.append(f"Notes / guidance: {campaign_spec.description}")
-    if campaign_spec.priority_fields:
+    region = _spec_get(campaign_spec, "region")
+    if region:
+        lines.append(f"Region: {region}")
+    description = _spec_get(campaign_spec, "description", "notes")
+    if description:
+        lines.append(f"Notes / guidance: {description}")
+    priority_fields = _spec_get(campaign_spec, "priority_fields", default=[])
+    if priority_fields:
         lines.append(
-            f"Priority fields for this campaign: {', '.join(campaign_spec.priority_fields)}"
+            f"Priority fields for this campaign: {', '.join(priority_fields)}"
         )
     return "\n".join(lines)
+
+
+def _spec_get(spec: Any, key: str, *aliases: str, default: Any = "") -> Any:
+    """Read a campaign-spec field from either an object or a dict.
+
+    Callers supply the spec in three shapes -- a pydantic model, a
+    ``SimpleNamespace`` built from the batch CSV, or a plain dict -- and the
+    batch path names some fields differently (``year_start`` for ``year``,
+    ``notes`` for ``description``). Reading attributes directly raised
+    ``AttributeError`` on every batch run, which the runner caught and turned
+    into an empty "Synthesis failed" dossier.
+    """
+    for k in (key, *aliases):
+        if isinstance(spec, dict):
+            if spec.get(k) not in (None, ""):
+                return spec[k]
+        elif hasattr(spec, k):
+            value = getattr(spec, k)
+            if value not in (None, ""):
+                return value
+    return default
 
 
 def _format_reader_summaries(reader_summaries: list[dict[str, Any]]) -> str:
@@ -89,13 +113,25 @@ def _format_reader_summaries(reader_summaries: list[dict[str, Any]]) -> str:
         url = summary.get("url", "") or summary.get("source_url", "") or ""
         extraction = summary.get("extraction", summary)  # flat dict fallback
 
-        # Key fields extracted by reader
+        # Campaign-specific fields, present only when the reader ran with a
+        # campaign extraction schema.
         outcome = extraction.get("outcome", "")
         duration = extraction.get("duration_days", "")
         repression = extraction.get("repression_level", "")
         scope_signal = extraction.get("scope_signal", "")
         timeline_facts = extraction.get("timeline_facts", [])
         summary_text = extraction.get("summary", "") or summary.get("notes", "")
+
+        # The generic pipeline feeds PAPER_SUMMARY_SCHEMA output
+        # (key_claims/key_quotes). Without these the evidence block collapsed to
+        # a bare title and URL, leaving the synthesizer nothing to code from.
+        key_claims = extraction.get("key_claims") or []
+        if isinstance(key_claims, str):
+            key_claims = [key_claims]
+        quotes = extraction.get("key_quotes") or []
+        if isinstance(quotes, str):
+            quotes = [quotes]
+        methodology = extraction.get("methodology", "")
 
         field_lines: list[str] = []
         if outcome != "":
@@ -117,8 +153,18 @@ def _format_reader_summaries(reader_summaries: list[dict[str, Any]]) -> str:
             block += f"\nURL: {url}"
         if summary_text:
             block += f"\nSummary: {summary_text}"
+        if key_claims:
+            claims = "; ".join(str(c) for c in key_claims if str(c).strip())
+            if claims:
+                block += f"\nKey claims: {claims}"
+        if methodology:
+            block += f"\nMethodology: {methodology}"
         if field_lines:
             block += "\nExtracted fields:\n" + "\n".join(field_lines)
+        if quotes:
+            quoted = "\n".join(f'  - "{str(q)}"' for q in quotes if str(q).strip())
+            if quoted:
+                block += f"\nVerbatim quotes:\n{quoted}"
 
         blocks.append(block)
 

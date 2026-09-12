@@ -28,7 +28,7 @@
   },
   "$id": "llm_request",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Input to the LLM client.\n\nEncapsulates everything needed for a single LLM API call,\nincluding conversation history, tool schemas, and generation params.\n\nAttributes:\n    messages: Conversation messages (system, user, assistant, tool roles).\n    tools: Tool schemas to expose (None means no tools).\n    tool_choice: Force a specific tool or 'auto' (None means provider default).\n    model: Model identifier override (None means use config default).\n    temperature: Sampling temperature.\n    max_tokens: Maximum number of tokens to generate.",
+  "description": "Input to the LLM client.\n\nEncapsulates everything needed for a single LLM API call,\nincluding conversation history, tool schemas, and generation params.\n\nAttributes:\n    messages: Conversation messages (system, user, assistant, tool roles).\n    tools: Tool schemas to expose (None means no tools).\n    tool_choice: Force tool use. A dict names one specific tool; the string\n        \"required\" forces some tool without naming it (used by agents that\n        expose several mutually-exclusive verdict tools); \"auto\"/\"none\" are\n        also accepted. None means the provider default.\n    model: Model identifier override (None means use config default).\n    temperature: Sampling temperature.\n    max_tokens: Maximum number of tokens to generate.",
   "properties": {
     "max_tokens": {
       "default": 4096,
@@ -65,6 +65,9 @@
         {
           "additionalProperties": true,
           "type": "object"
+        },
+        {
+          "type": "string"
         },
         {
           "type": "null"

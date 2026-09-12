@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import Any
 
 import httpx
 
@@ -54,7 +55,7 @@ class CrossRefBackend:
         Returns:
             Normalized SearchResult list.
         """
-        params = {
+        params: dict[str, Any] = {
             "query": query,
             "rows": limit,
             "select": (
@@ -133,7 +134,7 @@ class CrossRefBackend:
         Returns:
             True if API responds.
         """
-        params = {"query": "test", "rows": 1}
+        params: dict[str, Any] = {"query": "test", "rows": 1}
         headers = {
             "User-Agent": (
                 f"AgenticSAR/2.0 (mailto:{self._polite_email})"

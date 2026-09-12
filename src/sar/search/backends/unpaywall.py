@@ -10,6 +10,7 @@ Migrated from: agentic_sar/academic_sources.py enrich_with_unpaywall()
 from __future__ import annotations
 
 import logging
+from typing import Any
 from urllib.parse import quote_plus
 
 import httpx
@@ -77,7 +78,7 @@ class UnpaywallBackend:
             return None
 
         url = f"{_BASE_URL}/{quote_plus(doi)}"
-        params = {"email": self._email}
+        params: dict[str, Any] = {"email": self._email}
 
         try:
             async with httpx.AsyncClient(

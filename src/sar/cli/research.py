@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import dataclasses
 import json
 import sys
 import uuid
@@ -41,6 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Stream EventBus events to stdout.")
     p.add_argument("-c", "--context", default="",
                    help="Additional context for the query expander.")
+    p.add_argument("--bibtex", default="",
+                   help="Write the run's bibliography to this path as BibTeX.")
     p.add_argument("--save-report", default="",
                    help="Path to write the markdown report.")
     p.add_argument("--max-iterations", type=int, default=None,
@@ -55,33 +58,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _build_search_engine(backend_names: list[str] | None, config=None):
-    from sar.search.backends import (
-        ArxivBackend,
-        CrossRefBackend,
-        DuckDuckGoBackend,
-        PubMedBackend,
-        SemanticScholarBackend,
-        WikipediaBackend,
-    )
-    from sar.search.engine import SearchEngine
+    from sar.cli import build_search_engine
 
-    available = {
-        "duckduckgo": DuckDuckGoBackend,
-        "wikipedia": WikipediaBackend,
-        "crossref": CrossRefBackend,
-        "semantic_scholar": SemanticScholarBackend,
-        "arxiv": ArxivBackend,
-        "pubmed": PubMedBackend,
-    }
-    if backend_names:
-        backends = [available[n]() for n in backend_names if n in available]
-    else:
-        backends = [cls() for cls in available.values()]
-    if config is not None and not backend_names:
-        from sar.cli import keyed_backends
-
-        backends.extend(keyed_backends(config))
-    return SearchEngine(backends=backends)
+    return build_search_engine(config=config, backend_names=backend_names)
 
 
 def _make_cli_event_handler(verbose: bool):
@@ -160,10 +139,22 @@ async def main(args: argparse.Namespace) -> int:
     else:
         print(report)
 
+    citations = getattr(result, "citations", []) or []
+    if args.bibtex:
+        from sar.persistence.citations import Citation, citations_to_bibtex
+
+        fields = {f.name for f in dataclasses.fields(Citation)}
+        entries = [Citation(**{k: v for k, v in c.items() if k in fields}) for c in citations]
+        bib = Path(args.bibtex)
+        bib.parent.mkdir(parents=True, exist_ok=True)
+        bib.write_text(citations_to_bibtex(entries), encoding="utf-8")
+        print(f"Bibliography ({len(entries)} entries) saved to {bib}", file=sys.stderr)
+
     summary = {
         "run_id": run_id,
         "iterations": getattr(result, "iterations_used", None),
         "summaries": len(getattr(result, "summaries", []) or []),
+        "citations": len(citations),
         "audit_log": str(audit_log.log_path),
     }
     print(json.dumps(summary, indent=2, default=str), file=sys.stderr)

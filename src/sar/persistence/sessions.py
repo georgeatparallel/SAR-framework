@@ -7,6 +7,12 @@ Uses FTS5 for broad candidate retrieval and difflib.SequenceMatcher for
 fine-grained similarity scoring.
 
 Migrated from: agentic_sar/cache_service.py (session portion)
+
+NOT WIRED: SessionStore session resume and similarity lookup is
+implemented and exported, but no code path in
+``sar`` constructs it. It is retained deliberately -- deleting it is a
+product decision, not a cleanup -- but it is not covered by the
+pipeline's tests and must not be assumed to work until a caller exists.
 """
 
 from __future__ import annotations

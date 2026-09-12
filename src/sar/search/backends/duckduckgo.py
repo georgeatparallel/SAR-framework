@@ -41,15 +41,21 @@ class DuckDuckGoBackend:
         Returns:
             Normalized SearchResult list.
         """
+        # The upstream package was renamed: `duckduckgo_search` is deprecated
+        # in favour of `ddgs`. Prefer the new name and keep the old one
+        # working, so an environment pinned to either still searches.
         try:
-            from duckduckgo_search import DDGS
-        except ImportError as exc:
-            logger.warning(
-                "duckduckgo_search not installed: %s. "
-                "Install with: pip install duckduckgo-search",
-                exc,
-            )
-            raise
+            from ddgs import DDGS
+        except ImportError:
+            try:
+                from duckduckgo_search import DDGS  # type: ignore[no-redef]
+            except ImportError as exc:
+                logger.warning(
+                    "Neither ddgs nor duckduckgo_search is installed (%s). "
+                    "Install with: pip install ddgs",
+                    exc,
+                )
+                raise
 
         try:
             loop = asyncio.get_running_loop()

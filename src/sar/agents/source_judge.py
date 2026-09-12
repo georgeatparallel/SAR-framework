@@ -169,11 +169,14 @@ async def run(
             if content:
                 score_entries = _parse_scores_from_text(content)
 
-        # Build URL -> score mapping
+        # Build URL -> score mapping. The score comes from the model, so clamp
+        # it to the 0-10 scale SearchResult.relevance_score declares; an
+        # out-of-range value would otherwise only surface later, when a
+        # serialized result was re-validated.
         score_map: dict[str, float] = {}
         for entry in score_entries:
             url = entry.get("url", "")
-            score = float(entry.get("score", 5))
+            score = max(0.0, min(10.0, float(entry.get("score", 5))))
             if url:
                 score_map[url] = score
 

@@ -278,12 +278,33 @@ Success is defined as ending in `COMPLETE`: `PipelineResult.success = (state.pha
 
 ---
 
-## Appendix: known divergences and planned repairs
+## Appendix: resolved divergences
 
-These are verified behaviors of the current code that diverge from the design intent. Each is repair scheduled in the hardening stage.
+The three divergences this appendix used to describe have been repaired; the
+entries are kept so a reader of an older revision can see what changed.
 
-**(a) `IterationRecord` is built without `reviewer_verdict`, so `_latest_verdict` cannot see verdicts.** The record constructed at `runner.py:368-379` passes `iteration`, `phase`, `queries`, `results_count`, `summaries_count`, `gate_decisions`, and `feedback`, but not `reviewer_verdict`, which therefore stays at its `None` default (`pipeline.py:148`). `_latest_verdict` (`gates.py:321-332`) reads exactly that field, so `check_reviewer_approved` (`gates.py:167`), `check_needs_rework` (`gates.py:192`), and `check_needs_more_info` (`gates.py:215`) can never observe a real verdict. The runner does not currently call these gates, so runtime routing is unaffected, but any future wiring of them would silently misroute. Repair scheduled.
+**(a) `IterationRecord` built without `reviewer_verdict`** -- fixed: the runner
+now passes the verdict, so `_latest_verdict` observes it. The three
+reviewer-outcome gates (`check_reviewer_approved`, `check_needs_rework`,
+`check_needs_more_info`) would now work, but the runner still routes REVIEW by
+forced transition and does not call them. They remain unused.
 
-**(b) The NEEDS_REWORK ANALYZE <-> REVIEW cycle has no independent bound.** `state.iteration` advances only in the EXPAND body (`runner.py:182`). A `NEEDS_REWORK` verdict forces `ANALYZE` (`runner.py:395`), which transitions back to `REVIEW` without passing through EXPAND, so `check_max_iterations` at REVIEW entry (`runner.py:346`, `gates.py:303`) evaluates the same unchanged count every cycle. If the reviewer keeps returning `NEEDS_REWORK` before the iteration limit is reached, nothing bounds the cycle except the budget gate, which cannot trip (item c). Repair scheduled.
+**(b) The ANALYZE <-> REVIEW rework cycle had no independent bound** -- fixed by
+`MAX_REWORKS_PER_ITERATION`, which emits `rework_bound_exhausted` when hit.
 
-**(c) `BudgetTracker` is never constructed, so `check_budget_remaining` can never trip.** The tracker class exists (`llm/budget.py:19`) and is exported (`llm/__init__.py:14,60`), but no code in `src/` instantiates it. `state.budget` is a plain `TokenBudget` created by default factory (`pipeline.py:178`) that nothing ever updates, so `cost_usd` stays `0.0` against a `5.0` ceiling (`pipeline.py:67-71`) and `is_over_budget` (`pipeline.py:73-80`) is always false. The loop-head check at `runner.py:152-164` therefore always passes, and the budget abort path is dead code. Repair scheduled.
+**(c) `BudgetTracker` was never constructed** -- fixed: it is built at pipeline
+start and wired through `MeteredClient`, so the budget gate is live. Two limits
+remain and are *not* bugs in the wiring: the codex backend reports zero usage,
+so its calls are counted as unmetered, and models absent from `budget.PRICING`
+(including the GPT-5 and o-series families) are billed at $0.00. Token counts
+still accumulate for those; only the dollar ceiling is unenforceable.
+
+### Still divergent
+
+**Reviewer routing does not use the gate functions.** REVIEW transitions are
+forced by the runner from the verdict string rather than evaluated through the
+transition table, so `state.gate_log` contains no REVIEW gate entry.
+
+**Line references in this document are approximate.** They were accurate when
+written and have drifted; treat the described behaviour as authoritative and
+the line numbers as hints.

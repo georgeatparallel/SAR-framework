@@ -46,6 +46,26 @@ __all__ = [
 ]
 
 
+#: Registry key (the name users write in config or on the CLI) -> class name.
+BACKEND_NAMES = {module: cls for cls, module in _BACKENDS.items()}
+
+
+def get_backend(name: str):
+    """Resolve a backend by its registry name, or None if unknown.
+
+    Returns None rather than raising so that an unknown or uninstallable
+    backend removes itself from the fan-out instead of aborting startup. The
+    caller is expected to log the omission.
+    """
+    cls_name = BACKEND_NAMES.get(name)
+    if cls_name is None:
+        return None
+    try:
+        return __getattr__(cls_name)
+    except Exception:
+        return None
+
+
 def __getattr__(name: str):
     if name in _BACKENDS:
         import importlib

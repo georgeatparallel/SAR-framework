@@ -14,6 +14,7 @@ import logging
 from typing import Any, Protocol, runtime_checkable
 
 from sar.contracts.llm import LLMRequest, LLMResponse, ToolCall
+from sar.llm.retry import call_with_backoff
 
 logger = logging.getLogger(__name__)
 
@@ -62,12 +63,19 @@ class OpenAIClient:
         _default_model: Model to use when request.model is None.
     """
 
-    def __init__(self, api_key: str, default_model: str = "gpt-4o-mini") -> None:
+    def __init__(
+        self,
+        api_key: str,
+        default_model: str = "gpt-4o-mini",
+        retry_attempts: int = 4,
+    ) -> None:
         """Initialize the OpenAI client.
 
         Args:
             api_key: OpenAI API key.
             default_model: Fallback model identifier.
+            retry_attempts: Attempts for transient provider errors
+                (429, 5xx, timeouts) before giving up.
         """
         try:
             from openai import AsyncOpenAI
@@ -79,6 +87,7 @@ class OpenAIClient:
 
         self._client = AsyncOpenAI(api_key=api_key)
         self._default_model = default_model
+        self._retry_attempts = retry_attempts
 
     async def call(self, request: LLMRequest) -> LLMResponse:
         """Send a request to the OpenAI API.
@@ -151,7 +160,16 @@ class OpenAIClient:
         )
 
         try:
-            response = await self._client.chat.completions.create(**kwargs)
+            # Rate limits and 5xx from the provider are transient; without
+            # backoff a single 429 aborted the phase and the runner degraded
+            # the whole pipeline around it.
+            response = await call_with_backoff(
+                self._client.chat.completions.create,
+                operation_name="openai_chat",
+                max_attempts=self._retry_attempts,
+                retryable_exceptions=(Exception,),
+                **kwargs,
+            )
         except Exception as exc:
             logger.error("OpenAIClient: API call failed: %s", exc)
             raise LLMClientError(f"OpenAI API call failed: {exc}") from exc

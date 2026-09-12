@@ -34,7 +34,7 @@ with warnings.catch_warnings():
         category=UserWarning)
 
     class SubstantiveLink(Quote):
-        construct: str = ""
+        construct: str = ""  # type: ignore[assignment]  # ontology vocabulary, shadows BaseModel.construct
         relation: str = ""
 
 

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import Any
 
 import httpx
 
@@ -70,7 +71,7 @@ class BraveBackend:
         if not self._api_key:
             raise RuntimeError("BraveBackend: api_key is required but not set")
 
-        params = {"q": query, "count": min(limit, 20)}
+        params: dict[str, Any] = {"q": query, "count": min(limit, 20)}
         headers = {
             "X-Subscription-Token": self._api_key,
             "Accept": "application/json",
@@ -119,7 +120,7 @@ class BraveBackend:
         if not self._api_key:
             return False
 
-        params = {"q": "test", "count": 1}
+        params: dict[str, Any] = {"q": "test", "count": 1}
         headers = {
             "X-Subscription-Token": self._api_key,
             "Accept": "application/json",

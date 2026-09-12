@@ -194,11 +194,15 @@ class PipelineResult(BaseModel):
         iterations_used: Total number of iterations executed.
         budget: Final token and cost summary.
         gate_log: Complete gate decision trail for auditability.
+        citations: Bibliographic records for every source that survived to
+            synthesis, deduplicated by DOI or URL. Structured rather than
+            formatted so callers can render APA, BibTeX, or their own style.
     """
 
     success: bool
     report: str | None = None
     summaries: list[PaperSummary] = Field(default_factory=list)
+    citations: list[dict[str, Any]] = Field(default_factory=list)
     iterations_used: int = 0
     budget: TokenBudget = Field(default_factory=TokenBudget)
     gate_log: list[GateDecision] = Field(default_factory=list)

@@ -5,6 +5,11 @@ BibTeX, and JSON. Provides both standalone formatting functions and
 a CitationStore for collecting citations across a research session.
 
 Migrated from: agentic_sar/citation_service.py
+
+Wired into the pipeline: `run_pipeline` builds a CitationStore from the
+sources behind the report, appends an APA reference list to the report
+after REVIEW, and returns the structured records on
+`PipelineResult.citations`. `sar research --bibtex PATH` exports them.
 """
 
 from __future__ import annotations

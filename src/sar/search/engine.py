@@ -15,6 +15,7 @@ import time
 from typing import TYPE_CHECKING
 
 from sar.contracts.search import SearchRequest, SearchResponse, SearchResult, SourceType
+from sar.llm.retry import call_with_backoff
 from sar.search.backends._protocol import SearchBackend
 
 if TYPE_CHECKING:
@@ -51,6 +52,8 @@ class SearchEngine:
         backends: list[SearchBackend] | None = None,
         fetcher: ContentFetcher | None = None,
         cache: URLCache | None = None,
+        retry_attempts: int = 3,
+        per_backend_concurrency: int = 2,
     ) -> None:
         """Initialize the search engine.
 
@@ -72,6 +75,12 @@ class SearchEngine:
         self._backends: list[SearchBackend] = []
         self._fetcher: ContentFetcher | None = fetcher
         self._cache: URLCache | None = cache
+        self._retry_attempts = retry_attempts
+        self._per_backend_concurrency = max(1, per_backend_concurrency)
+        # One semaphore per backend name. Queries now run concurrently, so
+        # without this a multi-query round fired every backend simultaneously
+        # for every query -- which is what earned the 429s.
+        self._backend_locks: dict[str, asyncio.Semaphore] = {}
 
         for backend in backends or []:
             self.register_backend(backend)
@@ -165,6 +174,11 @@ class SearchEngine:
         if request.academic_only:
             deduped = [r for r in deduped if r.source_type in _ACADEMIC_SOURCE_TYPES]
 
+        # Retrieve full document text. Without this the reader only ever sees
+        # the backend snippet, so every downstream claim and quote is drawn
+        # from a few hundred characters rather than the source itself.
+        await self._attach_content(deduped)
+
         elapsed = time.monotonic() - start
         queried_names = [b.name for b in active_backends if b.name not in failed_backends]
 
@@ -187,9 +201,59 @@ class SearchEngine:
             elapsed_seconds=elapsed,
         )
 
+    def deduplicate(self, results: list[SearchResult]) -> list[SearchResult]:
+        """Deduplicate results by URL then DOI, enriching the survivor.
+
+        Public because the orchestrator must merge results across several
+        queries, each of which was only deduplicated within itself. It
+        previously reached into the private ``_deduplicate``.
+        """
+        return self._deduplicate(results)
+
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
+
+    async def _attach_content(self, results: list[SearchResult]) -> None:
+        """Populate ``SearchResult.content`` for each result, in place.
+
+        A no-op when no fetcher was supplied, so callers that only want
+        metadata keep the previous behaviour. Fetch failures leave ``content``
+        as None rather than raising: the reader falls back to the snippet, and
+        the degradation is counted by the caller.
+        """
+        if self._fetcher is None or not results:
+            return
+        pairs = [(r.url, r.snippet or "") for r in results if r.url]
+        if not pairs:
+            return
+        try:
+            fetched = await self._fetcher.fetch_batch(pairs)
+        except Exception as exc:
+            logger.warning("Content fetch batch failed -- %s", exc)
+            return
+        filled = 0
+        for result in results:
+            text = fetched.get(result.url)
+            # fetch() returns the snippet when every strategy failed; storing
+            # that as `content` would make a failed fetch look like a success.
+            if text and text != (result.snippet or ""):
+                result.content = text
+                filled += 1
+        logger.info(
+            "Content fetched for %d/%d results (%d fell back to snippet)",
+            filled,
+            len(results),
+            len(results) - filled,
+        )
+
+    def _throttle(self, name: str) -> asyncio.Semaphore:
+        """Per-backend concurrency limiter, created on first use."""
+        lock = self._backend_locks.get(name)
+        if lock is None:
+            lock = asyncio.Semaphore(self._per_backend_concurrency)
+            self._backend_locks[name] = lock
+        return lock
 
     async def _fan_out_with_tracking(
         self,
@@ -208,7 +272,7 @@ class SearchEngine:
             A tuple of (all_results, failed_backend_names).
         """
         tasks = [self._safe_backend_call(b, query, limit) for b in backends]
-        per_backend: list[list[SearchResult]] = await asyncio.gather(*tasks)
+        per_backend: list[list[SearchResult] | None] = list(await asyncio.gather(*tasks))
 
         all_results: list[SearchResult] = []
         failed: set[str] = set()
@@ -221,33 +285,6 @@ class SearchEngine:
                 all_results.extend(results)
 
         return all_results, failed
-
-    async def _fan_out_single_query(
-        self, query: str, backends: list[SearchBackend], limit: int
-    ) -> list[SearchResult]:
-        """Run one query against all backends in parallel.
-
-        Individual backend failures are swallowed and logged; the
-        overall gather always succeeds and returns whatever results
-        the healthy backends produced.
-
-        Args:
-            query: Search query string.
-            backends: Backends to query.
-            limit: Max results per backend.
-
-        Returns:
-            Combined results from all responding backends (not yet
-            deduplicated).
-        """
-        tasks = [self._safe_backend_call(b, query, limit) for b in backends]
-        per_backend: list[list[SearchResult] | None] = await asyncio.gather(*tasks)
-
-        combined: list[SearchResult] = []
-        for results in per_backend:
-            if results is not None:
-                combined.extend(results)
-        return combined
 
     async def _safe_backend_call(
         self, backend: SearchBackend, query: str, limit: int
@@ -267,7 +304,18 @@ class SearchEngine:
             raised an exception.
         """
         try:
-            results = await backend.search(query, limit=limit)
+            async with self._throttle(backend.name):
+                # Retry transient failures (429/503, timeouts) with backoff and
+                # Retry-After support. No backend handled these, so a rate limit
+                # removed that source from the run without a trace.
+                results = await call_with_backoff(
+                    backend.search,
+                    query,
+                    limit=limit,
+                    operation_name=f"search:{backend.name}",
+                    max_attempts=self._retry_attempts,
+                    retryable_exceptions=(Exception,),
+                )
             logger.debug(
                 "Backend %s returned %d results for query %r",
                 backend.name,
