@@ -21,9 +21,11 @@ verbatim quote. Independent re-validation after the run: 0 failures.
 
 That run also exposed a defect above the provenance layer: gap digests were
 prompted with the gap identifier alone, so the model inferred what each gap
-claimed and assessed the wrong proposition for seven of ten. The verdicts
-were provenance-clean and substantively off-target, which is the failure
-mode the gate is not designed to see.
+claimed. Scored against the inventory's claim text, three of ten verdicts
+addressed the actual claim, two addressed it partially, and five assessed a
+materially different proposition. Those verdicts were provenance-clean and
+substantively off-target, which is the failure mode the gate is not designed
+to see.
 
 Acceptance run 2 (2026-09-12, `litmap-35713a5c`), same 91-record input map,
 after the fix: 24 calls in 10m03s; 94 claims, 0 dropped, 1 fabrication caught
