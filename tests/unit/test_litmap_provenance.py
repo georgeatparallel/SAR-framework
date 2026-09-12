@@ -163,3 +163,75 @@ class TestGapDigestCarriesItsClaim:
         ])
         label_only = [d.gap for d in out.gap_digests if not d.claim]
         assert label_only == ["B"]
+
+
+class TestRequireQuote:
+    """A claim with no quote is unverifiable, and can be refused as such."""
+
+    def _map(self):
+        from sar.litmap.contracts import (
+            LiteratureMap,
+            LitRecord,
+            NotableQuote,
+        )
+        return LiteratureMap(records=[LitRecord(
+            file="a.pdf",
+            notable_quotes=[NotableQuote(quote="a real sentence", locator="p.1")],
+        )])
+
+    def test_quoteless_claim_passes_by_default(self):
+        from sar.litmap.contracts import Claim
+        from sar.litmap.provenance import check_claim
+
+        claim = Claim(text="asserted", file="a.pdf")
+        assert check_claim(claim, self._map()) == []
+
+    def test_quoteless_claim_fails_when_quotes_required(self):
+        from sar.litmap.contracts import Claim
+        from sar.litmap.provenance import check_claim
+
+        claim = Claim(text="asserted", file="a.pdf")
+        problems = check_claim(claim, self._map(), require_quote=True)
+        assert len(problems) == 1
+        assert "no quote" in problems[0]
+        assert "a.pdf" in problems[0]
+
+    def test_quoted_claim_still_passes_when_required(self):
+        from sar.litmap.contracts import Claim
+        from sar.litmap.provenance import check_claim
+
+        claim = Claim(text="t", file="a.pdf", quote="a real sentence")
+        assert check_claim(claim, self._map(), require_quote=True) == []
+
+    def test_missing_file_still_reported_first(self):
+        from sar.litmap.contracts import Claim
+        from sar.litmap.provenance import check_claim
+
+        claim = Claim(text="t", file="ghost.pdf")
+        problems = check_claim(claim, self._map(), require_quote=True)
+        assert problems == [
+            "claim cites a file absent from the map: 'ghost.pdf'"]
+
+    def test_synthesis_and_assert_propagate_the_flag(self):
+        import pytest
+
+        from sar.litmap.contracts import (
+            Claim,
+            LineageSynthesis,
+            SynthesisOutput,
+        )
+        from sar.litmap.provenance import (
+            ProvenanceError,
+            assert_synthesis,
+            check_synthesis,
+        )
+
+        out = SynthesisOutput(lineage_syntheses=[LineageSynthesis(
+            lineage="same_family",
+            claims=[Claim(text="t", file="a.pdf")])])
+        lit_map = self._map()
+        assert check_synthesis(out, lit_map) == []
+        assert len(check_synthesis(out, lit_map, require_quote=True)) == 1
+        assert_synthesis(out, lit_map)
+        with pytest.raises(ProvenanceError, match="no quote"):
+            assert_synthesis(out, lit_map, require_quote=True)

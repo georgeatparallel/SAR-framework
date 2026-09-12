@@ -70,7 +70,13 @@ Every returned claim passes the provenance gate before acceptance:
   (whitespace-normalized, nothing else).
 
 A response that fails is retried once with the failures spelled out; claims
-that still fail are dropped and logged, never silently kept. The run writes:
+that still fail are dropped and logged, never silently kept.
+
+Note what the default gate does *not* catch: a claim carrying no quote at
+all names a real file, so nothing is provably fabricated, but nothing is
+verifiable either. Pass `--require-quotes` to reject those too. The live
+runs here did not need it (every claim came back quoted), but a model that
+starts omitting quotes is exactly the case you want to fail loudly. The run writes:
 
 - `LITERATURE-MAP.md` — the human digest, each gap shown above its verdict
   so a reader can check the verdict against the claim it judges

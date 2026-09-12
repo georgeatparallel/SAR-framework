@@ -14,6 +14,14 @@ generation is retired at tag `v1-flask-gemini` (see `docs/MIGRATION.md`).
 - The pipeline flow visualization (`docs/flow_visualization.html`).
 - The README's shape: honest scope, diagram, numbered walk-through.
 
+### Added
+
+- `check_claim`/`check_synthesis`/`assert_synthesis` take `require_quote`,
+  and `synthesize.py` exposes it as `--require-quotes`. The default gate
+  verifies a quote when one is present; a claim with no quote names a real
+  file and passes, which makes it unfalsifiable rather than verified. The
+  flag refuses those.
+
 ### Fixed
 
 - The literature-map example asked the model to assess each citation gap by

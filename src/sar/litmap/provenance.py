@@ -23,8 +23,16 @@ def _norm(text: str) -> str:
     return " ".join(text.split())
 
 
-def check_claim(claim: Claim, lit_map: LiteratureMap) -> list[str]:
-    """Problems with one claim; empty means it traces cleanly."""
+def check_claim(
+    claim: Claim, lit_map: LiteratureMap, *, require_quote: bool = False
+) -> list[str]:
+    """Problems with one claim; empty means it traces cleanly.
+
+    With ``require_quote`` the gate also rejects a claim that carries no
+    quote at all. Without it, a model can sidestep the verbatim check by
+    simply omitting the quote field: the claim still names a real file, so
+    nothing is provably fabricated, but nothing is verifiable either.
+    """
     problems: list[str] = []
     record = lit_map.by_file().get(claim.file)
     if record is None:
@@ -35,26 +43,41 @@ def check_claim(claim: Claim, lit_map: LiteratureMap) -> list[str]:
             problems.append(
                 f"quote is not verbatim from {claim.file!r}: {claim.quote[:80]!r}"
             )
+    elif require_quote:
+        problems.append(
+            f"claim carries no quote, so it cannot be verified against "
+            f"{claim.file!r}: {claim.text[:80]!r}"
+        )
     return problems
 
 
 def check_synthesis(
-    output: SynthesisOutput, lit_map: LiteratureMap
+    output: SynthesisOutput, lit_map: LiteratureMap, *,
+    require_quote: bool = False,
 ) -> list[str]:
     """All provenance problems in a synthesis; empty means it passes."""
     problems: list[str] = []
     for syn in output.lineage_syntheses:
         for claim in syn.claims:
-            problems += [f"[{syn.lineage}] {p}" for p in check_claim(claim, lit_map)]
+            problems += [
+                f"[{syn.lineage}] {p}"
+                for p in check_claim(claim, lit_map, require_quote=require_quote)
+            ]
     for digest in output.gap_digests:
         for claim in digest.claims:
-            problems += [f"[{digest.gap}] {p}" for p in check_claim(claim, lit_map)]
+            problems += [
+                f"[{digest.gap}] {p}"
+                for p in check_claim(claim, lit_map, require_quote=require_quote)
+            ]
     return problems
 
 
-def assert_synthesis(output: SynthesisOutput, lit_map: LiteratureMap) -> None:
+def assert_synthesis(
+    output: SynthesisOutput, lit_map: LiteratureMap, *,
+    require_quote: bool = False,
+) -> None:
     """Raise ProvenanceError listing every untraceable claim."""
-    problems = check_synthesis(output, lit_map)
+    problems = check_synthesis(output, lit_map, require_quote=require_quote)
     if problems:
         raise ProvenanceError(
             f"{len(problems)} provenance failure(s):\n- " + "\n- ".join(problems)

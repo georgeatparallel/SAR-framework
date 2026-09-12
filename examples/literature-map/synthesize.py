@@ -136,7 +136,7 @@ def _wellformed(payload: dict) -> list[dict]:
     return out
 
 
-def _traces(raw: object, lit_map: LiteratureMap) -> bool:
+def _traces(raw: object, lit_map: LiteratureMap, require_quote: bool) -> bool:
     """True when one raw claim dict is well-formed and traces into the map."""
     if not isinstance(raw, dict) or not raw.get("file"):
         return False
@@ -144,7 +144,7 @@ def _traces(raw: object, lit_map: LiteratureMap) -> bool:
         claim = Claim.model_validate(raw)
     except ValidationError:
         return False
-    return not check_claim(claim, lit_map)
+    return not check_claim(claim, lit_map, require_quote=require_quote)
 
 
 async def synthesize(args) -> int:
@@ -189,7 +189,8 @@ async def synthesize(args) -> int:
             skipped_units.append(label)
             return
         probe = attach(payload, dry=True)
-        problems = check_synthesis(probe, lit_map)
+        problems = check_synthesis(probe, lit_map,
+                                   require_quote=args.require_quotes)
         if problems:
             audit.record("provenance_retry", {"unit": label,
                                               "problems": problems})
@@ -200,7 +201,8 @@ async def synthesize(args) -> int:
                 skipped_units.append(label)
                 return
             probe = attach(payload, dry=True)
-            problems = check_synthesis(probe, lit_map)
+            problems = check_synthesis(probe, lit_map,
+                                       require_quote=args.require_quotes)
         if problems:
             # Drop exactly the failing claims and keep the traceable
             # remainder. Identify them by re-checking each claim, not by
@@ -213,7 +215,7 @@ async def synthesize(args) -> int:
             dropped.extend(problems)
             payload["claims"] = [
                 c for c in (payload.get("claims") or [])
-                if _traces(c, lit_map)
+                if _traces(c, lit_map, args.require_quotes)
             ]
         attach(payload, dry=False)
 
@@ -302,7 +304,8 @@ async def synthesize(args) -> int:
         await checked(build_prompt, attach, f"gap:{gap}")
 
     # ---- final validation gate --------------------------------------------
-    residual = check_synthesis(output, lit_map)
+    residual = check_synthesis(output, lit_map,
+                               require_quote=args.require_quotes)
     if residual:
         audit.record_error("provenance", "residual failures after drop",
                            {"problems": residual})
@@ -388,6 +391,8 @@ def main() -> int:
     ap.add_argument("--backend", default=None, choices=["openai", "codex"])
     ap.add_argument("--model", default=None)
     ap.add_argument("--batch-size", type=int, default=6)
+    ap.add_argument("--require-quotes", action="store_true",
+                    help="reject claims that carry no verbatim quote")
     return asyncio.run(synthesize(ap.parse_args()))
 
 
