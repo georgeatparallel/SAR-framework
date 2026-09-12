@@ -1,0 +1,249 @@
+{
+ "batch": 4,
+ "records": [
+  {
+   "file": "2022-spring-pol613/Final Paper/01 Abstract and research question/aeri.20200261.pdf",
+   "bibliographic": {
+    "title": "Persistent Political Engagement: Social Interactions and the Dynamics of Protest Movements",
+    "authors": [
+     "Leonardo Bursztyn",
+     "Davide Cantoni",
+     "David Y. Yang",
+     "Noam Yuchtman",
+     "Y. Jane Zhang"
+    ],
+    "year": 2021,
+    "venue": "AER: Insights, 3(2): 233-250",
+    "doi": "10.1257/aeri.20200261",
+    "verified_from": "front matter"
+   },
+   "approach": "experiment",
+   "regime_context": "both",
+   "unit_and_data": "Field experiment among Hong Kong University of Science and Technology (HKUST) undergraduates around the 2017 and 2018 July 1 antiauthoritarian marches; analytic sample of 849 subjects with complete data, drawn from about 1,100 recruited subjects, with treatment intensity randomized across major-by-cohort cells.",
+   "lineage": "empirical_backdrop",
+   "lineage_justification": "An experimental study of sustained protest participation and social-network mobilization in Hong Kong's antiauthoritarian movement. It documents empirical dynamics of protest movements (state dependence, network-driven persistence) that sit squarely in the protest-repression nexus literature the target paper addresses, but it does not model a state actor choosing repression severity, nor a threshold-equilibrium collective-action game; it is empirical backdrop rather than a formal antecedent.",
+   "substantive_links": [
+    {
+     "construct": "collective/indivisible policy benefit and state response as belief inputs",
+     "relation": "treats the discrete policy outcome and the possibility of a government crackdown as two aggregate-participation-contingent beliefs shaping the individual participation margin, echoing (without formalizing) the target paper's public-good and repression-cost terms",
+     "quote": "changes in the participation of the population at large will affect a subject’s beliefs about the likelihood that a discrete public good is produced or a government crackdown may occur, potentially generating strategic substitutability.",
+     "locator": "p. 236"
+    }
+   ],
+   "empirical_patterns": [
+    {
+     "claim": "one-time mobilization incentives raise immediate turnout, but turnout persists a year later only for individuals whose social network was also heavily incentivized, i.e., persistence is state-dependent and network-mediated rather than purely a matter of stable preferences",
+     "quote": "individual incentives lead to an immediate (2017) increase in protest turnout, and this effect does not vary with how many others in an individual’s social network receive incentives. Second, protest participation remains persistently (in 2018) higher but only among treated individuals who are initi",
+     "locator": "p. 235"
+    }
+   ],
+   "could_support_gap": [],
+   "gap_justification": "",
+   "notable_quotes": [
+    {
+     "quote": "Political rights have historically often arisen from successful, long-running movements: sequences of events in which sustained political engagement is important.",
+     "locator": "p. 233",
+     "why": "frames the paper's motivating claim that sustained mobilization, not one-off events, drives political-rights outcomes -- relevant context for why the target paper treats the mobilization/threshold margin as the object of interest"
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Hong Kong is a hybrid jurisdiction (special administrative region with limited democratic rights under an authoritarian sovereign), so regime_context is coded 'both' rather than a clean democracy or autocracy case. The paper studies persistence of participation via social networks, not the state's choice of repression severity."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/01 Abstract and research question/regime_change_and_revolutionary_entrepreneurs.pdf",
+   "bibliographic": {
+    "title": "Regime Change and Revolutionary Entrepreneurs",
+    "authors": [
+     "Ethan Bueno de Mesquita"
+    ],
+    "year": 2010,
+    "venue": "American Political Science Review, Vol. 104, No. 3, August 2010",
+    "doi": "10.1017/S0003055410000274",
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "autocracies",
+   "unit_and_data": null,
+   "lineage": "same_family",
+   "lineage_justification": "A formal coordination model of mass mobilization against an autocratic regime: a continuum of citizens with a threshold T for regime change, a state repressive capacity parameter k, and comparative statics on mobilization and revolution probability. It shares the target paper's core primitives (continuum of citizens, a threshold for policy/regime change, a state-side repression-capacity parameter) but the author explicitly distinguishes his information structure from a global game, and the paper's focus (a violence-signaling revolutionary vanguard) is a different mechanism from the target paper's state-chosen severity and expressive-reward tradeoff.",
+   "substantive_links": [
+    {
+     "construct": "continuum of citizens / threshold for policy(regime) change",
+     "relation": "shares the building-block assumption that a continuum of citizens must clear a threshold for change to occur, structurally parallel to the target paper's tau and continuum of citizens",
+     "quote": "There are a revolutionary vanguard (labeled E for “extremists”) and a continuum of population members of mass 1.",
+     "locator": "p. 448"
+    },
+    {
+     "construct": "state repressive capacity as a structural parameter shaping the mobilization threshold",
+     "relation": "repressive capacity k and the threshold for withstanding revolution T play a role analogous to the target paper's repression severity c_r shifting the participation margin",
+     "quote": "War I had diminished the government’s capacity to repress (k) and withstand (T) rebellion.",
+     "locator": "p. 456"
+    },
+    {
+     "construct": "comparative statics of mobilization/success in repression parameters",
+     "relation": "mobilization and success probability move monotonically with the repression/threshold parameters, paralleling the target paper's claim that its comparative statics hold everywhere in the parameter space",
+     "quote": "the level of mobilization and the probability of successful regime change are decreasing in T and k and increasing in γ.",
+     "locator": "p. 455"
+    }
+   ],
+   "empirical_patterns": [],
+   "could_support_gap": [],
+   "gap_justification": "",
+   "notable_quotes": [
+    {
+     "quote": "governments must consider the possibility that repressive measures will backfire, increasing, rather than decreasing, mobilization.",
+     "locator": "p. 460",
+     "why": "an explicit backfire remark, directly resonant with the target paper's repression-backfire extension (elasticity eps > 1), though only flagged here as outside this paper's scope rather than modeled"
+    }
+   ],
+   "confidence": "high",
+   "caveats": "The model is explicitly not a global game (the author notes it lacks the two-sided limit-dominance property of Morris-Shin/Angeletos-Hellwig-Pavan global games), unlike the target paper's information structure. Set in an autocratic/revolutionary context; the state's repression variables (T, k) are exogenous structural parameters rather than a severity choice optimized against protest mobilization as in the target paper."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/03 Model/10.1561@100.00019002.pdf",
+   "bibliographic": {
+    "title": "A Model of Protests, Revolution, and Information",
+    "authors": [
+     "Salvador Barberà",
+     "Matthew O. Jackson"
+    ],
+    "year": 2020,
+    "venue": "Quarterly Journal of Political Science, 15: 297-335",
+    "doi": "10.1561/100.00019002",
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "not_regime_specific",
+   "unit_and_data": null,
+   "lineage": "same_family",
+   "lineage_justification": "A collective-action model in which a continuum of citizens, each privately informed of a payoff type, jointly determine whether a revolt/protest clears a participation threshold, with agents explicitly treated as non-pivotal in the continuum limit. These are the same building blocks the target paper's introduction describes for its own mobilization stage, and the paper is candidly agnostic about regime type, so it functions as a close formal-theory relative rather than a direct predecessor of the state's severity-setting stage.",
+   "substantive_links": [
+    {
+     "construct": "continuum of citizens",
+     "relation": "identical population primitive to the target paper's continuum of citizens deciding whether to protest",
+     "quote": "A continuum of citizens of mass 1 is indexed by i ∈ [0, 1].",
+     "locator": "p. 303"
+    },
+    {
+     "construct": "critical participation threshold for success",
+     "relation": "directly matches THY-3.1-P1: collective action succeeds only above a critical participation threshold",
+     "quote": "The revolt is successful if at least a fraction q ∈ (0, 1] of the population participates. If fewer than q participate, then the revolt fails.",
+     "locator": "p. 304"
+    },
+    {
+     "construct": "public-good aspect and free-riding, set aside from their main model",
+     "relation": "directly names the public-good/free-rider framing central to THY-3.1-P2",
+     "quote": "The public good aspect of demonstrations and the free riding issues they imply (e.g., Cantoni et al. (2017)) is one.",
+     "locator": "p. 302"
+    },
+    {
+     "construct": "non-pivotality in a continuum",
+     "relation": "directly matches THY-3.1-P3: in a continuum no participant is pivotal, so free-riding is total",
+     "quote": "the chance that any single agent will be pivotal in terms of making the revolt succeed rather than fail, in a large population and a nontrivial threshold, is negligible. In the continuum model it is in fact 0.",
+     "locator": "p. 304"
+    }
+   ],
+   "empirical_patterns": [],
+   "could_support_gap": [
+    "THY-3.1-P1",
+    "THY-3.1-P2",
+    "THY-3.1-P3"
+   ],
+   "gap_justification": "The paper states its participation rule as a threshold q on the aggregate mass of citizens (\"The revolt is successful if at least a fraction q...participates\", p.304), separately flags \"the public good aspect of demonstrations and the free riding issues they imply\" as a companion feature of the setting (p.302), and formalizes non-pivotality as exactly zero in the continuum limit (\"the chance that any single agent will be pivotal...is negligible. In the continuum model it is in fact 0.\", p.304) -- together they can defend all three THY-3.1 claims about threshold-based collective action, its public-good character, and total free-riding under a continuum.",
+   "notable_quotes": [
+    {
+     "quote": "Note that in a very repressive regime — that penalizes people who even say they support change — then it would be possible for that to provide a costly signal. However, that would only work if sufficiently many people are able to express their opinions, and such very repressive regimes may also cens",
+     "locator": "p. 324, footnote 17",
+     "why": "treats repression as a censorship/signaling device only in the extreme case of ‘very repressive’ regimes, illustrating the target paper's observation that this formal literature is pitched toward autocratic settings"
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Learning about aggregate support runs through local social contacts and observed 'state' realizations (High/Low), not through a global-game noisy private signal of a threshold as in the target paper. The government/state is discussed only qualitatively as a user of censorship/repression 'tools' (p.303); it is not modeled as a strategic first-mover choosing a severity level."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/03 Model/MIT14_12F12_chapter12.pdf",
+   "bibliographic": {
+    "title": "Chapter 12: Repeated Games (14.12 Economic Applications of Game Theory, Fall 2012, lecture notes)",
+    "authors": [
+     "Muhamet Yildiz"
+    ],
+    "year": 2012,
+    "venue": "MIT OpenCourseWare, 14.12 Economic Applications of Game Theory (Fall 2012)",
+    "doi": null,
+    "verified_from": "front matter"
+   },
+   "approach": "methods",
+   "regime_context": "not_regime_specific",
+   "unit_and_data": null,
+   "lineage": "unrelated",
+   "lineage_justification": "This is a standalone MIT OpenCourseWare lecture-note chapter on finitely and infinitely repeated games and the Folk Theorem (Prisoners' Dilemma repetition, trigger strategies, subgame perfection). It contains no discussion of protest, repression, mobilization thresholds, global games, or any construct in the target paper's model; a full-text search for 'protest,' 'repress,' 'threshold,' and 'global game' returns no hits.",
+   "substantive_links": [],
+   "empirical_patterns": [],
+   "could_support_gap": [],
+   "gap_justification": "",
+   "notable_quotes": [],
+   "confidence": "high",
+   "caveats": "Course teaching material (likely used as general game-theory background during the class the target paper was written for) rather than a substantive source on protest or repression; classified unrelated rather than method_toolkit because its specific technique (repeated-game folk theorems) is not the technique the target paper's one-shot global game relies on."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/03 Model/Passarelli and Tabellini (2017).pdf",
+   "bibliographic": {
+    "title": "Emotions and Political Unrest",
+    "authors": [
+     "Francesco Passarelli",
+     "Guido Tabellini"
+    ],
+    "year": 2017,
+    "venue": "Journal of Political Economy, vol. 125, no. 3, pp. 903-946",
+    "doi": null,
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "democracies",
+   "unit_and_data": "Model calibrated/illustrated with data on riots and protests in advanced democracies (e.g., European Protest and Coercion Data; Portuguese and Italian austerity-protest episodes of 2012 discussed as motivating cases); the paper also reports cross-country empirical evidence consistent with the model's predictions.",
+   "lineage": "direct_ancestor",
+   "lineage_justification": "A formal model set explicitly in advanced democracies in which a government sets policy while trading off social welfare against the social harm inflicted by riots, and citizens individually choose costly participation with a benefit net of a cost term that includes 'the risk of violent repression,' with participation exhibiting threshold/complementarity dynamics. This is the closest structural match in the batch to the target paper's state-moves-first tradeoff between a policy stake and unrest-driven costs, and it does so in the very democratic setting the target paper argues the formal literature has neglected.",
+   "substantive_links": [
+    {
+     "construct": "state tradeoff between policy stake and cost of unrest (parallel to the target paper's B_s vs theta_0, theta_1*c_r^2)",
+     "relation": "the government explicitly weighs the welfare gain of its policy against the social harm caused by riots, structurally paralleling the state's optimization of c_r against B_s and the theta costs",
+     "quote": "Riots cause social harm, and the government trades off the social welfare effects of the policy against the social harm inflicted by riots.",
+     "locator": "p. 908"
+    },
+    {
+     "construct": "repression severity as a component of the individual participation cost (parallel to gamma_r*c_r)",
+     "relation": "an explicit repression-risk term enters the individual's cost of joining a riot, directly paralleling the target paper's expected repression cost gamma_r*c_r on the participation margin",
+     "quote": "The parameter m > 0 is known and common to all and reflects external conditions such as the risk of violent repression.",
+     "locator": "p. 909"
+    },
+    {
+     "construct": "complementarity/threshold triggering a crisis (parallel to tau and the participation margin)",
+     "relation": "frames aggregate participation as tied to a critical threshold that triggers a costly political crisis, echoing THY-3.1-P1's threshold framing",
+     "quote": "Participation could also proxy for the probability of reaching a critical threshold that triggers a political crisis; in this interpretation, the complementarity reflects the feeling of contributing to a more meaningful event with a greater chance of success.",
+     "locator": "p. 909"
+    }
+   ],
+   "empirical_patterns": [
+    {
+     "claim": "street protests have repeatedly forced elected democratic governments to withdraw unpopular but welfare-improving policy reforms",
+     "quote": "In September 2012, the government of Portugal introduced an ambitious plan to shift a fraction of social security contributions from employers to employees, to restore competitiveness of the Portuguese economy. In the subsequent days, hundreds of thousands of workers took to the streets, and the gov",
+     "locator": "p. 903-904"
+    }
+   ],
+   "could_support_gap": [
+    "INTRO-P3-S4",
+    "THY-3.1-P1"
+   ],
+   "gap_justification": "The government's objective explicitly nets the social harm of riots against policy welfare (\"the government trades off the social welfare effects of the policy against the social harm inflicted by riots\", p.908), which can defend INTRO-P3-S4's claim that mass protest imposes costs the state must weigh; and the paper's threshold/crisis framing of aggregate participation (\"a critical threshold that triggers a political crisis\", p.909) can defend THY-3.1-P1's threshold-based collective-action claim.",
+   "notable_quotes": [
+    {
+     "quote": "Despite external constraints and unsustainable status quo, such as during the Euro area sovereign debt crisis, democratically elected governments enjoying broad legislative support bend to the opposition of street rioters. Yet this channel of political influence is often neglected by the literature.",
+     "locator": "p. 904",
+     "why": "states almost verbatim the target paper's premise that protest's influence on policy in democracies is understudied relative to voting and lobbying"
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Repression enters only as a fixed, exogenous, common-knowledge cost parameter m; the government's decision variable in the model is the policy q itself (and, in the dynamic extension, public debt), not a repression-severity choice analogous to the target paper's c_r. The government here is assumed benevolent, whereas the target paper's state maximizes a stake-and-cost objective without a welfarist framing."
+  }
+ ]
+}

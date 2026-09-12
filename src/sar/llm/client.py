@@ -69,7 +69,13 @@ class OpenAIClient:
             api_key: OpenAI API key.
             default_model: Fallback model identifier.
         """
-        from openai import AsyncOpenAI
+        try:
+            from openai import AsyncOpenAI
+        except ImportError as exc:
+            raise LLMClientError(
+                "the openai backend needs the 'openai' package: "
+                "pip install agentic-sar[openai]"
+            ) from exc
 
         self._client = AsyncOpenAI(api_key=api_key)
         self._default_model = default_model

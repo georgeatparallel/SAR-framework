@@ -18,6 +18,13 @@ from sar.contracts.search import SearchResult, SourceType
 
 logger = logging.getLogger(__name__)
 
+# Wikimedia rejects library-default user agents (403, "Please set a
+# user-agent"); identify the tool per their bot policy.
+_HEADERS = {
+    "User-Agent": "agentic-sar/2.0 "
+    "(research tool; github.com/ignaciourbina/SAR-framework)",
+}
+
 _BASE_URL = "https://en.wikipedia.org/w/api.php"
 _TIMEOUT = httpx.Timeout(20.0)
 
@@ -68,7 +75,7 @@ class WikipediaBackend:
             async with httpx.AsyncClient(
                 timeout=_TIMEOUT, follow_redirects=True
             ) as client:
-                resp = await client.get(_BASE_URL, params=params)
+                resp = await client.get(_BASE_URL, params=params, headers=_HEADERS)
                 resp.raise_for_status()
                 data = resp.json()
 
@@ -122,7 +129,7 @@ class WikipediaBackend:
             async with httpx.AsyncClient(
                 timeout=_TIMEOUT, follow_redirects=True
             ) as client:
-                resp = await client.get(_BASE_URL, params=params)
+                resp = await client.get(_BASE_URL, params=params, headers=_HEADERS)
                 return resp.status_code == 200
         except Exception:
             return False

@@ -123,9 +123,9 @@ def tmp_cache(tmp_path: Any) -> Any:
     Returns:
         URLCache instance using a temp database.
     """
-    # TODO(tests): from sar.search.cache import URLCache
-    # TODO(tests): return URLCache(db_path=tmp_path / "test_cache.db", ttl_days=1)
-    pass
+    from sar.search.cache import URLCache
+
+    return URLCache(db_path=tmp_path / "test_cache.db", ttl_days=1)
 
 
 # --- Temporary Audit Log ---
@@ -140,6 +140,6 @@ def tmp_audit_log(tmp_path: Any) -> Any:
     Returns:
         AuditLog instance using a temp directory.
     """
-    # TODO(tests): from sar.persistence.audit import AuditLog
-    # TODO(tests): return AuditLog(run_id="test-run-001", log_dir=tmp_path / "audit")
-    pass
+    from sar.persistence.audit import AuditLog
+
+    return AuditLog(run_id="test-run-001", log_dir=tmp_path / "audit")

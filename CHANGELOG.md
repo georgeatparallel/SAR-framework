@@ -14,6 +14,38 @@ generation is retired at tag `v1-flask-gemini` (see `docs/MIGRATION.md`).
 - The pipeline flow visualization (`docs/flow_visualization.html`).
 - The README's shape: honest scope, diagram, numbered walk-through.
 
+### Fixed
+
+- Three agents matched tool calls on a `tool_name` attribute that the real
+  clients' `ToolCall` contract does not have, so with any real backend the
+  tool-call branch never fired and parsing always fell back to free text.
+- A `NEEDS_MORE_INFO` review round's targeted queries were assigned and then
+  immediately overwritten by a fresh expansion of the original question;
+  the reviewer's queries now drive the next search round.
+- The ANALYZE-REVIEW rework cycle had no bound of its own (the iteration
+  counter only advances through EXPAND); `MAX_REWORKS_PER_ITERATION` caps it.
+- `BudgetTracker` used field names that do not exist on `TokenBudget` and was
+  never constructed; rewritten against the real contract and wired into the
+  pipeline through a metering decorator, making the budget gate live.
+- Batch campaign runs passed plain-dict specs to a synthesizer that reads
+  attributes, so every batch dossier silently degraded to "Synthesis failed".
+- `normalize_repression("none")` returned `NA`; the repression scale's zero
+  point collided with the shared missing-value vocabulary.
+- The Wikipedia backend sent no User-Agent and Wikimedia now rejects library
+  defaults with 403.
+- Schemas drifted from the contracts (a required field that did not exist on
+  the model, mismatched field names); now generated from the models with a
+  drift-guard test.
+- aiohttp was imported by seven search backends without being a declared
+  dependency; ported to httpx (a declared dependency), with redirect
+  following preserved and package imports made lazy.
+
+### Deviations from plan
+
+- CodexClient retries process-level failures with a local bounded loop
+  rather than the shared `call_with_backoff`, whose retryability heuristics
+  are HTTP-oriented and would veto subprocess failures.
+
 ### Added
 
 - Local agent backend: `CodexClient` drives the `codex exec` CLI, passing tool

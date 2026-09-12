@@ -8,7 +8,7 @@ Migrated from: implicit local variables in agentic_sar/agent_service.py run_agen
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -98,7 +98,9 @@ class GateDecision(BaseModel):
     passed: bool
     reason: str
     metrics: dict[str, Any] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(UTC)
+    )
 
 
 class PaperSummary(BaseModel):

@@ -1,0 +1,306 @@
+{
+ "batch": 2,
+ "records": [
+  {
+   "file": "2022-spring-pol613/Final Paper/01 Abstract and research question/Meirowitz and Tucker 13.pdf",
+   "bibliographic": {
+    "title": "People Power or a One-Shot Deal? A Dynamic Model of Protest",
+    "authors": [
+     "Adam Meirowitz",
+     "Joshua A. Tucker"
+    ],
+    "year": 2013,
+    "venue": "American Journal of Political Science",
+    "doi": "10.1111/ajps.12017",
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "both",
+   "unit_and_data": null,
+   "lineage": "peripheral",
+   "lineage_justification": "Formal model of a single representative citizen deciding whether to protest over T periods to replace a government whose quality is learned via adverse selection; the cost of protest c is an exogenous fixed parameter, not a state choice, there is no continuum of citizens, no participation threshold, and no repression-severity mechanism, so it does not engage the target paper's core apparatus (state-chosen c_r, threshold tauhat, global game).",
+   "substantive_links": [],
+   "empirical_patterns": [],
+   "could_support_gap": [],
+   "gap_justification": "",
+   "notable_quotes": [],
+   "confidence": "high",
+   "caveats": "Triaged from front matter, introduction, and conclusion plus a check of the formal model section for repression/threshold language; no deep read of remaining sections since lineage is peripheral."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/01 Abstract and research question/QJE - Cantoni, Yang, Yuchtman, and Zhang.pdf",
+   "bibliographic": {
+    "title": "Protests as Strategic Games: Experimental Evidence from Hong Kong's Antiauthoritarian Movement",
+    "authors": [
+     "Davide Cantoni",
+     "David Y. Yang",
+     "Noam Yuchtman",
+     "Y. Jane Zhang"
+    ],
+    "year": 2019,
+    "venue": "The Quarterly Journal of Economics",
+    "doi": "10.1093/qje/qjz002",
+    "verified_from": "front matter"
+   },
+   "approach": "experiment",
+   "regime_context": "both",
+   "unit_and_data": "Framed field experiment with a sample of university students (HKUST) around Hong Kong's July 1 antiauthoritarian march; incentivized elicitation of planned participation and prior beliefs about others' turnout, a randomized truthful-information treatment about others' protest plans, and incentivized posterior beliefs, followed by elicited actual participation.",
+   "lineage": "same_family",
+   "lineage_justification": "Directly tests and critiques the 'benchmark' global-game-style protest model with threshold public goods and expressive/success-contingent rewards that underlies the target paper's setup, and formalizes crackdown probability as increasing in protest size -- the same participation-threshold and repression-cost logic the target paper builds a state's optimal severity choice around, though this paper leaves severity/crackdown probability exogenous to the state's choice rather than optimized.",
+   "substantive_links": [
+    {
+     "construct": "critical participation threshold / tauhat",
+     "relation": "supports",
+     "quote": "sufficient turnout might signal the existence of a “critical mass” of protesters, which sustains the political movement",
+     "locator": "p. 1067"
+    },
+    {
+     "construct": "policy change as indivisible collective public good (B_p)",
+     "relation": "supports",
+     "quote": "A classic argument in the political economy literature (Olson 1965; Tullock 1971; Palfrey and Rosenthal 1984) is that protest participation produces a political public good.",
+     "locator": "p. 1067"
+    },
+    {
+     "construct": "expressive success-contingent reward d_p",
+     "relation": "supports",
+     "quote": "“the psychological benefit of a public display of anger is stronger if the emotion is more widely shared.”",
+     "locator": "p. 1066"
+    },
+    {
+     "construct": "expected repression cost gamma_r*c_r",
+     "relation": "extends",
+     "quote": "the likelihood that a government crackdown is increasing in protest size, at least over some range. Consistent with this proposed mechanism behind strategic substitutability in our setting, one can see in Figure I that our experimental subjects believe that a government crackdown is an increasing fu",
+     "locator": "p. 1069"
+    },
+    {
+     "construct": "no pivotality / free-riding on the participation margin",
+     "relation": "supports",
+     "quote": "individuals have an incentive to free-ride on the costly participation of others, and may thus be less willing to turn out when they believe more others will do so, thus producing a game of strategic substitutes",
+     "locator": "p. 1022"
+    }
+   ],
+   "empirical_patterns": [
+    {
+     "claim": "Experimental subjects perceive government crackdown probability as rising with protest size, which can generate strategic substitutability rather than the strategic complementarity assumed by most recent formal models of protest.",
+     "quote": "our experimental subjects believe that a government crackdown is an increasing function of protest size.",
+     "locator": "p. 1069"
+    },
+    {
+     "claim": "In regimes that tolerate small dissent but not large-scale challenges, the threat of crackdown scaling with protest size pushes toward strategic substitutes; in regimes where crackdown is guaranteed regardless of size, this force disappears.",
+     "quote": "In these cases, a government crackdown is essentially guaranteed, so the probability of bearing a private cost conditional on a crackdown becomes the only consideration.",
+     "locator": "p. 1073"
+    }
+   ],
+   "could_support_gap": [
+    "THY-3.1-P1",
+    "THY-3.1-P2",
+    "THY-3.1-P3"
+   ],
+   "gap_justification": "THY-3.1-P1 (critical threshold): 'sufficient turnout might signal the existence of a “critical mass” of protesters, which sustains the political movement' (p. 1067). THY-3.1-P2 (indivisible public good): 'protest participation produces a political public good' (p. 1067). THY-3.1-P3 (free-riding on the margin): 'individuals have an incentive to free-ride on the costly participation of others...thus producing a game of strategic substitutes' (p. 1022) -- note this is a general Olson-style free-riding claim, not phrased in terms of a continuum or formal non-pivotality.",
+   "notable_quotes": [
+    {
+     "quote": "Gehlbach, Sonin, and Svolik (2016, 579) go so far as to affirm that strategic complementarity “characterizes mass protests”",
+     "locator": "p. 1022",
+     "why": "Names the exact assumption (strategic complementarity from a threshold/expressive-reward structure) that the target paper's global-game apparatus also relies on, and that this paper's experiment finds empirical evidence against."
+    },
+    {
+     "quote": "This force seems most likely to exist in protests demanding political rights from regimes that are not totalitarian (again, the women’s suffrage movements, the civil rights movement, and protests in partial democracies).",
+     "locator": "p. 1073",
+     "why": "Explicitly ties the size-dependent crackdown mechanism to regime type (partial democracies vs. totalitarian regimes), relevant to the target paper's claim that formal protest-repression models have neglected democracies."
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Hong Kong in the study period is coded here as a hybrid/contested case (an 'antiauthoritarian movement' against Beijing's rule operating under some protected civil liberties), hence regime_context 'both' rather than a single category; the paper itself discusses generalization across totalitarian, partial-democratic, and open settings."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/01 Abstract and research question/Stability of revolutionary governments in the face of mass protest.pdf",
+   "bibliographic": {
+    "title": "Stability of revolutionary governments in the face of mass protest",
+    "authors": [
+     "Dmitry Dagaev",
+     "Natalia Lamberova",
+     "Anton Sobolev"
+    ],
+    "year": 2019,
+    "venue": "European Journal of Political Economy",
+    "doi": "10.1016/j.ejpoleco.2019.08.003",
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "autocracies",
+   "unit_and_data": "Formal model of protest against a post-revolutionary incumbent, motivated by an original panel of roughly 200 revolutions across 66 countries, 1920-2013, built from the Cross-National Time-Series Data Archive (Banks and Wilson, 2017) and Polity IV.",
+   "lineage": "same_family",
+   "lineage_justification": "Builds a continuum-of-citizens model with a policy-space threshold (share m of the population needed to overthrow the incumbent) that structurally parallels the target paper's participation threshold tauhat, cites much of the same formal protest-repression literature (Meirowitz and Tucker, Little 2016, Casper and Tyson, Shadmehr and Bernhardt), and explicitly treats the incumbent's coercive/military capacity as a fixed cost parameter chosen 'at the optimal level' prior to the game -- the opposite modeling choice from the target paper, which endogenizes c_r as the state's strategic decision.",
+   "substantive_links": [
+    {
+     "construct": "critical participation threshold / tauhat",
+     "relation": "supports",
+     "quote": "Let m be the share of the population needed to overthrow the incumbent. This parameter may be interpreted as the military capacity of the incumbent. The higher m, the more protesters are needed to succeed.",
+     "locator": "p. 6"
+    },
+    {
+     "construct": "critical participation threshold / tauhat",
+     "relation": "supports",
+     "quote": "A coherent protest P is successful if the number of actual protesters exceeds the military capacity of the incumbent",
+     "locator": "p. 6"
+    },
+    {
+     "construct": "state-chosen repression severity c_r",
+     "relation": "contrasts",
+     "quote": "In this paper, we do not model the ability of an incumbent to invest in military capacity, assuming instead that he or she already made this investment at the optimal level.",
+     "locator": "p. 4"
+    },
+    {
+     "construct": "repression severity gamma_r*c_r as a citizen-level cost",
+     "relation": "extends",
+     "quote": "governments can boost repression capacity, making convincing state propaganda, censoring independent media, and co-opting the elite or potential opposition to prevent uprisings.",
+     "locator": "p. 3"
+    }
+   ],
+   "empirical_patterns": [
+    {
+     "claim": "Newly established revolutionary governments have become roughly three times more likely to face mass protest within their first three years in the early twenty-first century than a century earlier.",
+     "quote": "new incumbents who came to power as a result of a revolution in the first decades of twenty-first century were three times more vulnerable to mass protest than a hundred years ago: in 1920s new revolutionary governments faced mass protests in less than 10 percent of all cases. This number has exceed",
+     "locator": "p. 1"
+    }
+   ],
+   "could_support_gap": [
+    "THY-3.1-P1"
+   ],
+   "gap_justification": "THY-3.1-P1 (collective action succeeds only above a critical participation threshold): the model's Definition 2 makes protest success a threshold function of turnout against the incumbent's military capacity m -- 'A coherent protest P is successful if the number of actual protesters exceeds the military capacity of the incumbent' (p. 6).",
+   "notable_quotes": [
+    {
+     "quote": "a dynamic principal-agent model in which an incumbent delegates the prevention of riots and protests to an agent who has an advantage in maintaining security",
+     "locator": "p. 4",
+     "why": "Literature-review characterization (of Yared and Padró i Miquel 2012) of a delegation structure between an incumbent and a security agent; thematically adjacent to the target paper's principal-agent gap but describes a non-democratic incumbent, not a democratic leader, so not claimed as a gap match."
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Model and lit review read in full; historical/empirical panel results (Figs. A1-A3, sensitivity analysis) were not deep-read in detail since they are not central to the target paper's constructs."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/01 Abstract and research question/Street-Level Repression. Protest, Policing, and Dissent in Uganda.pdf",
+   "bibliographic": {
+    "title": "Street-level Repression: Protest, Policing, and Dissent in Uganda",
+    "authors": [
+     "Travis B. Curtice",
+     "Brandon Behlendorf"
+    ],
+    "year": 2021,
+    "venue": "Journal of Conflict Resolution",
+    "doi": "10.1177/0022002720939304",
+    "verified_from": "front matter"
+   },
+   "approach": "experiment",
+   "regime_context": "autocracies",
+   "unit_and_data": "Nationally representative vignette survey experiment fielded to 1,920 respondents across 100 districts and 194 parishes in Uganda, June 28-July 20, 2018 (four-arm design crossing rally participation/observation with appropriate/excessive police force).",
+   "lineage": "empirical_backdrop",
+   "lineage_justification": "Provides microlevel experimental evidence, in a nondemocracy, that excessive police repression produces 'backlash' -- decreased support for police and increased willingness to criticize and protest -- rather than deterrence, directly speaking to the anger/backlash and fear-deterrence channels in the target paper's extension, and explicitly flags that backlash from police abuse should be stronger under democratic government, which is directly relevant to the target paper's democracy-repression argument.",
+   "substantive_links": [
+    {
+     "construct": "repression backfiring / anger-backlash channel",
+     "relation": "supports",
+     "quote": "We argue repressive action by police triggers political backlash generally, decreasing support for police and increasing willingness for political dissent, including public criticism of the state security apparatus and future protests.",
+     "locator": "p. 168"
+    },
+    {
+     "construct": "fear-deterrence channel (mirror of anger channel)",
+     "relation": "supports",
+     "quote": "Fear might deter individuals, including bystanders, from engaging in collective action (Young 2019).",
+     "locator": "p. 173"
+    },
+    {
+     "construct": "anger/moral-outrage channel",
+     "relation": "supports",
+     "quote": "some argue that observing a protest might increase collective action by consolidating people’s willingness to identify with protestors or engendering moral outrage and sympathy among bystanders with repressed groups (Saab et al. 2015).",
+     "locator": "p. 173"
+    },
+    {
+     "construct": "regime type moderates repression's effect (democracies vs. autocracies)",
+     "relation": "supports",
+     "quote": "The more democratic the form of government, the more likely backlash to excessive police abuses or repression should emerge.",
+     "locator": "p. 175"
+    }
+   ],
+   "empirical_patterns": [
+    {
+     "claim": "Excessive police force at a rally produces a robust backlash effect: decreased support for police and increased willingness to publicly criticize and protest, with no evidence that it deters dissent.",
+     "quote": "excessive state violence triggers political backlash, increasing expressions of political dissent and decreasing support for the security apparatus.",
+     "locator": "p. 185"
+    }
+   ],
+   "could_support_gap": [
+    "THY-3.6-P1",
+    "THY-3.6-P8"
+   ],
+   "gap_justification": "THY-3.6-P1 (anger channel: citizens respond to repression with anger): 'engendering moral outrage and sympathy among bystanders with repressed groups' (p. 173) and the general backlash finding that excessive force 'increas[es] expressions of political dissent' (p. 185); note the mechanism here is direct/vignette exposure to repression rather than 'open media' specifically. THY-3.6-P8 (fear deters dissent): the paper explicitly engages this hypothesis -- 'Fear might deter individuals, including bystanders, from engaging in collective action (Young 2019)' (p. 173) -- though its own results find no evidence that excessive force deters dissent, i.e. backlash dominates fear in this setting.",
+   "notable_quotes": [
+    {
+     "quote": "This is the first study—that we know—that provides nationally representative microlevel experimental evidence on the protest-repression nexus debate from within an autocracy.",
+     "locator": "p. 184",
+     "why": "Self-characterization underscoring that even this rare microlevel test of the repression-backlash mechanism is set in an autocracy, consistent with the target paper's claim that the empirical and formal protest-repression literature centers on autocracies."
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Journal masthead gives 2021 Vol. 65(1) with copyright line 'The Author(s) 2020' (published online 2020); year coded as the 2021 issue year."
+  },
+  {
+   "file": "2022-spring-pol613/Final Paper/01 Abstract and research question/The Agency Problem Underlying Repression.pdf",
+   "bibliographic": {
+    "title": "The Agency Problem Underlying Repression",
+    "authors": [
+     "Scott A. Tyson"
+    ],
+    "year": 2018,
+    "venue": "The Journal of Politics",
+    "doi": "10.1086/698887",
+    "verified_from": "front matter"
+   },
+   "approach": "formal_model",
+   "regime_context": "autocracies",
+   "unit_and_data": null,
+   "lineage": "same_family",
+   "lineage_justification": "A formal model in which a leader strategically chooses repression severity L against a civilian group, trading off the benefit of deterring rebellion against the cost of compensating a repressive agent who must be induced to comply -- structurally the closest analogue in this batch to the target paper's state choosing c_r to trade off retained stake B_s against repression cost, and to the critical-threshold logic of tauhat (via the model's critical severity L*_i). The word 'democracy' does not appear anywhere in the text; the entire analysis is autocracy-specific (leader vs. repressive apparatus vs. civilian rebellion), which is itself the kind of formal treatment the target paper argues the literature has confined itself to.",
+   "substantive_links": [
+    {
+     "construct": "state-chosen repression severity c_r",
+     "relation": "supports",
+     "quote": "the implementation of repression by a government relies on two crucial decisions. First, the leader must choose to initiate repression, thus tasking the repressive apparatus with its implementation. Second—and critically—the repressive apparatus must choose to comply.",
+     "locator": "p. 1297"
+    },
+    {
+     "construct": "principal-agent/delegation of repression (contrast case: autocracy, not democracy)",
+     "relation": "contrasts",
+     "quote": "an autocrat cannot take the compliance of these members of government as given, but rather, she must motivate their compliance through policy concessions, power sharing, or material compensation.",
+     "locator": "p. 1297"
+    },
+    {
+     "construct": "state weighs retained stake against cost of repression when choosing c_r",
+     "relation": "supports",
+     "quote": "the leader must design a compensation scheme that motivates the repressive agent to comply with the policies the leader wants (or needs) implemented.",
+     "locator": "p. 1298"
+    },
+    {
+     "construct": "institutional structure setting the severity of repression",
+     "relation": "extends",
+     "quote": "political institutions designed to enhance political stability, such as legislatures and bureaucracies, can make repression a more desirable method of keeping power, thus producing more repressive regimes overall.",
+     "locator": "p. 1307"
+    }
+   ],
+   "empirical_patterns": [],
+   "could_support_gap": [
+    "INTRO-P4-S1"
+   ],
+   "gap_justification": "INTRO-P4-S1 (severity written into institutional/legal structure): the model shows institutional durability parameters causally raise the equilibrium level of repression severity -- 'political institutions designed to enhance political stability, such as legislatures and bureaucracies, can make repression a more desirable method of keeping power, thus producing more repressive regimes overall' (p. 1307). This is offered cautiously: the mechanism is compensation credibility for an autocratic leader's repressive agent, not a democracy's legal rules of engagement, so the match is structural/analogical rather than a direct empirical claim about democracies.",
+   "notable_quotes": [
+    {
+     "quote": "Since an autocrat cannot carry out all of her policy objectives alone, she must rely on the compliance of other individuals such as party members, members of the military, or other bureaucrats to achieve her goals.",
+     "locator": "p. 1297",
+     "why": "States the delegation logic underlying the target paper's principal-agent gap (INTRO-P4-S2), but for an autocratic rather than democratic leader -- useful as a contrast case rather than a direct match."
+    }
+   ],
+   "confidence": "high",
+   "caveats": "Deep-read the model setup, civilian-rebellion section, and institutions-and-repression section; the targeted-repression comparative-statics section and formal appendix proofs were skimmed for terms rather than read line by line, since their content (which civilian group to target, given concentration/resources) is peripheral to the target paper's constructs."
+  }
+ ]
+}

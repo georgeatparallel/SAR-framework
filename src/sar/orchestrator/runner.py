@@ -167,6 +167,7 @@ async def run_pipeline(
     audit_log.record("pipeline_start", {"run_id": run_id, "query": query})
 
     reworks_this_iteration = 0
+    reviewer_queries_pending = False
 
     while not machine.is_terminal:
         phase = machine.current_phase
@@ -189,18 +190,31 @@ async def run_pipeline(
         # EXPAND phase: generate search queries
         # -----------------------------------------------------------
         if phase == PipelinePhase.EXPAND:
-            try:
-                state.queries = await query_expander.run(
-                    query=query,
-                    llm=llm,
-                    event_bus=event_bus,
+            if reviewer_queries_pending and state.queries:
+                # A NEEDS_MORE_INFO round supplied targeted queries. Searching
+                # them is the point of the round; re-expanding the original
+                # question here used to overwrite and discard them.
+                reviewer_queries_pending = False
+                logger.info(
+                    "EXPAND: keeping %d reviewer-supplied queries",
+                    len(state.queries),
                 )
-                logger.info("EXPAND: %d queries generated", len(state.queries))
-            except Exception as exc:
-                logger.error("EXPAND: query expansion failed -- %s", exc)
-                audit_log.record_error("query_expander", str(exc), {"phase": "expand"})
-                state.queries = [query]  # Fallback to original query
+            else:
+                try:
+                    state.queries = await query_expander.run(
+                        query=query,
+                        llm=llm,
+                        event_bus=event_bus,
+                    )
+                    logger.info("EXPAND: %d queries generated", len(state.queries))
+                except Exception as exc:
+                    logger.error("EXPAND: query expansion failed -- %s", exc)
+                    audit_log.record_error(
+                        "query_expander", str(exc), {"phase": "expand"}
+                    )
+                    state.queries = [query]  # Fallback to original query
 
+            state.feedback = None
             state.iteration += 1
             audit_log.record("phase_complete", {
                 "phase": "expand",
@@ -444,6 +458,7 @@ async def run_pipeline(
                 # If the reviewer provided new queries, use them
                 if isinstance(payload, list) and payload:
                     state.queries = payload
+                    reviewer_queries_pending = True
                 machine.force_phase(PipelinePhase.EXPAND)
 
             else:
@@ -605,8 +620,10 @@ def _parse_verdict(command: str | None) -> ReviewerVerdict:
             "needs_rework", "needs_more_info").
 
     Returns:
-        The corresponding ReviewerVerdict. Defaults to COMPLETE for
-        unrecognized commands.
+        The corresponding ReviewerVerdict. Defaults to APPROVED for
+        unrecognized commands (the pipeline accepts the report rather than
+        looping on a verdict it cannot interpret); the caller audit-logs
+        the unrecognized command.
     """
     if command is None:
         return ReviewerVerdict.APPROVED

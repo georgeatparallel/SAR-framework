@@ -65,7 +65,6 @@ class AppConfig(BaseSettings):
     BUDGET_CEILING_USD: float | None = None
     MIN_RESULTS_TO_PROCEED: int = 3
     QUALITY_THRESHOLD: float = 6.0
-    BUDGET_CEILING_USD: float = 5.0
 
     # --- Cache ---
     URL_CACHE_TTL_DAYS: int = 7

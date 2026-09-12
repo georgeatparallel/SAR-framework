@@ -1,33 +1,68 @@
 {
-    "_comment": "Canned search results for unit tests. TODO(tests): populate with realistic examples.",
-    "semantic_scholar": [
-        {
-            "title": "TODO: sample Semantic Scholar result",
-            "url": "https://api.semanticscholar.org/paper/abc123",
-            "snippet": "TODO: sample abstract",
-            "source": "semantic_scholar",
-            "doi": "10.1234/test.2024.001",
-            "year": 2024,
-            "authors": ["Author A", "Author B"],
-            "citation_count": 42,
-            "is_peer_reviewed": true,
-            "pdf_url": null,
-            "content": ""
-        }
-    ],
-    "brave": [
-        {
-            "title": "TODO: sample Brave web result",
-            "url": "https://example.com/article",
-            "snippet": "TODO: sample web snippet",
-            "source": "brave",
-            "doi": null,
-            "year": 2024,
-            "authors": [],
-            "citation_count": 0,
-            "is_peer_reviewed": false,
-            "pdf_url": null,
-            "content": ""
-        }
+  "_comment": "Realistic backend payload excerpts for backend tests.",
+  "semantic_scholar": {
+    "total": 1,
+    "data": [
+      {
+        "paperId": "abc123",
+        "title": "Dynamics of Political Protests",
+        "abstract": "We frame protest in terms of concession and disruption costs.",
+        "year": 2018,
+        "citationCount": 210,
+        "externalIds": {
+          "DOI": "10.1017/S0020818318000061"
+        },
+        "url": "https://www.semanticscholar.org/paper/abc123",
+        "authors": [
+          {
+            "name": "Graig R. Klein"
+          },
+          {
+            "name": "Patrick M. Regan"
+          }
+        ]
+      }
     ]
+  },
+  "crossref": {
+    "message": {
+      "items": [
+        {
+          "DOI": "10.1177/0022002717750450",
+          "title": [
+            "Preemptive Repression: Deterrence, Backfiring, Iron Fists, and Velvet Gloves"
+          ],
+          "author": [
+            {
+              "given": "Kris",
+              "family": "De Jaegher"
+            },
+            {
+              "given": "Britta",
+              "family": "Hoyer"
+            }
+          ],
+          "issued": {
+            "date-parts": [
+              [
+                2019
+              ]
+            ]
+          },
+          "URL": "https://doi.org/10.1177/0022002717750450"
+        }
+      ]
+    }
+  },
+  "wikipedia": {
+    "query": {
+      "search": [
+        {
+          "title": "Protest",
+          "snippet": "A protest is a public expression of objection",
+          "pageid": 24925
+        }
+      ]
+    }
+  }
 }

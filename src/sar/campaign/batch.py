@@ -14,6 +14,7 @@ import json
 import logging
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
 from sar.campaign.schema import DATASET_COLUMNS, KEY_FIELDS
@@ -312,8 +313,11 @@ async def run_batch(
                 run_id=slug,
                 log_dir=output_root / slug,
             )
+            # The synthesizer reads the spec by attribute
+            # (campaign_spec.campaign_name, ...); a plain dict made every
+            # batch synthesis degrade to an empty "Synthesis failed" dossier.
             dossier = await run_campaign_pipeline(
-                campaign_spec=spec,
+                campaign_spec=SimpleNamespace(**spec),
                 config=config,
                 search_engine=search_engine,
                 llm=llm,

@@ -153,7 +153,11 @@ async def run(
         # Try tool calls first
         tool_calls = getattr(response, "tool_calls", []) or []
         for tc in tool_calls:
-            tc_name = getattr(tc, "tool_name", "")
+            # Real clients produce contracts.llm.ToolCall (attribute
+            # .name); some fakes carried .tool_name. Accept both --
+            # matching only .tool_name silently disabled this branch
+            # for every real backend.
+            tc_name = getattr(tc, "name", "") or getattr(tc, "tool_name", "")
             tc_args = getattr(tc, "arguments", {}) or {}
             if tc_name == "submit_scores":
                 score_entries = tc_args.get("scores", [])

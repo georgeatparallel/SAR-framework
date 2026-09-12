@@ -1,39 +1,85 @@
 {
-    "_comment": "Canned LLM responses for unit tests. TODO(tests): populate with realistic tool calls.",
-    "query_expander": {
-        "content": "[\"bots social media\", \"automated accounts Twitter\", \"bot detection collective action\"]",
-        "tool_calls": [],
-        "model": "gpt-4o-mini",
-        "input_tokens": 150,
-        "output_tokens": 40
+  "_comment": "Realistic canned LLM responses keyed by agent. Shapes match each agent's tool schema (see docs/PROMPTS.md).",
+  "query_expander": {
+    "tool_call": {
+      "name": "submit_queries",
+      "arguments": {
+        "queries": [
+          "protest repression severity democracies",
+          "police crowd control policy cross-national",
+          "dissent deterrence backlash empirical"
+        ]
+      }
     },
-    "analyzer_submit_report": {
-        "content": "",
-        "tool_calls": [
-            {
-                "tool_name": "submit_report",
-                "arguments": {
-                    "report": "TODO: sample Markdown report",
-                    "citations_used": ["https://example.com/1", "https://example.com/2"]
-                },
-                "call_id": "call_test_001"
-            }
-        ],
-        "model": "gpt-4o",
-        "input_tokens": 3000,
-        "output_tokens": 800
-    },
-    "reviewer_complete": {
-        "content": "",
-        "tool_calls": [
-            {
-                "tool_name": "mark_as_complete",
-                "arguments": {},
-                "call_id": "call_test_002"
-            }
-        ],
-        "model": "gpt-4o-mini",
-        "input_tokens": 1500,
-        "output_tokens": 20
+    "usage": {
+      "prompt_tokens": 150,
+      "completion_tokens": 40,
+      "total_tokens": 190
     }
+  },
+  "source_judge": {
+    "tool_call": {
+      "name": "submit_scores",
+      "arguments": {
+        "scores": [
+          {
+            "index": 0,
+            "score": 8.5,
+            "reason": "peer-reviewed, on topic"
+          },
+          {
+            "index": 1,
+            "score": 3.0,
+            "reason": "blog post, tangential"
+          }
+        ]
+      }
+    },
+    "usage": {
+      "prompt_tokens": 480,
+      "completion_tokens": 60,
+      "total_tokens": 540
+    }
+  },
+  "analyzer_submit_report": {
+    "tool_call": {
+      "name": "submit_report",
+      "arguments": {
+        "report_markdown": "# Findings\n\nRepression severity responds to incumbent stakes [Source 1].",
+        "cited_sources": [
+          "https://doi.org/10.1017/S0020818318000061"
+        ]
+      }
+    },
+    "usage": {
+      "prompt_tokens": 2100,
+      "completion_tokens": 350,
+      "total_tokens": 2450
+    }
+  },
+  "reviewer_complete": {
+    "tool_call": {
+      "name": "mark_as_complete",
+      "arguments": {}
+    },
+    "usage": {
+      "prompt_tokens": 900,
+      "completion_tokens": 12,
+      "total_tokens": 912
+    }
+  },
+  "codex_backend_handoff": {
+    "_comment": "What the codex CLI writes to the handoff file.",
+    "content": null,
+    "tool_calls": [
+      {
+        "name": "submit_queries",
+        "arguments": {
+          "queries": [
+            "protest repression nexus"
+          ]
+        }
+      }
+    ]
+  }
 }
