@@ -1,0 +1,21 @@
+{
+    "_comment": "Canned campaign specifications for unit tests. TODO(tests): populate with realistic examples.",
+    "euromaidan": {
+        "campaign_name": "Euromaidan",
+        "country": "Ukraine",
+        "year_start": 2013,
+        "year_end": 2014,
+        "region": "Post-Soviet",
+        "notes": "Focus on outcome, duration, repression level.",
+        "focus_fields": ["outcome", "duration_days", "repression_level"]
+    },
+    "umbrella_movement": {
+        "campaign_name": "Umbrella Movement",
+        "country": "Hong Kong",
+        "year_start": 2014,
+        "year_end": 2014,
+        "region": "East Asia",
+        "notes": "Focus on outcome and duration.",
+        "focus_fields": ["outcome", "duration_days"]
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "campaign_spec",
+    "title": "CampaignSpec",
+    "description": "Input specification for a campaign research run. TODO(schemas): auto-generate from Pydantic model.",
+    "type": "object",
+    "required": ["campaign_name", "country", "year_start"],
+    "properties": {
+        "campaign_name": {"type": "string", "description": "Human-readable campaign name."},
+        "country": {"type": "string", "description": "Country where the campaign occurred."},
+        "year_start": {"type": "integer", "description": "Start year."},
+        "year_end": {"type": ["integer", "null"], "default": null, "description": "End year."},
+        "region": {"type": "string", "default": "", "description": "Geographic region code."},
+        "notes": {"type": "string", "default": "", "description": "Free-text research guidance."},
+        "focus_fields": {"type": "array", "items": {"type": "string"}, "default": ["outcome", "duration_days", "repression_level"], "description": "Priority codebook fields."}
+    }
+}

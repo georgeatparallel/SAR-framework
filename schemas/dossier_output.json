@@ -1,0 +1,41 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "dossier_output",
+    "title": "CampaignDossier",
+    "description": "Complete output from a campaign research pipeline. TODO(schemas): auto-generate from Pydantic model.",
+    "type": "object",
+    "required": ["inclusion_memo", "coded_row"],
+    "properties": {
+        "inclusion_memo": {
+            "type": "object",
+            "properties": {
+                "campaign_name": {"type": "string"},
+                "country": {"type": "string"},
+                "included": {"type": "string", "enum": ["yes", "no"]},
+                "reason": {"type": "string"}
+            }
+        },
+        "coded_row": {
+            "type": "object",
+            "description": "Column name -> normalized value mapping. TODO(schemas): enumerate all 71 columns.",
+            "additionalProperties": {"type": "string"}
+        },
+        "evidence_log": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "field_name": {"type": "string"},
+                    "coded_value": {"type": "string"},
+                    "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+                    "source_type": {"type": "string"},
+                    "source_citation": {"type": "string"},
+                    "notes": {"type": "string"}
+                }
+            }
+        },
+        "uncertainty_note": {"type": "string"},
+        "report_markdown": {"type": "string"},
+        "citations_used": {"type": "array", "items": {"type": "string"}}
+    }
+}

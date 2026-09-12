@@ -1,0 +1,33 @@
+{
+    "_comment": "Canned search results for unit tests. TODO(tests): populate with realistic examples.",
+    "semantic_scholar": [
+        {
+            "title": "TODO: sample Semantic Scholar result",
+            "url": "https://api.semanticscholar.org/paper/abc123",
+            "snippet": "TODO: sample abstract",
+            "source": "semantic_scholar",
+            "doi": "10.1234/test.2024.001",
+            "year": 2024,
+            "authors": ["Author A", "Author B"],
+            "citation_count": 42,
+            "is_peer_reviewed": true,
+            "pdf_url": null,
+            "content": ""
+        }
+    ],
+    "brave": [
+        {
+            "title": "TODO: sample Brave web result",
+            "url": "https://example.com/article",
+            "snippet": "TODO: sample web snippet",
+            "source": "brave",
+            "doi": null,
+            "year": 2024,
+            "authors": [],
+            "citation_count": 0,
+            "is_peer_reviewed": false,
+            "pdf_url": null,
+            "content": ""
+        }
+    ]
+}

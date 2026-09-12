@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "pipeline_state",
+    "title": "PipelineState",
+    "description": "Full mutable state of a pipeline run. TODO(schemas): auto-generate from Pydantic model.",
+    "type": "object",
+    "required": ["run_id", "phase"],
+    "properties": {
+        "run_id": {"type": "string", "description": "Unique pipeline run identifier."},
+        "phase": {"type": "string", "enum": ["expand", "search", "judge", "read", "analyze", "review", "complete", "failed"], "description": "Current phase."},
+        "iteration": {"type": "integer", "default": 1, "description": "Current iteration (1-indexed)."},
+        "queries": {"type": "array", "items": {"type": "string"}, "default": [], "description": "Active search queries."},
+        "report": {"type": ["string", "null"], "default": null, "description": "Current report text."},
+        "feedback": {"type": ["string", "null"], "default": null, "description": "Reviewer feedback."}
+    }
+}

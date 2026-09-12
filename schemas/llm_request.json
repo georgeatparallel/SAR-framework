@@ -1,0 +1,110 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "llm_request",
+    "title": "LLMRequest",
+    "description": "Input to the LLM client. Encapsulates conversation, tools, and generation params.",
+    "type": "object",
+    "required": ["messages"],
+    "properties": {
+        "messages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["role", "content"],
+                "properties": {
+                    "role": {"type": "string", "enum": ["system", "user", "assistant", "tool"]},
+                    "content": {"type": "string"}
+                }
+            },
+            "description": "Conversation messages."
+        },
+        "tools": {
+            "type": ["array", "null"],
+            "items": {"$ref": "#/$defs/ToolDefinition"},
+            "default": null,
+            "description": "Tool schemas to expose to the LLM."
+        },
+        "tool_choice": {
+            "type": ["object", "null"],
+            "default": null,
+            "description": "Force a specific tool or 'auto'."
+        },
+        "model": {
+            "type": ["string", "null"],
+            "default": null,
+            "description": "Model identifier override."
+        },
+        "temperature": {
+            "type": "number",
+            "default": 0.3,
+            "description": "Sampling temperature."
+        },
+        "max_tokens": {
+            "type": "integer",
+            "default": 4096,
+            "description": "Maximum tokens to generate."
+        }
+    },
+    "$defs": {
+        "ToolDefinition": {
+            "type": "object",
+            "required": ["name", "description", "parameters"],
+            "properties": {
+                "name": {"type": "string", "description": "Function name the LLM will call."},
+                "description": {"type": "string", "description": "What the tool does."},
+                "parameters": {"type": "object", "description": "JSON Schema for the function's arguments."}
+            },
+            "description": "Schema for a callable tool exposed to the LLM."
+        },
+        "ToolCall": {
+            "type": "object",
+            "required": ["id", "name", "arguments"],
+            "properties": {
+                "id": {"type": "string", "description": "Provider-specific call identifier."},
+                "name": {"type": "string", "description": "Name of the function called."},
+                "arguments": {"type": "object", "description": "Parsed JSON arguments."}
+            },
+            "description": "A tool invocation parsed from the LLM's response."
+        },
+        "ToolResult": {
+            "type": "object",
+            "required": ["tool_call_id", "content"],
+            "properties": {
+                "tool_call_id": {"type": "string", "description": "The ToolCall id this responds to."},
+                "content": {"type": "string", "description": "Serialized result content."}
+            },
+            "description": "Result of executing a tool call."
+        },
+        "LLMResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": ["string", "null"],
+                    "default": null,
+                    "description": "Text content (may be null if tool_calls present)."
+                },
+                "tool_calls": {
+                    "type": "array",
+                    "items": {"$ref": "#/$defs/ToolCall"},
+                    "default": [],
+                    "description": "Tool invocations."
+                },
+                "model": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Model that served the request."
+                },
+                "usage": {
+                    "type": "object",
+                    "properties": {
+                        "prompt_tokens": {"type": "integer", "default": 0},
+                        "completion_tokens": {"type": "integer", "default": 0},
+                        "total_tokens": {"type": "integer", "default": 0}
+                    },
+                    "description": "Token usage breakdown."
+                }
+            },
+            "description": "Output from the LLM client."
+        }
+    }
+}
