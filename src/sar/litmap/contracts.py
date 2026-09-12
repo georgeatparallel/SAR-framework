@@ -54,11 +54,11 @@ class LitRecord(BaseModel):
     regime_context: str | None = None
     unit_and_data: str | None = None
     lineage: Lineage = "unrelated"
-    lineage_justification: str = ""
+    lineage_justification: str | None = None
     substantive_links: list[SubstantiveLink] = Field(default_factory=list)
     empirical_patterns: list[EmpiricalPattern] = Field(default_factory=list)
     could_support_gap: list[str] = Field(default_factory=list)
-    gap_justification: str = ""
+    gap_justification: str | None = None
     notable_quotes: list[NotableQuote] = Field(default_factory=list)
     confidence: str | None = None
     caveats: str | None = None

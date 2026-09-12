@@ -54,6 +54,11 @@ packages = ["src/sar"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+filterwarnings = [
+    # SubstantiveLink.construct is ontology vocabulary; it shadows pydantic's
+    # deprecated BaseModel.construct classmethod, which we never call.
+    'ignore:Field name "construct":UserWarning',
+]
 markers = [
     "slow: hits real external APIs (deselect with '-m not slow')",
     "live: spawns the real codex CLI (deselect with '-m not live')",
