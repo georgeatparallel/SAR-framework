@@ -33,12 +33,35 @@ and fail the join.
 
 ```bash
 SAR_LLM_BACKEND=codex python synthesize.py \
-    --map LITERATURE-MAP.json --out-dir out/
+    --map LITERATURE-MAP.json --gaps gaps.json --out-dir out/
 ```
 
 Drives the configured backend (local Codex CLI by default here; `--backend
 openai` behaves identically) through per-lineage syntheses and per-gap
 evidence digests, batched a few records per call.
+
+### `--gaps` is not optional in practice
+
+`--gaps` takes a JSON object mapping each gap id to the paper's actual
+claim text:
+
+```json
+{"INTRO-P4-S2": {"claim": "For democratic regimes, leaders do not command
+                           repressive bureaus to repress citizens in
+                           particular ways."}}
+```
+
+A bare string value works too. Without it the model sees only an opaque
+label such as `INTRO-P4-S2` and has to infer what the paper asserts. In the
+first live run of this example it inferred wrong on five gaps out of ten:
+asked about a principal-agent claim, it assessed whether the field is
+autocracy-focused. Every quote in those digests was genuine, and every
+verdict answered a question the paper had not asked.
+
+Undefined gaps are still processed, but the prompt tells the model the claim
+was unavailable and forbids guessing, the run reports them under
+`gaps_undefined`, and the markdown marks each one label-only. Treat that
+marker as "do not cite from this section."
 
 Every returned claim passes the provenance gate before acceptance:
 
@@ -49,7 +72,8 @@ Every returned claim passes the provenance gate before acceptance:
 A response that fails is retried once with the failures spelled out; claims
 that still fail are dropped and logged, never silently kept. The run writes:
 
-- `LITERATURE-MAP.md` — the human digest
+- `LITERATURE-MAP.md` — the human digest, each gap shown above its verdict
+  so a reader can check the verdict against the claim it judges
 - `LITERATURE-MAP-SYNTHESIS.json` — the typed output
 - `audit/<run-id>.jsonl` — one `llm_call` event per model call (with the
   codex response's recovery source), every provenance retry and drop, and

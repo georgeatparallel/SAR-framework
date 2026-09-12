@@ -19,6 +19,7 @@ FAKE_CODEX_MODE:
                    (uses FAKE_CODEX_STATE file as the attempt counter)
 FAKE_CODEX_PAYLOAD: JSON to hand back (default: {"content": "ok", "tool_calls": []})
 FAKE_CODEX_ARGS_LOG: when set, append argv (one JSON line) for assertion.
+FAKE_CODEX_PROMPT_LOG: when set, append each received prompt for assertion.
 """
 
 from __future__ import annotations
@@ -41,6 +42,11 @@ def _arg_value(argv: list[str], flag: str) -> str | None:
 def main() -> int:
     argv = sys.argv[1:]
     prompt = sys.stdin.read()
+
+    if os.environ.get("FAKE_CODEX_PROMPT_LOG"):
+        with open(os.environ["FAKE_CODEX_PROMPT_LOG"], "a",
+                  encoding="utf-8") as f:
+            f.write(prompt + "\n\n===PROMPT-BOUNDARY===\n\n")
 
     if os.environ.get("FAKE_CODEX_ARGS_LOG"):
         with open(os.environ["FAKE_CODEX_ARGS_LOG"], "a", encoding="utf-8") as f:

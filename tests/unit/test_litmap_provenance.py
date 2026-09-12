@@ -135,3 +135,31 @@ class TestProvenanceCheck:
             gap="TEST", claims=[Claim(text="x", file=record.file)],
         )])
         assert check_synthesis(output, lit_map) == []
+
+
+class TestGapDigestCarriesItsClaim:
+    """A verdict is only interpretable next to the claim it judged."""
+
+    def test_claim_defaults_empty_and_is_preserved(self):
+        from sar.litmap.contracts import GapDigest
+
+        bare = GapDigest(gap="INTRO-P4-S2")
+        assert bare.claim == "", (
+            "an unsupplied claim must be visibly empty, not invented")
+
+        text = ("For democratic regimes, leaders do not command repressive "
+                "bureaus to repress citizens in particular ways.")
+        full = GapDigest(gap="INTRO-P4-S2", claim=text, verdict="v")
+        assert full.claim == text
+        assert full.model_dump()["claim"] == text, (
+            "the claim must survive serialization into the deliverable")
+
+    def test_empty_claim_marks_a_label_only_digest(self):
+        from sar.litmap.contracts import GapDigest, SynthesisOutput
+
+        out = SynthesisOutput(gap_digests=[
+            GapDigest(gap="A", claim="a real claim", verdict="v"),
+            GapDigest(gap="B", verdict="v"),
+        ])
+        label_only = [d.gap for d in out.gap_digests if not d.claim]
+        assert label_only == ["B"]

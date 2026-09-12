@@ -8,9 +8,16 @@ quoted passage must be verbatim from that record's own quotes. Claims that
 fail the check are retried once with the failures spelled out, then dropped
 and logged. The audit JSONL is the provenance artifact for the whole run.
 
+A gap digest is only as good as the gap it is told to assess. Pass --gaps
+with a JSON object mapping each gap id to the paper's actual claim text; the
+model then judges evidence against the claim rather than guessing what an
+opaque label such as "INTRO-P4-S2" is supposed to mean. Gaps left undefined
+are assessed label-only and flagged in the audit log and the output.
+
 Usage:
     python synthesize.py --map LITERATURE-MAP.json --out-dir out/ \
-        [--backend codex|openai] [--model MODEL] [--batch-size 6]
+        [--gaps GAPS.json] [--backend codex|openai] [--model MODEL] \
+        [--batch-size 6]
 """
 
 from __future__ import annotations
@@ -24,13 +31,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
+from pydantic import ValidationError  # noqa: E402
+
 from sar.contracts.llm import LLMRequest  # noqa: E402
 from sar.litmap import LiteratureMap, SynthesisOutput, check_synthesis  # noqa: E402
 from sar.litmap.contracts import (  # noqa: E402
+    Claim,
     GapDigest,
     LineageSynthesis,
     LitRecord,
 )
+from sar.litmap.provenance import check_claim  # noqa: E402
 from sar.llm import LLMClientError, build_client  # noqa: E402
 from sar.llm.budget import BudgetTracker  # noqa: E402
 from sar.llm.metering import MeteredClient  # noqa: E402
@@ -56,7 +67,7 @@ Rules:
 
 GAP_CONTRACT = """\
 Reply with ONE JSON object and nothing else, shaped exactly like:
-{"verdict": "<2-4 sentences: does this evidence support the claim, and how directly>",
+{"verdict": "<2-4 sentences: does this evidence support THE CLAIM AS WRITTEN, and how directly>",
  "claims": [{"text": "...", "file": "...", "locator": "...", "quote": "..."}]}
 
 Rules as before: file copied exactly from a record; quote verbatim from that
@@ -106,11 +117,50 @@ def _chunk(items: list, size: int) -> list[list]:
     return [items[i:i + size] for i in range(0, len(items), size)]
 
 
+def _wellformed(payload: dict) -> list[dict]:
+    """Claim dicts from a payload that satisfy the Claim contract.
+
+    A model may omit a required field ("text" is the usual one). Validating
+    here keeps a malformed entry from raising out of synthesis assembly and
+    killing an otherwise good run.
+    """
+    out: list[dict] = []
+    for raw in (payload.get("claims") or []):
+        if not isinstance(raw, dict) or not raw.get("file"):
+            continue
+        try:
+            Claim.model_validate(raw)
+        except ValidationError:
+            continue
+        out.append(raw)
+    return out
+
+
+def _traces(raw: object, lit_map: LiteratureMap) -> bool:
+    """True when one raw claim dict is well-formed and traces into the map."""
+    if not isinstance(raw, dict) or not raw.get("file"):
+        return False
+    try:
+        claim = Claim.model_validate(raw)
+    except ValidationError:
+        return False
+    return not check_claim(claim, lit_map)
+
+
 async def synthesize(args) -> int:
     lit_map = LiteratureMap.model_validate(
         json.loads(Path(args.map).read_text()))
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    gap_claims: dict[str, str] = {}
+    if args.gaps:
+        raw_gaps = json.loads(Path(args.gaps).read_text())
+        for gid, val in raw_gaps.items():
+            # Accept {"id": "claim"} or {"id": {"claim": "..."}}.
+            text = val if isinstance(val, str) else (val or {}).get("claim", "")
+            if text:
+                gap_claims[gid] = " ".join(str(text).split())
 
     run_id = f"litmap-{uuid.uuid4().hex[:8]}"
     audit = AuditLog(run_id=run_id, log_dir=out_dir / "audit")
@@ -152,15 +202,18 @@ async def synthesize(args) -> int:
             probe = attach(payload, dry=True)
             problems = check_synthesis(probe, lit_map)
         if problems:
-            # Drop only the failing claims; keep the traceable remainder.
+            # Drop exactly the failing claims and keep the traceable
+            # remainder. Identify them by re-checking each claim, not by
+            # substring-matching the problem strings: a claim carrying no
+            # quote has "" as its needle, and "" is a substring of every
+            # problem, so string matching silently dropped every quoteless
+            # claim in the unit.
             audit.record("provenance_drop", {"unit": label,
                                              "problems": problems})
             dropped.extend(problems)
             payload["claims"] = [
-                c for c in payload.get("claims", [])
-                if not any(str(c.get("file")) in p or
-                           str(c.get("quote", ""))[:80] in p
-                           for p in problems)
+                c for c in (payload.get("claims") or [])
+                if _traces(c, lit_map)
             ]
         attach(payload, dry=False)
 
@@ -190,8 +243,7 @@ async def synthesize(args) -> int:
                 syn = LineageSynthesis(
                     lineage=lineage,
                     summary=str(payload.get("summary", "")),
-                    claims=[c for c in (payload.get("claims") or [])
-                            if isinstance(c, dict) and c.get("file")],
+                    claims=_wellformed(payload),
                 )
                 if dry:
                     return SynthesisOutput(lineage_syntheses=[syn])
@@ -201,27 +253,46 @@ async def synthesize(args) -> int:
             await checked(build_prompt, attach, f"{lineage}[{bi}]")
 
     # ---- per-gap digests ---------------------------------------------------
+    undefined_gaps: list[str] = []
     for gap, records in sorted(lit_map.by_gap().items()):
         views = json.dumps([_record_view(r) for r in records],
                            ensure_ascii=False, indent=1)
+        claim_text = gap_claims.get(gap, "")
+        if not claim_text:
+            undefined_gaps.append(gap)
+            audit.record("gap_undefined", {"gap": gap})
 
-        def build_prompt(problems, gap=gap, views=views):
+        def build_prompt(problems, gap=gap, views=views, claim=claim_text):
             fix = ""
             if problems:
                 fix = ("\nYour previous answer failed provenance checks:\n- "
                        + "\n- ".join(problems) + "\nCorrect these.\n")
-            return (
-                f"These records were flagged as possible support for an open "
-                f"citation gap labeled {gap} in the paper. Assess how directly "
-                f"the evidence supports that gap.\n\n"
-                f"RECORDS:\n{views}\n\n{fix}{GAP_CONTRACT}")
+            if claim:
+                head = (
+                    f"The paper makes this claim, and it is currently "
+                    f"uncited (gap {gap}):\n\n"
+                    f"    \u201c{claim}\u201d\n\n"
+                    f"The records below were flagged as possible support for "
+                    f"THAT CLAIM. Assess how directly they support it. Judge "
+                    f"the claim as written above; do not substitute a broader "
+                    f"or adjacent claim. If the records support something "
+                    f"near it but not it, say so explicitly.\n\n")
+            else:
+                head = (
+                    f"These records were flagged as possible support for an "
+                    f"open citation gap labeled {gap}. The claim text for "
+                    f"this gap was NOT supplied, so you do not know what it "
+                    f"asserts. Describe what the records do and do not "
+                    f"support, and state plainly that the gap text was "
+                    f"unavailable. Do not guess the claim.\n\n")
+            return f"{head}RECORDS:\n{views}\n\n{fix}{GAP_CONTRACT}"
 
-        def attach(payload, dry, gap=gap):
+        def attach(payload, dry, gap=gap, claim=claim_text):
             digest = GapDigest(
                 gap=gap,
+                claim=claim,
                 verdict=str(payload.get("verdict", "")),
-                claims=[c for c in (payload.get("claims") or [])
-                        if isinstance(c, dict) and c.get("file")],
+                claims=_wellformed(payload),
             )
             if dry:
                 return SynthesisOutput(gap_digests=[digest])
@@ -249,6 +320,8 @@ async def synthesize(args) -> int:
         "cost_usd": tracker.estimated_cost_usd,
         "dropped_claims": len(dropped),
         "skipped_units": skipped_units,
+        "gaps_defined": len(output.gap_digests) - len(undefined_gaps),
+        "gaps_undefined": undefined_gaps,
     })
     print(json.dumps({
         "run_id": run_id,
@@ -259,6 +332,8 @@ async def synthesize(args) -> int:
         + sum(len(d.claims) for d in output.gap_digests),
         "dropped_claims": len(dropped),
         "skipped_units": skipped_units,
+        "gaps_defined": len(output.gap_digests) - len(undefined_gaps),
+        "gaps_undefined": undefined_gaps,
         "audit_log": str(audit.log_path),
     }, indent=2))
     return 0
@@ -287,7 +362,14 @@ def _render_markdown(output, lit_map, path, run_id, tracker, dropped) -> None:
     if output.gap_digests:
         lines += ["## Evidence for the paper's open citation gaps", ""]
         for d in output.gap_digests:
-            lines += [f"### `{d.gap}`", "", d.verdict, ""]
+            lines += [f"### `{d.gap}`", ""]
+            if d.claim:
+                lines += [f"> {d.claim}", ""]
+            else:
+                lines += ["**Gap text was not supplied to the model; this "
+                          "verdict is label-only and should not be used as "
+                          "citation guidance.**", ""]
+            lines += [d.verdict, ""]
             for c in d.claims:
                 rec = by_file.get(c.file)
                 title = (rec.bibliographic.title if rec else None) or c.file
@@ -301,6 +383,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--map", required=True)
     ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--gaps", default=None,
+                    help="JSON mapping gap id -> the paper's claim text")
     ap.add_argument("--backend", default=None, choices=["openai", "codex"])
     ap.add_argument("--model", default=None)
     ap.add_argument("--batch-size", type=int, default=6)

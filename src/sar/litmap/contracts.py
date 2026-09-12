@@ -111,7 +111,15 @@ class LineageSynthesis(BaseModel):
 
 
 class GapDigest(BaseModel):
+    """One gap's evidence digest.
+
+    ``claim`` is the paper's actual uncited sentence. It is what the verdict
+    must be judged against; an empty ``claim`` means the digest was produced
+    label-only and its verdict is not trustworthy as guidance.
+    """
+
     gap: str
+    claim: str = ""
     verdict: str = ""
     claims: list[Claim] = Field(default_factory=list)
 

@@ -16,6 +16,22 @@ generation is retired at tag `v1-flask-gemini` (see `docs/MIGRATION.md`).
 
 ### Fixed
 
+- The literature-map example asked the model to assess each citation gap by
+  its bare identifier (`INTRO-P4-S2`) and never sent the paper's claim text,
+  so the model inferred what the gap asserted. In the first live acceptance
+  run it inferred wrong on five gaps out of ten, producing verdicts that were
+  fully provenance-clean and answered the wrong question. `synthesize.py`
+  now takes `--gaps`, the digest carries the claim it judged, and a gap left
+  undefined is declared as such in the prompt, the run summary, the audit log
+  and the rendered markdown rather than guessed at.
+- Claims that failed the provenance gate were identified by substring-matching
+  the problem strings. A claim carrying no quote used `""` as its needle, and
+  `""` is a substring of every string, so one fabricated claim caused every
+  quoteless claim in the same unit to be dropped with it. Failing claims are
+  now identified by re-checking each claim.
+- A claim dict missing a required field raised `ValidationError` out of
+  synthesis assembly and aborted the whole run; malformed claims are now
+  discarded like any other unusable output.
 - Three agents matched tool calls on a `tool_name` attribute that the real
   clients' `ToolCall` contract does not have, so with any real backend the
   tool-call branch never fired and parsing always fell back to free text.
