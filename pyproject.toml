@@ -1,38 +1,62 @@
 [project]
 name = "agentic-sar"
-version = "2.0.0-dev"
-description = "Multi-agent research orchestration system with typed contracts and deterministic cycles."
+version = "2.0.0"
+description = "Literature search and extraction whose every field cites the document it came from."
+readme = "README.md"
+license = { text = "MIT" }
 requires-python = ">=3.11"
+authors = [{ name = "Ignacio Urbina", email = "ignacio.urbina@stonybrook.edu" }]
+keywords = ["research", "literature-review", "citations", "agents", "provenance"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+# Kept deliberately small. A user who only wants extraction and citation
+# checking should not download a browser engine.
 dependencies = [
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
     "httpx>=0.27",
-    "openai>=1.0",
-    "beautifulsoup4>=4.12",
-    "lxml>=5.0",
-    "playwright>=1.40",
-    "PyMuPDF>=1.24",
     "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]
+openai = ["openai>=1.0"]
+scrape = ["beautifulsoup4>=4.12", "lxml>=5.0", "playwright>=1.40"]
+pdf = ["PyMuPDF>=1.24"]
+web = ["fastapi>=0.110", "uvicorn>=0.29", "sse-starlette>=2.0"]
+all = ["agentic-sar[openai,scrape,pdf,web]"]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "pytest-cov>=5.0",
     "ruff>=0.4",
 ]
-web = [
-    "fastapi>=0.110",
-    "uvicorn>=0.29",
-    "sse-starlette>=2.0",
-]
+
+[project.urls]
+Homepage = "https://github.com/ignaciourbina/agentic-sar"
+Issues = "https://github.com/ignaciourbina/agentic-sar/issues"
+
+[project.scripts]
+sar = "sar.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sar"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 markers = [
     "slow: hits real external APIs (deselect with '-m not slow')",
+    "live: spawns the real codex CLI (deselect with '-m not live')",
 ]
 
 [tool.ruff]

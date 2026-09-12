@@ -29,10 +29,11 @@ from dotenv import load_dotenv
 
 
 def _load_env() -> None:
-    """Load .env adjacent to this CLI's project root before importing sar."""
-    # cli/campaign.py → tools/agentic_sar_v2/src/cli/campaign.py
-    project_root = Path(__file__).resolve().parents[2]
-    load_dotenv(project_root / ".env")
+    # Installed package: honour the invoking directory's .env first. The
+    # source-tree fallback (four levels up from src/sar/cli/) supports
+    # running from a checkout without an install.
+    if not load_dotenv(Path.cwd() / ".env"):
+        load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -51,6 +52,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--region", default="")
     p.add_argument("--notes", default="")
     p.add_argument("--save-dir", default="")
+    p.add_argument("--backend", default=None, choices=["openai", "codex"],
+                   help="LLM backend (default: $SAR_LLM_BACKEND, else openai).")
+    p.add_argument("--model", default=None,
+                   help="Model identifier override for the chosen backend.")
     p.add_argument("--focus-fields", default="",
                    help="Comma-separated codebook fields to prioritise.")
     return p
@@ -80,6 +85,9 @@ def _build_search_engine(config):
         ArxivBackend(),
         PubMedBackend(),
     ]
+    from sar.cli import keyed_backends
+
+    backends.extend(keyed_backends(config))
     return SearchEngine(backends=backends)
 
 
@@ -138,8 +146,8 @@ async def main(args: argparse.Namespace) -> int:
 
     from sar.config import AppConfig
     from sar.contracts.campaign import CampaignSpec
+    from sar.cli import build_llm
     from sar.events import EventBus
-    from sar.llm.client import OpenAIClient
     from sar.orchestrator.runner import run_campaign_pipeline
     from sar.persistence.audit import AuditLog
 
@@ -166,10 +174,7 @@ async def main(args: argparse.Namespace) -> int:
     run_id = f"campaign-{campaign_id}-{uuid.uuid4().hex[:8]}"
     audit_log = AuditLog(run_id=run_id, log_dir=config.AUDIT_LOG_DIR)
 
-    llm = OpenAIClient(
-        api_key=config.OPENAI_API_KEY,
-        default_model=config.OPENAI_MODEL_FAST,
-    )
+    llm = build_llm(config, args.backend, args.model)
     search_engine = _build_search_engine(config)
     event_bus = EventBus()
 

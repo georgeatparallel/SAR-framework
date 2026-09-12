@@ -24,8 +24,11 @@ from dotenv import load_dotenv
 
 
 def _load_env() -> None:
-    project_root = Path(__file__).resolve().parents[2]
-    load_dotenv(project_root / ".env")
+    # Installed package: honour the invoking directory's .env first. The
+    # source-tree fallback (four levels up from src/sar/cli/) supports
+    # running from a checkout without an install.
+    if not load_dotenv(Path.cwd() / ".env"):
+        load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,10 +47,14 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Override AppConfig.MAX_ITERATIONS.")
     p.add_argument("--backends", default="",
                    help="Comma-separated backend names (default: all keyless).")
+    p.add_argument("--backend", default=None, choices=["openai", "codex"],
+                   help="LLM backend (default: $SAR_LLM_BACKEND, else openai).")
+    p.add_argument("--model", default=None,
+                   help="Model identifier override for the chosen backend.")
     return p
 
 
-def _build_search_engine(backend_names: list[str] | None):
+def _build_search_engine(backend_names: list[str] | None, config=None):
     from sar.search.engine import SearchEngine
     from sar.search.backends import (
         ArxivBackend,
@@ -70,6 +77,10 @@ def _build_search_engine(backend_names: list[str] | None):
         backends = [available[n]() for n in backend_names if n in available]
     else:
         backends = [cls() for cls in available.values()]
+    if config is not None and not backend_names:
+        from sar.cli import keyed_backends
+
+        backends.extend(keyed_backends(config))
     return SearchEngine(backends=backends)
 
 
@@ -96,9 +107,9 @@ async def main(args: argparse.Namespace) -> int:
     """Run the research pipeline with the given arguments."""
     _load_env()
 
+    from sar.cli import build_llm
     from sar.config import AppConfig
     from sar.events import EventBus
-    from sar.llm.client import OpenAIClient
     from sar.orchestrator.runner import run_pipeline
     from sar.persistence.audit import AuditLog
 
@@ -116,11 +127,8 @@ async def main(args: argparse.Namespace) -> int:
             pass
 
     backend_names = [b.strip() for b in args.backends.split(",") if b.strip()]
-    search_engine = _build_search_engine(backend_names or None)
-    llm = OpenAIClient(
-        api_key=config.OPENAI_API_KEY,
-        default_model=config.OPENAI_MODEL_FAST,
-    )
+    search_engine = _build_search_engine(backend_names or None, config)
+    llm = build_llm(config, args.backend, args.model)
 
     run_id = f"research-{uuid.uuid4().hex[:8]}"
     audit_log = AuditLog(run_id=run_id, log_dir=config.AUDIT_LOG_DIR)
@@ -152,7 +160,7 @@ async def main(args: argparse.Namespace) -> int:
 
     summary = {
         "run_id": run_id,
-        "iterations": getattr(result, "iteration", None),
+        "iterations": getattr(result, "iterations_used", None),
         "summaries": len(getattr(result, "summaries", []) or []),
         "audit_log": str(audit_log.log_path),
     }

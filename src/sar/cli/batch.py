@@ -28,8 +28,11 @@ from dotenv import load_dotenv
 
 
 def _load_env() -> None:
-    project_root = Path(__file__).resolve().parents[2]
-    load_dotenv(project_root / ".env")
+    # Installed package: honour the invoking directory's .env first. The
+    # source-tree fallback (four levels up from src/sar/cli/) supports
+    # running from a checkout without an install.
+    if not load_dotenv(Path.cwd() / ".env"):
+        load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -48,6 +51,10 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Max campaigns to process after filters.")
     p.add_argument("--offset", type=int, default=0,
                    help="Skip this many campaigns before starting.")
+    p.add_argument("--backend", default=None, choices=["openai", "codex"],
+                   help="LLM backend (default: $SAR_LLM_BACKEND, else openai).")
+    p.add_argument("--model", default=None,
+                   help="Model identifier override for the chosen backend.")
     p.add_argument("--overwrite", action="store_true",
                    help="Re-run even if output exists.")
     p.add_argument("--dry-run", action="store_true",
@@ -57,7 +64,7 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def _build_search_engine():
+def _build_search_engine(config=None):
     from sar.search.engine import SearchEngine
     from sar.search.backends import (
         ArxivBackend,
@@ -67,14 +74,19 @@ def _build_search_engine():
         SemanticScholarBackend,
         WikipediaBackend,
     )
-    return SearchEngine(backends=[
+    backends = [
         DuckDuckGoBackend(),
         WikipediaBackend(),
         CrossRefBackend(),
         SemanticScholarBackend(),
         ArxivBackend(),
         PubMedBackend(),
-    ])
+    ]
+    if config is not None:
+        from sar.cli import keyed_backends
+
+        backends.extend(keyed_backends(config))
+    return SearchEngine(backends=backends)
 
 
 def _dry_run_list(dataset_path: Path, slug: str, country: str,
@@ -131,7 +143,7 @@ async def main(args: argparse.Namespace) -> int:
 
     from sar.config import AppConfig
     from sar.campaign.batch import run_batch
-    from sar.llm.client import OpenAIClient
+    from sar.cli import build_llm
 
     try:
         config = AppConfig()
@@ -139,11 +151,8 @@ async def main(args: argparse.Namespace) -> int:
         print(f"Failed to load AppConfig: {exc}", file=sys.stderr)
         return 1
 
-    llm = OpenAIClient(
-        api_key=config.OPENAI_API_KEY,
-        default_model=config.OPENAI_MODEL_FAST,
-    )
-    search_engine = _build_search_engine()
+    llm = build_llm(config, args.backend, args.model)
+    search_engine = _build_search_engine(config)
 
     manifest = await run_batch(
         dataset_path=dataset_path,

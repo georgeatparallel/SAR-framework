@@ -45,7 +45,9 @@ class AppConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="SAR_")
 
     # --- API keys ---
-    OPENAI_API_KEY: str
+    # Optional so that codex-backend runs need no key; build_client() raises
+    # a clear error if the openai backend is selected without one.
+    OPENAI_API_KEY: str = ""
     BRAVE_API_KEY: str = ""
     SEMANTIC_SCHOLAR_API_KEY: str = ""
     UNPAYWALL_EMAIL: str = ""
