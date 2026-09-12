@@ -108,6 +108,33 @@ def test_synthesize_end_to_end_offline(tmp_path, fake_codex_env):
                for e in llm_events)
 
 
+def test_synthesize_accepts_unwrapped_handoff(tmp_path, fake_codex_env):
+    # A model may write the requested object as the handoff root instead of
+    # wrapping it under "content"; the pipeline must still use it.
+    lit_map = tmp_path / "MAP.json"
+    subprocess.run(
+        [sys.executable, str(EXAMPLES / "join.py"),
+         "--batches", str(FIXTURES / "litmap"), "--out", str(lit_map)],
+        check=True, capture_output=True, timeout=60,
+    )
+    a_real_file = json.loads(lit_map.read_text())["records"][0]["file"]
+    fake_codex_env["FAKE_CODEX_PAYLOAD"] = json.dumps({
+        "summary": "Unwrapped synthesis.", "verdict": "Unwrapped verdict.",
+        "claims": [{"text": "traceable", "file": a_real_file}],
+    })
+    out_dir = tmp_path / "out"
+    proc = subprocess.run(
+        [sys.executable, str(EXAMPLES / "synthesize.py"),
+         "--map", str(lit_map), "--out-dir", str(out_dir),
+         "--backend", "codex"],
+        capture_output=True, text=True, env=fake_codex_env, timeout=300,
+    )
+    assert proc.returncode == 0, proc.stderr
+    summary = json.loads(proc.stdout)
+    assert summary["claims_total"] > 0
+    assert summary["dropped_claims"] == 0
+
+
 def test_synthesize_drops_fabricated_claims(tmp_path, fake_codex_env):
     lit_map = tmp_path / "MAP.json"
     subprocess.run(

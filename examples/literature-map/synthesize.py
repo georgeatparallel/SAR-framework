@@ -86,11 +86,19 @@ async def _ask(llm, prompt: str) -> dict:
         messages=[{"role": "user", "content": prompt}]))
     if resp.content:
         try:
-            return json.loads(resp.content)
+            parsed = json.loads(resp.content)
+            if isinstance(parsed, dict):
+                return parsed
         except json.JSONDecodeError:
             pass
-    # Codex backend may hand structure back via tool_calls-free content only;
-    # anything unparseable is treated as empty.
+    # Codex handoff tolerance: a model may write the requested object as the
+    # handoff root instead of wrapping it in "content". The raw payload is
+    # preserved on the response; accept it when it carries our keys, so a
+    # well-formed answer in the wrong envelope is not silently discarded.
+    raw = (resp.raw or {}).get("payload")
+    if isinstance(raw, dict) and ("claims" in raw or "summary" in raw
+                                  or "verdict" in raw):
+        return raw
     return {}
 
 
