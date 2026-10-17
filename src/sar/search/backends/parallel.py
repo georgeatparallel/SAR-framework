@@ -24,6 +24,8 @@ _TIMEOUT = 30.0
 
 
 class _WebResult(BaseModel):
+    """Validate the fields consumed from one Parallel source."""
+
     url: str
     title: str | None = None
     excerpts: list[str]
@@ -31,6 +33,8 @@ class _WebResult(BaseModel):
 
 
 class _SearchPayload(BaseModel):
+    """Require a typed results list before crossing the backend boundary."""
+
     results: list[_WebResult]
 
 
@@ -51,6 +55,7 @@ class ParallelBackend:
 
     @asynccontextmanager
     async def _session(self) -> AsyncIterator[ClientSession]:
+        """Open an anonymous MCP session with bounded lifetime and cleanup."""
         try:
             from mcp import ClientSession
             from mcp.client.streamable_http import streamable_http_client

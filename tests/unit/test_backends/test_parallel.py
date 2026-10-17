@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Awaitable, Callable
 
 import httpx
 import pytest
@@ -26,11 +27,19 @@ _PAYLOAD = {"results": [
 ]}
 
 
-def install_server(monkeypatch, *, payload=None, error=False, sse=False, call_handler=None):
+def _install_server(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    payload: dict[str, object] | None = None,
+    error: bool = False,
+    sse: bool = False,
+    call_handler: Callable[[httpx.Request], Awaitable[httpx.Response]] | None = None,
+) -> list[httpx.Request]:
     """Keep SDK serialization/transport intact and replace only HTTP I/O."""
     requests = []
 
-    async def handler(request):
+    async def handler(request: httpx.Request) -> httpx.Response:
+        """Validate outbound requests and serve MCP protocol responses."""
         requests.append(request)
         assert str(request.url) == "https://search.parallel.ai/mcp"
         assert request.headers["user-agent"] == module._USER_AGENT
@@ -64,7 +73,8 @@ def install_server(monkeypatch, *, payload=None, error=False, sse=False, call_ha
                                   text=f"event: message\ndata: {json.dumps(response)}\n\n")
         return httpx.Response(200, json=response)
 
-    def factory(*args, **kwargs):
+    def factory(*args: object, **kwargs: object) -> httpx.AsyncClient:
+        """Keep the real client and bind only its transport to the test server."""
         kwargs["transport"] = httpx.MockTransport(handler)
         return _CLIENT(*args, **kwargs)
 
@@ -73,8 +83,22 @@ def install_server(monkeypatch, *, payload=None, error=False, sse=False, call_ha
 
 
 @pytest.mark.parametrize("sse", [False, True])
-async def test_cli_to_search_engine_normalizes_and_deduplicates(monkeypatch, sse):
-    requests = install_server(monkeypatch, sse=sse)
+async def test_cli_to_search_engine_normalizes_and_deduplicates(
+    monkeypatch: pytest.MonkeyPatch, sse: bool,
+) -> None:
+    """Verify CLI selection, request identity and downstream source handling.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+        sse: Whether the server responds using SSE instead of JSON.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If the caller or normalized search output is incorrect.
+    """
+    requests = _install_server(monkeypatch, sse=sse)
     engine = _build_search_engine(["parallel"])
     response = await engine.search(SearchRequest(query="protest mobilization evidence", limit=3))
     assert response.backends_queried == ["parallel"]
@@ -102,8 +126,19 @@ async def test_cli_to_search_engine_normalizes_and_deduplicates(monkeypatch, sse
     assert calls[1]["arguments"]["session_id"] == args["session_id"]
 
 
-async def test_local_limit_and_academic_filter(monkeypatch):
-    install_server(monkeypatch)
+async def test_local_limit_and_academic_filter(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Verify local result limits and exclusion from academic-only output.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If limits or academic filtering are not preserved.
+    """
+    _install_server(monkeypatch)
     engine = _build_search_engine(["parallel"])
     response = await engine.search(SearchRequest(query="evidence", limit=1))
     assert len(response.results) == 1
@@ -112,15 +147,40 @@ async def test_local_limit_and_academic_filter(monkeypatch):
     assert response.backends_failed == []
 
 
-async def test_zero_limit_does_not_connect(monkeypatch):
-    requests = install_server(monkeypatch)
+async def test_zero_limit_does_not_connect(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Avoid a network request when no results are requested.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If a zero limit sends a request or returns results.
+    """
+    requests = _install_server(monkeypatch)
     assert await ParallelBackend().search("evidence", limit=0) == []
     assert requests == []
 
 
 @pytest.mark.parametrize("payload", [{"results": []}, {"results": [], "warnings": []}])
-async def test_empty_success(monkeypatch, payload):
-    install_server(monkeypatch, payload=payload)
+async def test_empty_success(
+    monkeypatch: pytest.MonkeyPatch, payload: dict[str, object],
+) -> None:
+    """Distinguish a successful empty search from a backend failure.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+        payload: Valid empty search response.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If an empty success is reported as a failure.
+    """
+    _install_server(monkeypatch, payload=payload)
     response = await _build_search_engine(["parallel"]).search(SearchRequest(query="evidence"))
     assert response.results == []
     assert response.backends_queried == ["parallel"]
@@ -129,50 +189,104 @@ async def test_empty_success(monkeypatch, payload):
 
 @pytest.mark.parametrize("payload,error", [({}, False), ({"results": "bad"}, False),
                                            ({"error": "quota exceeded"}, True)])
-async def test_invalid_or_tool_error_is_recorded_as_failure(monkeypatch, payload, error):
-    install_server(monkeypatch, payload=payload, error=error)
+async def test_invalid_or_tool_error_is_recorded_as_failure(
+    monkeypatch: pytest.MonkeyPatch, payload: dict[str, object], error: bool,
+) -> None:
+    """Keep malformed data and MCP tool errors visible as backend failures.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+        payload: Invalid response or error details.
+        error: Whether the MCP result explicitly reports an error.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If a failed response is treated as an empty success.
+    """
+    _install_server(monkeypatch, payload=payload, error=error)
     response = await _build_search_engine(["parallel"]).search(SearchRequest(query="evidence"))
     assert response.results == []
     assert response.backends_queried == []
     assert response.backends_failed == ["parallel"]
 
 
-async def test_http_error_is_recorded_as_failure(monkeypatch):
-    async def failed(request):
+async def test_http_error_is_recorded_as_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Report service unavailability through the engine failure contract.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If HTTP errors are not recorded against Parallel.
+    """
+    async def failed(request: httpx.Request) -> httpx.Response:
+        """Return a service-unavailable response at the actual HTTP boundary."""
         return httpx.Response(503)
 
-    install_server(monkeypatch, call_handler=failed)
+    _install_server(monkeypatch, call_handler=failed)
     response = await _build_search_engine(["parallel"]).search(SearchRequest(query="evidence"))
     assert response.backends_failed == ["parallel"]
 
 
-async def test_timeout_is_recorded_and_transport_closes(monkeypatch):
+async def test_timeout_is_recorded_and_transport_closes(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Bound a stalled search and release its pending transport work.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O and shortening the deadline.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If the timeout is lost or transport work is left pending.
+    """
     stopped = asyncio.Event()
 
-    async def pending(request):
+    async def pending(request: httpx.Request) -> httpx.Response:
+        """Wait until cancellation and record that transport cleanup occurred."""
         try:
             await asyncio.Event().wait()
         finally:
             stopped.set()
 
-    install_server(monkeypatch, call_handler=pending)
+    _install_server(monkeypatch, call_handler=pending)
     monkeypatch.setattr(module, "_TIMEOUT", 0.05)
     response = await _build_search_engine(["parallel"]).search(SearchRequest(query="evidence"))
     assert response.backends_failed == ["parallel"]
     assert stopped.is_set()
 
 
-async def test_cancellation_propagates_and_transport_closes(monkeypatch):
+async def test_cancellation_propagates_and_transport_closes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Preserve caller cancellation and release transport work.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If cancellation is swallowed or cleanup is skipped.
+        TimeoutError: If the test request never reaches the transport.
+    """
     started, stopped = asyncio.Event(), asyncio.Event()
 
-    async def pending(request):
+    async def pending(request: httpx.Request) -> httpx.Response:
+        """Signal request entry and record cleanup when the caller cancels."""
         started.set()
         try:
             await asyncio.Event().wait()
         finally:
             stopped.set()
 
-    install_server(monkeypatch, call_handler=pending)
+    _install_server(monkeypatch, call_handler=pending)
     task = asyncio.create_task(
         _build_search_engine(["parallel"]).search(SearchRequest(query="evidence"))
     )
@@ -183,13 +297,32 @@ async def test_cancellation_propagates_and_transport_closes(monkeypatch):
     assert stopped.is_set()
 
 
-async def test_healthcheck_discovers_without_search(monkeypatch):
-    requests = install_server(monkeypatch)
+async def test_healthcheck_discovers_without_search(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Discover search availability without spending a search call.
+
+    Args:
+        monkeypatch: Fixture for isolating HTTP I/O.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If discovery fails or performs a search.
+    """
+    requests = _install_server(monkeypatch)
     assert await ParallelBackend().healthcheck() is True
     assert not any(b'"tools/call"' in r.content for r in requests)
 
 
-def test_default_and_explicit_backend_choices_are_unchanged():
+def test_default_and_explicit_backend_choices_are_unchanged() -> None:
+    """Preserve default registrations and honor explicit backend choices.
+
+    Returns:
+        None.
+
+    Raises:
+        AssertionError: If Parallel enters defaults or replaces a chosen backend.
+    """
     names = [b.name for b in _build_search_engine(None)._backends]
     assert names == ["duckduckgo", "wikipedia", "crossref", "semantic_scholar", "arxiv", "pubmed"]
     assert [b.name for b in _build_search_engine(["crossref"])._backends] == ["crossref"]
