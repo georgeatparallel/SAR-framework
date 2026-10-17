@@ -73,6 +73,26 @@ sar doctor      # checks binaries, keys, and optional deps
 sar research "your question" --output report.md
 ```
 
+### Optional Parallel web search
+
+[Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp)
+provides free web search in Fast mode without an account or API key. Install
+the optional dependency and select it for a research run:
+
+```bash
+pip install -e ".[parallel]"
+sar research "recent evidence on protest mobilization" --backends parallel
+```
+
+To combine it with academic search, use `--backends crossref,parallel`. Parallel
+returns source URLs and relevant excerpts, which SAR passes to its existing
+judging and reading stages as web results. The result limit is applied locally;
+the MCP server controls how many results it returns. Anonymous use has rate
+limits, and a failed request is recorded in `backends_failed` by the search
+engine. Model access is still configured through your chosen LLM backend.
+Installing the extra does not change the default search backends. This option
+applies to `sar research`; campaign and batch searches retain their current setup.
+
 ## Documentation
 
 - `docs/PROMPTS.md` — every agent's actual system prompt and tool contract

@@ -73,6 +73,11 @@ def _build_search_engine(backend_names: list[str] | None, config=None):
         "arxiv": ArxivBackend,
         "pubmed": PubMedBackend,
     }
+    # Keep optional providers out of the default fan-out, even when installed.
+    if backend_names and "parallel" in backend_names:
+        from sar.search.backends import ParallelBackend
+
+        available["parallel"] = ParallelBackend
     if backend_names:
         backends = [available[n]() for n in backend_names if n in available]
     else:

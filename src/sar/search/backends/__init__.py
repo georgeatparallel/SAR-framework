@@ -12,6 +12,7 @@ Available backends:
 - brave: Brave Search API (free tier, needs API key)
 - duckduckgo: DuckDuckGo search via duckduckgo_search library (free, no key, fallback)
 - wikipedia: Wikipedia API (free, no key)
+- parallel: Parallel Search MCP (opt-in, no key, requires the parallel extra)
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ _BACKENDS = {
     "BraveBackend": "brave",
     "CrossRefBackend": "crossref",
     "DuckDuckGoBackend": "duckduckgo",
+    "ParallelBackend": "parallel",
     "PubMedBackend": "pubmed",
     "SemanticScholarBackend": "semantic_scholar",
     "UnpaywallBackend": "unpaywall",
@@ -38,6 +40,7 @@ __all__ = [
     "BraveBackend",
     "CrossRefBackend",
     "DuckDuckGoBackend",
+    "ParallelBackend",
     "PubMedBackend",
     "SearchBackend",
     "SemanticScholarBackend",
